@@ -1,4 +1,4 @@
-function [negLogLike, resStruct] = modifiedFilter(Z, D1, D2, A, C, R)
+function [negLogLike, resStruct] = modifiedFilter(Z, D1, D2, A, C, R, a00, P00)
 %MODIFIEDFILTER Nimark's (2015) modified Kalman filter for SSMwLS
 % Purpose
 %        The function computes Nimark's (2015) modified Kalman filter for
@@ -70,9 +70,8 @@ resStruct.K       = nan(dimState, dimObs, nObs);
 resStruct.U       = nan(dimState, dimObs, nObs);
 
 % initialize filter
-% [a_t_t, P_t_t] = initializeSSM(A, C, dimState);
-a_t_t = zeros(dimState, 1);
-P_t_t = 1*eye(dimState, dimState);
+a_t_t = a00;
+P_t_t = P00;
 
 negLogLike = 0;
 
