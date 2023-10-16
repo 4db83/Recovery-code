@@ -1,4 +1,4 @@
-function [negLogLike, resStruct] = modifiedFilter(Z, D1, D2, A, C, R, a00, P00)
+function [negLogLike, resStruct] = Kurz_Filter(Z, D1, D2, R, A, C, a00, P00)
 %MODIFIEDFILTER Nimark's (2015) modified Kalman filter for SSMwLS
 % Purpose
 %        The function computes Nimark's (2015) modified Kalman filter for
@@ -32,9 +32,9 @@ function [negLogLike, resStruct] = modifiedFilter(Z, D1, D2, A, C, R, a00, P00)
 %      negLogLike = The negative log-likelihood
 %      resStruct  = A structure containing
 %                       Z_tilde Errors
-%                       a_t_t   Filtered states
-%                       P_t_t   Filtered variances
-%                       P_t_tp1 One-step ahead predictors of the variances
+%                       att   Filtered states
+%                       Ptt   Filtered variances
+%                       Pttp1 One-step ahead predictors of the variances
 %                       Finv    Second term of the Kalman gain
 %                       K       Kalman gain
 %                       U       First term of the Kalman gain
@@ -55,44 +55,43 @@ function [negLogLike, resStruct] = modifiedFilter(Z, D1, D2, A, C, R, a00, P00)
 assert(size(Z,2) == dimObs)
 nObs = size(Z,1);
 
-
 D_tilde = (D1*A +D2);
 CC = C * C';
 
 % intialize struct for the results
 resStruct         = struct();
 resStruct.Z_tilde = nan(nObs, dimObs);
-resStruct.a_t_t   = nan(nObs, dimState);
-resStruct.P_t_t   = nan(dimState, dimState, nObs);
+resStruct.att     = nan(nObs, dimState);
+resStruct.Ptt     = nan(dimState, dimState, nObs);
 resStruct.P_tp1_t = nan(dimState, dimState, nObs);
 resStruct.Finv    = nan(dimObs, dimObs, nObs);
 resStruct.K       = nan(dimState, dimObs, nObs);
 resStruct.U       = nan(dimState, dimObs, nObs);
 
 % initialize filter
-a_t_t = a00;
-P_t_t = P00;
+att = a00;
+Ptt = P00;
 
 negLogLike = 0;
 
 for iObs = 1:nObs
     
-    Z_tilde = Z(iObs, :)' - D_tilde*a_t_t;
-    U = A * P_t_t * D_tilde' + CC * D1' + C * R';
-    F = D_tilde * P_t_t * D_tilde' + (D1 * C + R) * (D1 * C + R)';
+    Z_tilde = Z(iObs, :)' - D_tilde*att;
+    U = A * Ptt * D_tilde' + CC * D1' + C * R';
+    F = D_tilde * Ptt * D_tilde' + (D1 * C + R) * (D1 * C + R)';
     
     Finv = eye(size(F)) / F;
     % Finv = pinv(F);
     K = U * Finv;
     
-    a_t_t = A * a_t_t + K * Z_tilde;
-    P_t_t = A * P_t_t * A' + CC - K*F*K';
+    att = A * att + K * Z_tilde;
+    Ptt = A * Ptt * A' + CC - K*F*K';
     
-    P_tp1_t = A * P_t_t * A' + CC;
+    P_tp1_t = A * Ptt * A' + CC;
     
     resStruct.Z_tilde(iObs,:)   = Z_tilde;
-    resStruct.a_t_t(iObs,:)     = a_t_t;
-    resStruct.P_t_t(:,:,iObs)   = P_t_t;
+    resStruct.att(iObs,:)     = att;
+    resStruct.Ptt(:,:,iObs)   = Ptt;
     resStruct.P_tp1_t(:,:,iObs) = P_tp1_t;
     resStruct.Finv(:,:,iObs)    = Finv;
     resStruct.K(:,:,iObs)       = K;

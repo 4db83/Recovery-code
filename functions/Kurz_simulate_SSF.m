@@ -1,8 +1,8 @@
-function [Zt,Xt] = Kurz_simulate_SSF(D1,D2,R,A,C,dimZ,dimX,dimR,TT)
+function [Zt,Xt] = Kurz_simulate_SSF(D1, D2, R, A, C, dim_Z, dim_X, dim_R, TT)
 % Simulate from Kurz SSF
-  Xt = zeros(dimX,TT);  % states initialized at 0;
-  Zt = zeros(dimZ,TT); 
-  Ut = randn(dimR,TT);  % random draw from U(t)
+  Xt = zeros(dim_X,TT);  % states initialized at 0;
+  Zt = zeros(dim_Z,TT); 
+  Ut = randn(dim_R,TT);  % random draw from U(t)
   
   for t = 2:TT
       Xt(:,t) =  A * Xt(:,t-1) + C  * Ut(:,t);

@@ -1,4 +1,4 @@
-function resStruct = modifiedAndersonMooreSmoother(D1, D2, A, Z_tilde, Finv, K, a_t_t, P_t_t)
+function resStruct = Kurz_AndersonMoore_Smoother(D1, D2, A, Z_tilde, Finv, K, att, Ptt)
 %MODIFIEDANDERSONMOORESMOOTHER Modified Anderson and Moore (1979) smoother for SSMwLS 
 % Purpose
 %        The function computes the modifed Anderson and Moore (1979)
@@ -10,7 +10,7 @@ function resStruct = modifiedAndersonMooreSmoother(D1, D2, A, Z_tilde, Finv, K, 
 %
 %
 % Usage
-%           resStruct = modifiedAndersonMooreSmoother(D1, D2, A, Z_tilde, Finv, K, a_t_t, P_t_t)
+%           resStruct = modifiedAndersonMooreSmoother(D1, D2, A, Z_tilde, Finv, K, atT, PtT)
 %
 %
 % Model Equation
@@ -26,14 +26,14 @@ function resStruct = modifiedAndersonMooreSmoother(D1, D2, A, Z_tilde, Finv, K, 
 %       Z_tilde  = Errors -- Output of modifiedFilter()
 %       Finv     = Second term of the Kalman gain -- Output of modifiedFilter()
 %       K        = Kalman gain -- Output of modifiedFilter()
-%       a_t_t    = Filtered states -- Output of modifiedFilter()
-%       P_t_t    = Filtered variances -- Output of modifiedFilter()
+%       atT    = Filtered states -- Output of modifiedFilter()
+%       PtT    = Filtered variances -- Output of modifiedFilter()
 %
 %
 % Outputs
 %      resStruct  = A structure containing
-%                       a_t_T   Smooth states
-%                       P_t_T   Smooth variances
+%                       atT   Smooth states
+%                       PtT   Smooth variances
 %
 %
 % References
@@ -62,25 +62,25 @@ D_tilde = (D1*A +D2);
 
 % intialize struct for the results
 resStruct = struct();
-resStruct.a_t_T = nan(nObs, dimState);
-resStruct.P_t_T = nan(dimState, dimState, nObs);
+resStruct.atT = nan(nObs, dimState);
+resStruct.PtT = nan(dimState, dimState, nObs);
 
-resStruct.a_t_T(nObs, :)     = a_t_t(nObs,:);
-resStruct.P_t_T(:, :, nObs)  = P_t_t(:,:, nObs);
+resStruct.atT(nObs, :)     = att(nObs,:);
+resStruct.PtT(:, :, nObs)  = Ptt(:,:, nObs);
 
 for iObs = nObs-1:-1:1
-    a_filtered = a_t_t(iObs,:)';
-    P_filtered = P_t_t(:,:, iObs);
+    a_filtered = att(iObs,:)';
+    P_filtered = Ptt(:,:, iObs);
     
-    a_filtered_tp1    = a_t_t(iObs+1,:)';
-    P_filtered_tp1    = P_t_t(:,:, iObs+1);
+    a_filtered_tp1    = att(iObs+1,:)';
+    P_filtered_tp1    = Ptt(:,:, iObs+1);
     Finv_tp1          = Finv(:,:, iObs+1);
     K_tp1             = K(:,:, iObs+1);
     Z_tilde_tp1       = Z_tilde(iObs+1,:)';
     
     % one-step ahead smoother
     xx = P_filtered * D_tilde';
-    a_t_tp1 = a_filtered + xx * Finv_tp1 * Z_tilde_tp1;
+    atTp1 = a_filtered + xx * Finv_tp1 * Z_tilde_tp1;
     U_t_tp1 = P_filtered - xx * Finv_tp1 * xx';
     
     % components for J
@@ -88,14 +88,14 @@ for iObs = nObs-1:-1:1
     P_filtered_tp1_Inv = pinv(P_filtered_tp1);
     
     xx = A * P_filtered - K_tp1 * D_tilde * P_filtered;
-    P_t_tp1_given_tp1 = xx';
+    PtTp1_given_tp1 = xx';
     
-    J = P_t_tp1_given_tp1 * P_filtered_tp1_Inv;
+    J = PtTp1_given_tp1 * P_filtered_tp1_Inv;
     
-    resStruct.a_t_T(iObs, :) = a_t_tp1 + ...
-        J * (resStruct.a_t_T(iObs + 1, :)' - a_filtered_tp1);
-    resStruct.P_t_T(:,:,iObs) = U_t_tp1 + ...
-        J * (resStruct.P_t_T(:,:,iObs + 1) - P_filtered_tp1) * J';
+    resStruct.atT(iObs, :) = atTp1 + ...
+        J * (resStruct.atT(iObs + 1, :)' - a_filtered_tp1);
+    resStruct.PtT(:,:,iObs) = U_t_tp1 + ...
+        J * (resStruct.PtT(:,:,iObs + 1) - P_filtered_tp1) * J';
     
     
 end

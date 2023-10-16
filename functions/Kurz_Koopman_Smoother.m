@@ -1,4 +1,4 @@
-function resStruct = modifiedKoopmanSmoother(D1, D2, A, C, R, Z_tilde, Finv, K)
+function resStruct = Kurz_Koopman_Smoother(D1, D2, A, C, R, Z_tilde, Finv, K)
 %MODIFIEDKOOPMANSMOOTHER Modified Koopman (1993) smoother for SSMwLS 
 % Purpose
 %        The function computes the modifed Koopman (1993) smoother for 
@@ -87,17 +87,15 @@ end
 % [a_0_0, P_0_0] = initializeSSM(A, C, dimState);
 % initialize filter
 % [a_t_t, P_t_t] = initializeSSM(A, C, dimState);
-a_0_0 = zeros(dimState, 1);
-P_0_0 = 1*eye(dimState, dimState);
+a00 = zeros(dimState, 1);
+P00 = 1*eye(dimState, dimState);
 
-a_t_T = a_0_0 + P_0_0 * r;
+atT = a00 + P00 * r;
 
 % state smoother (forward recursion)
 for iObs = 1:nObs
-    a_t_T = A * a_t_T + C * u_t_T(iObs, :)';
-    
-    resStruct.a_t_T(iObs, :) = a_t_T;
-    
+    atT = A * atT + C * u_t_T(iObs, :)';
+    resStruct.atT(iObs, :) = atT;
 end
 
 

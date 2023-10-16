@@ -1,7 +1,7 @@
-% LW(2003) recovery check
+% HP97 Check shock recovery
 % SSF: ------------------------------------------------------------------------------------
-%   Z(t) = D1*S(t) + D2*S(t-1) + R*ε(t),      S(t) = latent States
-%   S(t) = A*S(t-1)            + C*ε(t),      ε(t) ~ MN(0,I)
+%   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
+%   X(t) = A*X(t-1)            + C*ε(t),      ε(t) ~ MN(0,I)
 % -----------------------------------------------------------------------------------------
 clear; clc;
 % set plotting defaults
@@ -15,38 +15,37 @@ addpath(genpath('D:/matlab.tools/db.toolbox/db'))           % set path to db fun
 % usGDP = as_timetable(getFredData('GDPC1', '1947-01-01', '2023-12-31','lin','q'),'gdp');  % 'https://fred.stlouisfed.org/data/GDPC1.txt'
 % save('usGDP','usGDP')
 
-%set seed for random number generator
+%SET SEED FOR RANDOM NUMBER GENERATOR
 rng(1);
 
 % standard deviations
 phi = 40;
 % -----------------------------------------------------------------------------------------
 dim_Z = 1;       % rows Z(t)
-dim_S = 3;       % rows S(t)
+dim_X = 3;       % rows X(t)
 dim_R = 2;       % rows ε(t)
 % -----------------------------------------------------------------------------------------
 % Define D1
-D1 = zeros(dim_Z,dim_S); 
+D1 = zeros(dim_Z,dim_X); 
 D1(1,1) = 1;  D1(1,2) = phi; D1(1,3) = -2*phi;
 % Define D2
-D2 = zeros(dim_Z,dim_S); 
+D2 = zeros(dim_Z,dim_X); 
 D2(1,3) = phi;
 % Define R
 R  = zeros(dim_Z,dim_R);
 % -----------------------------------------------------------------------------------------
 % Define A
-A = zeros(dim_S); 
+A = zeros(dim_X); 
 A(3,2) = 1; 
 % Define C
 C = [eye(dim_R); zeros(1,2); ];
 % C(1,1) = 1; C(2,2) = 1;
 % --------------------------------------------------------------------------------------------------
-
 % outerjoin(d2y,dy)
 
 % -----------------------------------------------------------------------------------------
 % call to the KURZ_SSM function
-[PtT, Ptt] = Kurz_steadystate_P(D1,D2,R,A,C);
+[PtT, Ptt] = Kurz_steadystate_P(D1, D2, R, A, C);
 DD = 1:2;
 % row_names = {'ε*(t)','εᶜ(t)','εᶜ(t-1)'} ; 
 row_names = {'ε*(t)','εᶜ(t)'} ; 
@@ -54,52 +53,59 @@ Pstar = array2table([ diag(PtT(DD,DD)) diag(Ptt(DD,DD))],'VariableNames',{'P(t|T
         'RowNames',row_names);
 print_table(Pstar,4,1)
 
-%% SIMULATE DATA
-% 
+%% USE SIMULATE DATA
 TT = 1e4; 
 UU = randn(TT,1);
-[Zs, Xs] = Kurz_simulate_SSF(D1, D2, R, A, C, dim_Z, dim_S, dim_R, TT);
+[Zs, Xs] = Kurz_simulate_SSF(D1, D2, R, A, C, dim_Z, dim_X, dim_R, TT);
 Z = Zs;
 
 % USE REAL GDP DATA
-load('usGDP.mat')
+load('US-GDP.mat')
 y   = log(usGDP);
-dy  = delta(y,1,1);
-d2y = delta(dy,1,1);
+d2y = delta( delta(y,1) ,1,1); % don't use diff due to y being a TimeTable
 Z   = d2y.("ΔΔgdp");
 [HPc, HPt] = hp_filter(y.gdp, phi^2);
+
+% plot()
+
 % --------------------------------------------------------------------------------------------------
-% FUNCTIONS FROM KURZ'S GITHUB PAGE, MILDLY MODIFIED TO NOT REQUIRE INITVAL COMP. 
-% AND USE OF PINV IN AM SMOOTHER OTHERWISE NON-SINGULARITY ISSUES.
+% FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH MY CODE 
+% ABOVE AND USE OF PINV IN AM SMOOTHER OTHERWISE NON-SINGULARITY ISSUES.
 % --------------------------------------------------------------------------------------------------
 % FILTER
 % initialize filter. Note that errors will always be N(0,1), but latent states may need to be more carefully initialized.
-a00 = zeros(dim_S, 1); P00 = eye(dim_S);
-[~, Kurz_KF] = Kurz_Filter(Z, D1, D2, A, C, R, a00, P00);
+a00 = zeros(dim_X, 1); 
+P00 = eye(dim_X);
+             % Kurz_steadystate_P(D1, D2, R, A, C);
+             % Kurz_simulate_SSF( D1, D2, R, A, C, dimZ, dimX, dimR, TT)
+[~, Kurz_KF] = Kurz_Filter(Z, D1, D2, R, A, C, a00, P00);
 % SMOOTHERS 
 % Modified Anderson and Moore (1979) smoother (Eq. (4.3) in Kurz (2018))
-% KS_AM   = Kurz_AndersonMoore_Smoother(   D1, D2, A, Kurz_KF.Z_tilde, Kurz_KF.Finv, Kurz_KF.K, Kurz_KF.a_t_t, Kurz_KF.P_t_t);
+% KS_AM   = Kurz_AndersonMoore_Smoother(   D1, D2, A, Kurz_KF.Z_tilde, Kurz_KF.Finv, Kurz_KF.K, Kurz_KF.att, Kurz_KF.Ptt);
 % Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother (Eq. (4.11) in Kurz (2018))
-% KS_deJ  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF.Z_tilde, Kurz_KF.Finv, Kurz_KF.K, Kurz_KF.a_t_t, Kurz_KF.P_t_t);
+% KS_deJ  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF.Z_tilde, Kurz_KF.Finv, Kurz_KF.K, Kurz_KF.att, Kurz_KF.Ptt);
+KS_deJ  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF);
 % --------------------------------------------------------------------------------------------------
-% Modified Koopman (1993) smoother (Eq. (4.14)-(4.15) in Kurz (2018))
-KS_K    = Kurz_Koopman_Smoother(D1, D2, A, C, R, Kurz_KF.Z_tilde, Kurz_KF.Finv, Kurz_KF.K);
+% Modified Koopman (1993) smoother (Eq. (4.14)-(4.15) in Kurz (2018)) (does not return P(t|T) only a(t|T))
+% KS_K    = Kurz_Koopman_Smoother(D1, D2, A, C, R, Kurz_KF.Z_tilde, Kurz_KF.Finv, Kurz_KF.K); % requires a00, P00
 
 %% plot the KF/KS estimates of the states
 clf;
 hold on;
 % plot(y.gdp);
   % plot(HPt,'--','Color',clr(2)); 
-  plot(HPc,'-','Color',clr(2)); 
-  plot(addnans(KS_K.a_t_T(:,2),2,0)*phi,'--','Color',clr(1)); 
+  plot(HPc,'-','Color',clr(2),'LineWidth',3); 
+  % plot(addnans(KS_K.atT(:,2),2,0)*phi,'--','Color',clr(1)); 
+  plot(addnans(KS_deJ.atT(:,2),2,0)*phi,'--','Color',clr(3),'LineWidth',2);
+  % plot(addnans(KS_AM.atT(:,2),2,0)*phi,'-','Color',clr(4),'LineWidth',0.4);
 hold off;
 setrotatedateticks(y.Date,7,'m')
-ylim([-.1 .1]); hline(0);
+ylim([-.1 .06]); hline(0);
 box on; grid on;
 set(gca,'GridLineStyle',':' ,'GridAlpha',1/3, 'LineWidth',5/5);
 setoutsideTicks; add2yaxislabel
 
-lst([HPc addnans(KS_K.a_t_T(:,2),2,0)*phi],10)
+lst([ HPc addnans( phi*KS_deJ.atT(:,2),2,0 ) ], 10)
 
 
 % open setplot

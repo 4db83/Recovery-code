@@ -1,7 +1,6 @@
-function [PtT_out,Ptt_out] = kurz_steadystate_P(D1,D2,R,A,C,TT)
+function [PtT_out, Ptt_out] = Kurz_steadystate_P(D1, D2, R, A, C, TT)
 % TT = default number of iterations, optional
-dimX = size(D1,2);  % rows X(t)
-dimR = size(R,2);   % rows eps(t)
+dim_X = size(D1,2);  % rows X(t)
 
 % set default number of iterations if not supplied
 if nargin < 6 || isempty(TT); TT  = 5e3; end  
@@ -15,9 +14,9 @@ CCT = C*C';
 % -----------------------------------------------------------------------------------------
 % FILTERING
 % storage matrix if needed
-Ptt = zeros(dimX,dimX,TT); 
+Ptt = zeros(dim_X,dim_X,TT); 
 % initialize state vector MSE 
-P00 = eye(dimX);
+P00 = eye(dim_X);
 Pt  = P00;  
 % FORWARD RECURSIONS
 for t = 1:TT
@@ -32,13 +31,13 @@ Ptt_conv = Ptt(:,:,end) - Ptt(:,:,end-T0);
 fprintf('Covergence of Steady-State P(t|t): %d\n', norm(Ptt_conv))
 % -----------------------------------------------------------------------------------------
 % SMOOTHING 
-NT = zeros(dimX);
+NT = zeros(dim_X);
 Nt = NT;
 LL = (A-Kt*G);
 FF = Ft;
 GinvFG = G'/FF*G;
 % storage matrix if needed
-Ntt = zeros(dimX,dimX,TT); 
+Ntt = zeros(dim_X,dim_X,TT); 
 % BACKWARD RECURSIONS
 for t = (TT-1):-1:1
   % THIS USES THE STEADY-STATE Kt AND Ft VALUES FROM ABOVE

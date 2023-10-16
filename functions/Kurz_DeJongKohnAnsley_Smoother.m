@@ -1,5 +1,6 @@
-function resStruct = modifiedDeJongKohnAnsleySmoother(D1, D2, A, Z_tilde, Finv, K, a_t_t, P_t_t)
-%MODIFIEDDEJONGKOHNANSLEYSMOOTHER Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother for SSMwLS 
+function resStruct = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF)
+% function resStruct = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Z_tilde, Finv, K, att, Ptt)
+% MODIFIEDDEJONGKOHNANSLEYSMOOTHER Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother for SSMwLS 
 % Purpose
 %        The function computes the modifed de Jong (1988, 1989) and Kohn
 %        and Ansley (1989) smoother for State Space Models with Lagged
@@ -10,7 +11,7 @@ function resStruct = modifiedDeJongKohnAnsleySmoother(D1, D2, A, Z_tilde, Finv, 
 %
 %
 % Usage
-%           resStruct = modifiedDeJongKohnAnsleySmoother(D1, D2, A, Z_tilde, Finv, K, a_t_t, P_t_t)
+%           resStruct = modifiedDeJongKohnAnsleySmoother(D1, D2, A, Z_tilde, Finv, K, atT, PtT)
 %
 %
 % Model Equation
@@ -26,14 +27,14 @@ function resStruct = modifiedDeJongKohnAnsleySmoother(D1, D2, A, Z_tilde, Finv, 
 %       Z_tilde  = Errors -- Output of modifiedFilter()
 %       Finv     = Second term of the Kalman gain -- Output of modifiedFilter()
 %       K        = Kalman gain -- Output of modifiedFilter()
-%       a_t_t    = Filtered states -- Output of modifiedFilter()
-%       P_t_t    = Filtered variances -- Output of modifiedFilter()
+%       atT    = Filtered states -- Output of modifiedFilter()
+%       PtT    = Filtered variances -- Output of modifiedFilter()
 %
 %
 % Outputs
 %      resStruct  = A structure containing
-%                       a_t_T   Smooth states
-%                       P_t_T   Smooth variances
+%                       atT   Smooth states
+%                       PtT   Smooth variances
 %
 %
 % References
@@ -54,6 +55,12 @@ function resStruct = modifiedDeJongKohnAnsleySmoother(D1, D2, A, Z_tilde, Finv, 
 %
 % Author: Malte S. Kurz
 
+% get the output from Kurz_KF function call
+Z_tilde = Kurz_KF.Z_tilde; 
+Finv    = Kurz_KF.Finv; 
+K       = Kurz_KF.K; 
+att     = Kurz_KF.att; 
+Ptt     = Kurz_KF.Ptt;
 
 % check and extract dimensions
 [dimObs, dimState] = Kurz_checkDims_SSM(D1, D2, A);
@@ -65,8 +72,8 @@ D_tilde = (D1*A +D2);
 
 % intialize struct for the results
 resStruct = struct();
-resStruct.a_t_T = nan(nObs, dimState);
-resStruct.P_t_T = nan(dimState, dimState, nObs);
+resStruct.atT = nan(nObs, dimState);
+resStruct.PtT = nan(dimState, dimState, nObs);
 
 % initialize the smoother
 r = zeros(dimState, 1);
@@ -76,12 +83,12 @@ for iObs = nObs:-1:1
     Finv_t     = Finv(:,:, iObs);
     Z_tilde_t  = Z_tilde(iObs,:)';
     K_t        = K(:,:, iObs);
-    a_filtered = a_t_t(iObs,:)';
-    P_filtered = P_t_t(:,:, iObs);
+    a_filtered = att(iObs,:)';
+    P_filtered = Ptt(:,:, iObs);
     
     
-    resStruct.a_t_T(iObs,:)   = a_filtered + P_filtered * r;
-    resStruct.P_t_T(:,:,iObs) = P_filtered - P_filtered * N * P_filtered;
+    resStruct.atT(iObs,:)   = a_filtered + P_filtered * r;
+    resStruct.PtT(:,:,iObs) = P_filtered - P_filtered * N * P_filtered;
     
     if iObs == nObs
         L = 0;
