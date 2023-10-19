@@ -1,4 +1,5 @@
-function resStruct = Kurz_AndersonMoore_Smoother(D1, D2, A, Z_tilde, Finv, K, att, Ptt)
+function resStruct = Kurz_AndersonMoore_Smoother(D1, D2, A, Kurz_KF)
+% function resStruct = Kurz_AndersonMoore_Smoother(D1, D2, A, Z_tilde, Finv, K, att, Ptt)
 %MODIFIEDANDERSONMOORESMOOTHER Modified Anderson and Moore (1979) smoother for SSMwLS 
 % Purpose
 %        The function computes the modifed Anderson and Moore (1979)
@@ -49,7 +50,12 @@ function resStruct = Kurz_AndersonMoore_Smoother(D1, D2, A, Z_tilde, Finv, K, at
 %
 % Author: Malte S. Kurz
 
-
+% get the output from Kurz_KF function call
+Z_tilde = Kurz_KF.Z_tilde; 
+Finv    = Kurz_KF.Finv; 
+K       = Kurz_KF.K; 
+att     = Kurz_KF.att; 
+Ptt     = Kurz_KF.Ptt;
 
 % check and extract dimensions
 [dimObs, dimState] = Kurz_checkDims_SSM(D1, D2, A);
@@ -99,5 +105,9 @@ for iObs = nObs-1:-1:1
     
     
 end
+
+resStruct.att = att;
+resStruct.Ptt = Ptt;
+
 
 end

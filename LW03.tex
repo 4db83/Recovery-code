@@ -1,0 +1,487 @@
+
+\documentclass[a4paper,12pt]{article}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{graphicx,hyperref,mathpple,amsmath,exscale,setspace,xcolor}
+\usepackage[left=20mm,right=20mm,top=20mm,bottom=20mm]{geometry}
+\usepackage{pdflscape,showkeys,changepage}
+\usepackage[round]{natbib}
+
+\setcounter{MaxMatrixCols}{10}
+%TCIDATA{OutputFilter=LATEX.DLL}
+%TCIDATA{Version=5.50.0.2953}
+%TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
+%TCIDATA{BibliographyScheme=BibTeX}
+%TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
+%TCIDATA{LastRevised=Thursday, October 19, 2023 10:42:45}
+%TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
+%TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
+%TCIDATA{CSTFile=40 LaTeX article.cst}
+
+\let\oldref\ref
+\AtBeginDocument{
+\let\oldref\ref\renewcommand{\ref}[1]{(\oldref{#1})}
+\newcommand{\bsq}{\begin{subequations}}\newcommand{\esq}{\end{subequations}}
+\newcommand{\bls}{\begin{landscape}}\newcommand{\els}{\end{landscape}}
+\renewcommand\showkeyslabelformat[1]{{\parbox[t]{\marginparwidth}{\raggedright\footnotesize\url{#1}}}}
+\newcommand{\intxt}[1]{\intertext{#1}}\newcommand{\BAW}[1]{\begin{adjustwidth}{-#1mm}{-5mm}}\newcommand{\EAW}{\end{adjustwidth}}
+\newcommand{\vsp}[1]{\vspace*{#1mm}}\newcommand{\hsp}[1]{\hspace*{#1mm}}  }
+\makeatletter
+\renewcommand*{\@fnsymbol}[1]{\ensuremath{\ifcase#1\or *\or
+    \#\or \star\or \bowtie\or \star\star\or \ddagger\ddagger \else\@ctrerr\fi}}
+\makeatother
+\allowdisplaybreaks
+\IfFileExists{C:/swp55/TCITeX/TeX/LaTeX/SWmacros/tcilatex.tex}{\input{tcilatex}}{}
+\newcommand{\dble}{1.77}
+\newcommand{\sngl}{1.23}
+\definecolor{myred}{rgb}{.50,.10,.10}
+\definecolor{mygrn}{rgb}{.10,.35,.10}
+\definecolor{myblu}{rgb}{.10,.10,.35}
+\hypersetup{colorlinks,citecolor=myblu,filecolor=mygrn,linkcolor=myred,urlcolor=mygrn,breaklinks=true}
+\setstretch{\sngl}
+
+\begin{document}
+
+
+\section{LW(2003) Structural Model and standard SSM Form}
+
+LW use the following standard State-Space From\ (SSF) (see their \texttt{%
+LW\_Code\_Guide.pdf} file \texttt{LW\_replication.zip} from the NYFED
+website):%
+\begin{align*}
+\mathsf{Measurement}& :\quad \mathbf{y}_{t}=\mathbf{Ax}_{t}+\mathbf{H}%
+\boldsymbol{\xi }_{t}+\boldsymbol{R}^{1/2}\boldsymbol{\varepsilon }_{t}^{%
+\mathbf{y}} \\
+\mathsf{State}& :\quad \boldsymbol{\xi }_{t}=\mathbf{F}\boldsymbol{\xi }%
+_{t-1}+\boldsymbol{Q}^{1/2}\boldsymbol{\varepsilon }_{t}^{\boldsymbol{\xi }}
+\end{align*}%
+where%
+\begin{align*}
+\mathbf{y}_{t}& =%
+\begin{bmatrix}
+y_{t} & \pi _{t}%
+\end{bmatrix}%
+^{\prime }, \\
+\mathbf{x}_{t}& =%
+\begin{bmatrix}
+y_{t-1} & y_{t-2} & r_{t-1} & r_{t-2} & \pi _{t-1} & \pi _{t-2,4} & \pi
+_{t-5,8} & \left( \pi _{t-1}^{0}-\pi _{t-1}\right)  & \left( \pi
+_{t}^{m}-\pi _{t}\right)
+\end{bmatrix}%
+^{\prime }, \\
+\boldsymbol{\xi }_{t}& =%
+\begin{bmatrix}
+y_{t}^{\ast } & y_{t-1}^{\ast } & y_{t-2}^{\ast } & g_{t-1} & g_{t-2} &
+z_{t-1} & z_{t-2}%
+\end{bmatrix}%
+^{\prime }, \\
+\mathbf{A}& =%
+\begin{bmatrix}
+a_{1} & a_{2} & \frac{a_{3}}{2} & \frac{a_{3}}{2} & 0 & 0 & 0 & 0 & 0 \\
+b_{3} & 0 & 0 & 0 & b_{1} & b_{2} & \left( 1-b_{1}-b_{2}\right)  & b_{4} &
+b_{5}%
+\end{bmatrix}%
+, \\
+\mathbf{H}& =%
+\begin{bmatrix}
+1 & -a_{1} & -a_{2} & -4c\frac{a_{3}}{2} & -4c\frac{a_{3}}{2} & -\frac{a_{3}%
+}{2} & -\frac{a_{3}}{2} \\
+0 & -b_{3} & 0 & 0 & 0 & 0 & 0%
+\end{bmatrix}%
+.
+\end{align*}
+
+\noindent Note:\ $\mathbf{H(}1,4:5\mathbf{)}$ entries corresponding to trend
+growth $cg_{t}$ are \emph{`annualized'} (multiplied by 4) in the code that
+performs the estimation (see \texttt{unpack.parameters.stage3.R} in \texttt{%
+LW\_replication.zip} files, line 24, which reads:\ \texttt{H[1,4:5]
+\TEXTsymbol{<}- -parameters[9]*parameters[3]*2 \#\# c, a\_3 (annualized)}.
+
+The measurement equation is:\bsq\label{obs0}
+\begin{align}
+\mathbf{y}_{t}& =\mathbf{Ax}_{t}+\mathbf{H}\xi _{t}+\boldsymbol{R}^{1/2}%
+\boldsymbol{\varepsilon }_{t}^{\mathbf{y}}  \notag \\
+\begin{bmatrix}
+y_{t} \\
+\pi _{t}%
+\end{bmatrix}%
+& =\underbrace{%
+\begin{bmatrix}
+a_{1} & a_{2} & \frac{a_{3}}{2} & \frac{a_{3}}{2} & 0 & 0 & 0 & 0 & 0 \\
+b_{3} & 0 & 0 & 0 & b_{1} & b_{2} & \left( 1-b_{1}-b_{2}\right) & b_{4} &
+b_{5}%
+\end{bmatrix}%
+}_{\mathbf{A}}%
+\begin{bmatrix}
+y_{t-1} \\
+y_{t-2} \\
+r_{t-1} \\
+r_{t-2} \\
+\pi _{t-1} \\
+\pi _{t-2,4} \\
+\pi _{t-5,8} \\
+\left( \pi _{t-1}^{0}-\pi _{t-1}\right) \\
+\left( \pi _{t}^{m}-\pi _{t}\right)%
+\end{bmatrix}
+\\
+& +\underbrace{%
+\begin{bmatrix}
+1 & -a_{1} & -a_{2} & -4c\frac{a_{3}}{2} & -4c\frac{a_{3}}{2} & -\frac{a_{3}%
+}{2} & -\frac{a_{3}}{2} \\
+0 & -b_{3} & 0 & 0 & 0 & 0 & 0%
+\end{bmatrix}%
+}_{\mathbf{H}}%
+\begin{bmatrix}
+y_{t}^{\ast } \\
+y_{t-1}^{\ast } \\
+y_{t-2}^{\ast } \\
+g_{t-1} \\
+g_{t-2} \\
+z_{t-1} \\
+z_{t-2}%
+\end{bmatrix}%
++%
+\begin{bmatrix}
+\sigma _{1} & 0 \\
+0 & \sigma _{2}%
+\end{bmatrix}%
+\begin{bmatrix}
+\varepsilon _{1t} \\
+\varepsilon _{2t}%
+\end{bmatrix}%
+.
+\end{align}%
+\esq The state equation is:%
+\begin{align}
+\boldsymbol{\xi }_{t}& =\mathbf{F}\boldsymbol{\xi }_{t-1}+\boldsymbol{Q}%
+^{1/2}\boldsymbol{\varepsilon }_{t}^{\boldsymbol{\xi }}  \notag \\
+\begin{bmatrix}
+y_{t}^{\ast } \\
+y_{t-1}^{\ast } \\
+y_{t-2}^{\ast } \\
+g_{t-1} \\
+g_{t-2} \\
+z_{t-1} \\
+z_{t-2}%
+\end{bmatrix}%
+& =\underbrace{%
+\begin{bmatrix}
+1 & 0 & 0 & 1 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 & 0%
+\end{bmatrix}%
+}_{\mathbf{F}}%
+\begin{bmatrix}
+y_{t-1}^{\ast } \\
+y_{t-2}^{\ast } \\
+y_{t-3}^{\ast } \\
+g_{t-2} \\
+g_{t-3} \\
+z_{t-2} \\
+z_{t-3}%
+\end{bmatrix}%
++%
+\begin{bmatrix}
+\sigma _{3} & \sigma _{4} & 0 \\
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & \sigma _{4} & 0 \\
+0 & 0 & 0 \\
+0 & 0 & \sigma _{5} \\
+0 & 0 & 0%
+\end{bmatrix}%
+\begin{bmatrix}
+\varepsilon _{3t} \\
+\varepsilon _{4t-1} \\
+\varepsilon _{5t-1}%
+\end{bmatrix}
+\label{state1}
+\end{align}
+
+Expanding the relations in \ref{obs0} and \ref{state1} and re-arranging
+yields:\vsp{-7}\BAW{18}%
+\begin{equation*}
+\begin{bmatrix}
+y_{t} \\
+\pi _{t}%
+\end{bmatrix}%
+=%
+\begin{bmatrix}
+y_{t}^{\ast }+a_{1}\left( y_{t-1}-y_{t-1}^{\ast }\right) +a_{2}\left(
+y_{t-2}-y_{t-2}^{\ast }\right) +\frac{1}{2}a_{3}\left( \left[
+r_{t-1}-4cg_{t-1}-z_{t-1}\right] +\left[ r_{t-2}-4cg_{t-2}-z_{t-2}\right]
+\right) +\sigma _{1}\varepsilon _{1t} \\
+b_{3}\left( y_{t-1}-y_{t-1}^{\ast }\right) +b_{1}\pi _{t-1}+b_{2}\pi
+_{t-2,4}+\left( 1-b_{1}-b_{2}\right) \pi _{t-5,8}+b_{4}\left( \pi
+_{t-1}^{0}-\pi _{t-1}\right) +b_{5}\left( \pi _{t}^{m}-\pi _{t}\right)
++\sigma _{2}\varepsilon _{2t}%
+\end{bmatrix}%
+\end{equation*}%
+\begin{equation*}
+\begin{bmatrix}
+y_{t}^{\ast } \\
+y_{t-1}^{\ast } \\
+y_{t-2}^{\ast } \\
+g_{t-1} \\
+g_{t-2} \\
+z_{t-1} \\
+z_{t-2}%
+\end{bmatrix}%
+=%
+\begin{bmatrix}
+y_{t-1}^{\ast }+\overbrace{g_{t-2}+\sigma _{4}\varepsilon _{4t-1}}%
+^{g_{t-1}}+\sigma _{3}\varepsilon _{3t} \\
+y_{t-1}^{\ast } \\
+y_{t-2}^{\ast } \\
+g_{t-2}+\sigma _{4}\varepsilon _{4t-1} \\
+g_{t-2} \\
+z_{t-2}+\sigma _{5}\varepsilon _{5t-1} \\
+z_{t-2}%
+\end{bmatrix}%
+,\text{ where the shock labels are: }%
+\begin{bmatrix}
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{4t} \\
+\varepsilon _{5t}%
+\end{bmatrix}%
+=%
+\begin{bmatrix}
+\varepsilon _{t}^{\tilde{y}} \\
+\varepsilon _{t}^{\pi } \\
+\varepsilon _{t}^{y^{\ast }} \\
+\varepsilon _{t}^{g} \\
+\varepsilon _{t}^{z}%
+\end{bmatrix}%
+.
+\end{equation*}%
+\EAW
+
+\section{Shock recovery SSM}
+
+\subsection{SSM with lagged states }
+
+Kurz's (2018) SSM has the following general from:\bsq\label{SSM}%
+\begin{align}
+\mathsf{Measurement}& :\quad Z_{t}=D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
+\label{ssm1} \\
+\mathsf{State}& :\quad X_{t}=AX_{t-1}+C\varepsilon _{t},  \label{ssm2}
+\end{align}%
+\esq where $\varepsilon _{t}\sim MN(0,I_{m})$, $D_{1},D_{2},A,R$ are $C$ are
+conformable system matrices, $Z_{t}$ the observed variable and $X_{t}$ the
+latent state variable.
+
+\subsection{LW03 equations}
+
+LW03's SSM written out equation by equation is:\pagebreak \BAW{9} \bsq\label%
+{LW03}%
+\begin{align}
+y_{t}& =y_{t}^{\ast }+a_{1}\left( y_{t-1}-y_{t-1}^{\ast }\right)
++a_{2}\left( y_{t-2}-y_{t-2}^{\ast }\right) +\tfrac{1}{2}a_{3}\left( \left[
+r_{t-1}-r_{t-1}^{\ast }\right] +\left[ r_{t-2}-r_{t-2}^{\ast }\right]
+\right) +\sigma _{1}\varepsilon _{1t}  \label{LW03a} \\
+\pi _{t}& =b_{3}\left( y_{t-1}-y_{t-1}^{\ast }\right) +b_{1}\pi
+_{t-1}+b_{2}\pi _{t-2,4}+\left( 1-b_{1}-b_{2}\right) \pi _{t-5,8}+b_{4}(\pi
+_{t-1}^{0}-\pi _{t-1})+b_{5}\left( \pi _{t}^{m}-\pi _{t}\right) +\sigma
+_{2}\varepsilon _{2t}  \label{LW03b} \\
+y_{t}^{\ast }& =y_{t-1}^{\ast }+g_{t-1}+\sigma _{3}\varepsilon _{3t}
+\label{LW03c} \\
+g_{t-1}& =g_{t-2}+\sigma _{4}\varepsilon _{4t-1}  \label{LW03d} \\
+z_{t-1}& =z_{t-2}+\sigma _{5}\varepsilon _{5t-1},  \label{LW03e}
+\end{align}%
+\esq\EAW where $r_{t}^{\ast }=4cg_{t}+z_{t}$. Note that this can be written
+as:%
+\begin{align}
+r_{t}^{\ast }& =4cg_{t}+z_{t}  \notag \\
+\Leftrightarrow \Delta r_{t}^{\ast }& =4c\underbrace{\Delta g_{t}}_{\sigma
+_{4}\varepsilon _{4t}}+\underbrace{\Delta z_{t}}_{\sigma _{5}\varepsilon
+_{5t}}  \notag \\
+\Delta r_{t}^{\ast }& =4c\sigma _{4}\varepsilon _{4t}+\sigma _{5}\varepsilon
+_{5t}.  \label{Drstar}
+\end{align}
+
+\subsection{LW03 SSM for shock recovery}
+
+To assess recovery, re-write the model in `\emph{shock recovery}' form. That
+is, collect all observables in $Z_{t}$, and all shocks (and other state
+variables)\ in state vector $X_{t}$. The relations in \ref{LW03},
+incorporating \ref{Drstar} then become:\bsq\label{ssm0}%
+\begin{align}
+\mathsf{Measurement}& :\;\quad Z_{1t}=y_{t}^{\ast }-a_{1}y_{t-1}^{\ast
+}-a_{2}y_{t-2}^{\ast }-\tfrac{1}{2}a_{3}\left( r_{t-1}^{\ast }+r_{t-2}^{\ast
+}\right) +\sigma _{1}\varepsilon _{1t} \\
+\phantom{\mathsf{Measurement}}& \,\,\;\;\phantom{:\quad}%
+Z_{2t}=-b_{3}y_{t-1}^{\ast }+\sigma _{2}\varepsilon _{2t} \\
+\mathsf{State}& :\quad \Delta y_{t}^{\ast }=g_{t-1}+\sigma _{3}\varepsilon
+_{3t} \\
+\phantom{\mathsf{State}}& \;\,\;\phantom{:\quad}\Delta g_{t}=\sigma
+_{4}\varepsilon _{4t} \\
+\phantom{\mathsf{State}}& \;\,\;\phantom{:\quad}\Delta r_{t}^{\ast
+}=4c\sigma _{4}\varepsilon _{4t}+\sigma _{5}\varepsilon _{5t},
+\end{align}%
+\esq with the observables $Z_{t}$ in the measurement equations defined as:%
+\vsp{-3}
+\begin{align}
+Z_{1t}& =y_{t}-a_{1}y_{t-1}-a_{2}y_{t-2}-\tfrac{1}{2}a_{3}(r_{t-1}+r_{t-2})
+\notag \\
+Z_{2t}& =\pi _{t}-b_{1}\pi _{t-1}-b_{2}\pi _{t-2,4}-\left(
+1-b_{1}-b_{2}\right) \pi _{t-5,8}-b_{4}(\pi _{t-1}^{0}-\pi
+_{t-1})-b_{5}\left( \pi _{t}^{m}-\pi _{t}\right) -b_{3}y_{t-1}.  \notag
+\end{align}%
+
+
+The `\emph{shock recovery}' SSF\ corresponding to \ref{ssm0} is
+then:\pagebreak \bsq\label{K0SSM}%
+\begin{align}
+\mathsf{Measurement}:\quad Z_{t}& =D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
+\notag \\[-4mm]
+\underbrace{\left[
+\begin{array}{c}
+Z_{1t} \\
+Z_{2t}%
+\end{array}%
+\right] }_{Z_{t}}& =\underbrace{%
+\begin{bmatrix}
+1 & 0 & 0 & 0 & 0 & \sigma _{1} & 0 & 0 & 0 & 0 \\
+0 & -b_{3} & 0 & 0 & 0 & 0 & \sigma _{2} & 0 & 0 & 0%
+\end{bmatrix}%
+}_{D_{1}}\underbrace{\left[
+\begin{array}{c}
+y_{t}^{\ast } \\
+y_{t-1}^{\ast } \\
+g_{t} \\
+r_{t}^{\ast } \\
+r_{t-1}^{\ast } \\
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{4t} \\
+\varepsilon _{5t}%
+\end{array}%
+\right] }_{X_{t}} \\
+& +\underbrace{%
+\begin{bmatrix}
+-a_{1} & -a_{2} & 0 & -\frac{a_{3}}{2} & -\frac{a_{3}}{2} & 0 & 0 & 0 & 0 & 0
+\\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0%
+\end{bmatrix}%
+}_{D_{2}}\underbrace{\left[
+\begin{array}{c}
+y_{t-1}^{\ast } \\
+y_{t-2}^{\ast } \\
+g_{t-1} \\
+r_{t-1}^{\ast } \\
+r_{t-2}^{\ast } \\
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{3t-1} \\
+\varepsilon _{4t-1} \\
+\varepsilon _{5t-1}%
+\end{array}%
+\right] }_{X_{t-1}}+\underbrace{\boldsymbol{0}_{2\times 5}}_{R}\underbrace{%
+\begin{bmatrix}
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{4t} \\
+\varepsilon _{5t}%
+\end{bmatrix}%
+}_{\varepsilon _{t}} \\
+\mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t},  \notag \\[5mm]
+\underbrace{\left[
+\begin{array}{c}
+y_{t}^{\ast } \\
+y_{t-1}^{\ast } \\
+g_{t} \\
+r_{t}^{\ast } \\
+r_{t-1}^{\ast } \\
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{4t} \\
+\varepsilon _{5t}%
+\end{array}%
+\right] }_{X_{t}}& =\underbrace{%
+\begin{bmatrix}
+1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0%
+\end{bmatrix}%
+}_{A}\underbrace{\left[
+\begin{array}{c}
+y_{t-1}^{\ast } \\
+y_{t-2}^{\ast } \\
+g_{t-1} \\
+r_{t-1}^{\ast } \\
+r_{t-2}^{\ast } \\
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{3t-1} \\
+\varepsilon _{4t-1} \\
+\varepsilon _{5t-1}%
+\end{array}%
+\right] }_{X_{t-1}}+\underbrace{%
+\begin{bmatrix}
+0 & 0 & \sigma _{3} & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & \sigma _{4} & 0 \\
+0 & 0 & 0 & 4c\sigma _{4} & \sigma _{5} \\
+0 & 0 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 1%
+\end{bmatrix}%
+}_{C}\underbrace{%
+\begin{bmatrix}
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{4t} \\
+\varepsilon _{5t}%
+\end{bmatrix}%
+}_{\varepsilon _{t}}
+\end{align}%
+\esq$\allowbreak $
+
+\bigskip
+
+The Kalman Filter and Smoother based steady-state $\mathrm{diag}(P)$ are,
+respectively:%
+\begin{equation}
+\mathrm{diag}(P_{t|t}^{\ast })=%
+\begin{bmatrix}
+0.9995 \\
+0.2006 \\
+0.1608%
+\end{bmatrix}%
+\text{ \ and \ }\mathrm{diag}(P_{t|T}^{\ast })=%
+\begin{bmatrix}
+0.9439 \\
+0.0561 \\
+0.0561%
+\end{bmatrix}%
+.
+\end{equation}
+
+\bigskip
+
+\bigskip
+
+$\bigskip $
+
+$\allowbreak \allowbreak $
+
+\end{document}

@@ -1,4 +1,5 @@
-function resStruct = Kurz_Koopman_Smoother(D1, D2, A, C, R, Z_tilde, Finv, K)
+function resStruct = Kurz_Koopman_Smoother(D1, D2, A, C, R, Kurz_KF)
+% function resStruct = Kurz_Koopman_Smoother(D1, D2, A, C, R, Z_tilde, Finv, K)
 %MODIFIEDKOOPMANSMOOTHER Modified Koopman (1993) smoother for SSMwLS 
 % Purpose
 %        The function computes the modifed Koopman (1993) smoother for 
@@ -45,6 +46,12 @@ function resStruct = Kurz_Koopman_Smoother(D1, D2, A, C, R, Z_tilde, Finv, K)
 %
 % Author: Malte S. Kurz
 
+% get the output from Kurz_KF function call
+Z_tilde = Kurz_KF.Z_tilde; 
+Finv    = Kurz_KF.Finv; 
+K       = Kurz_KF.K; 
+att     = Kurz_KF.att; 
+Ptt     = Kurz_KF.Ptt;
 
 % check and extract dimensions
 [dimObs, dimState, dimDisturbance] = Kurz_checkDims_SSM(D1, D2, A, C, R);

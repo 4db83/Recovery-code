@@ -1,0 +1,241 @@
+
+\documentclass[a4paper,12pt]{article}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{graphicx,hyperref,mathpple,amsmath,exscale,setspace,xcolor}
+\usepackage[left=20mm,right=20mm,top=25mm,bottom=25mm]{geometry}
+\usepackage{pdflscape,showkeys}
+\usepackage[round]{natbib}
+
+\setcounter{MaxMatrixCols}{10}
+%TCIDATA{OutputFilter=LATEX.DLL}
+%TCIDATA{Version=5.50.0.2953}
+%TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
+%TCIDATA{BibliographyScheme=BibTeX}
+%TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
+%TCIDATA{LastRevised=Wednesday, May 03, 2023 21:27:30}
+%TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
+%TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
+%TCIDATA{CSTFile=40 LaTeX article.cst}
+
+\let\oldref\ref
+\AtBeginDocument{
+\let\oldref\ref\renewcommand{\ref}[1]{(\oldref{#1})}
+\newcommand{\bsq}{\begin{subequations}}\newcommand{\esq}{\end{subequations}}
+\newcommand{\bls}{\begin{landscape}}\newcommand{\els}{\end{landscape}}
+\renewcommand\showkeyslabelformat[1]{{\parbox[t]{\marginparwidth}{\raggedright\footnotesize\url{#1}}}}
+}
+\makeatletter
+\renewcommand*{\@fnsymbol}[1]{\ensuremath{\ifcase#1\or *\or
+    \#\or \star\or \bowtie\or \star\star\or \ddagger\ddagger \else\@ctrerr\fi}}
+\makeatother
+\allowdisplaybreaks
+\IfFileExists{C:/swp55/TCITeX/TeX/LaTeX/SWmacros/tcilatex.tex}{\input{tcilatex}}{}
+\newcommand{\dble}{1.77}
+\newcommand{\sngl}{1.23}
+\definecolor{myred}{rgb}{.50,.10,.10}
+\definecolor{mygrn}{rgb}{.10,.35,.10}
+\definecolor{myblu}{rgb}{.10,.10,.35}
+\hypersetup{colorlinks,citecolor=myblu,filecolor=mygrn,linkcolor=myred,urlcolor=mygrn,breaklinks=true}
+\setstretch{\sngl}
+
+\begin{document}
+
+%\title{\vspace*{-20mm} Some Notes}
+%\author{\href{http://www.danielbuncic.com}{Daniel Buncic}}
+%\date{\vspace*{-4mm}\textsf{\small \today}}
+%\maketitle
+
+\section{Kurz (2018)\ SSM with lagged states}
+
+Kurz's SSM is:\bsq\label{SSM}%
+\begin{align}
+\mathsf{Observation}& :\quad Z_{t}=D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
+\label{ssm1} \\
+\mathsf{State}& :\quad X_{t}=AX_{t-1}+C\varepsilon _{t},  \label{ssm2}
+\end{align}%
+\esq and $\varepsilon _{t}\sim MN(0,I_{m}),$ where $R$ and $C$ are
+covariance matrices.
+
+\subsection{LW\ (2003)}
+
+\begin{align}
+\alpha (L)\tilde{y}_{t}& =\alpha _{r}(L)(r_{t}-r_{t}^{\ast })+\sigma
+_{1}\varepsilon _{1t}  \label{lw1} \\
+B(L)\pi _{t}& =b_{I}(\pi _{t}^{I}-\pi _{t})+b_{o}(\pi _{t-1}^{o}-\pi
+_{t-1})+b_{y}(y_{t-1}-y_{t-1}^{\ast })+\sigma _{2}\varepsilon _{2t}
+\label{lw2} \\
+\Delta z_{t}& =\sigma _{3}\varepsilon _{3t}  \label{lw3} \\
+\Delta y_{t}^{\ast }& =g_{t-1}+\sigma _{4}\varepsilon _{4t}  \label{lw4} \\
+\Delta g_{t}& =\sigma _{5}\varepsilon _{5t}  \label{lw5} \\
+r_{t}^{\ast }& =cg_{t}+z_{t}  \label{lw6}
+\end{align}%
+where $\tilde{y}_{t}=(y_{t}-y_{t}^{\ast })$.
+
+Express LW model in SSF with all observables in $Z_{t}$ and remaining latent
+states in the state vector $X_{t}$, where the observables $Z_{t}$ are:%
+\begin{align*}
+Z_{1t}& =y_{t}-\alpha _{1}y_{t-1}-\alpha _{2}y_{t-2}+\frac{a_{r}}{2}%
+(r_{t-1}+r_{t-2}) \\
+Z_{2t}& =B(L)\pi _{t}-b_{I}(\pi _{t}^{I}-\pi _{t})-b_{o}(\pi _{t-1}^{o}-\pi
+_{t-1})-b_{y}y_{t-1}
+\end{align*}%
+Then the measurement equations\ is:%
+\begin{align}
+Z_{1t}& =y_{t}^{\ast }-\alpha _{1}y_{t-1}^{\ast }-\alpha _{2}y_{t-2}^{\ast }-%
+\frac{a_{r}}{2}(r_{t-1}^{\ast }+r_{t-2}^{\ast })+\sigma _{1}\varepsilon
+_{1t},  \label{z1} \\
+Z_{2t}& =b_{y}y_{t-1}^{\ast }+\sigma _{2}\varepsilon _{2t}  \label{z2}
+\end{align}%
+The state equation is:%
+\begin{align}
+\Delta y_{t}^{\ast }& =g_{t-1}+\sigma _{4}\varepsilon _{4t}  \label{x1} \\
+\Delta g_{t}& =\sigma _{5}\varepsilon _{5t}  \label{x2} \\
+\Delta r_{t}^{\ast }& =c\sigma _{5}\varepsilon _{5t}+\sigma _{3}\varepsilon
+_{3t}.  \label{x3}
+\end{align}%
+\bigskip and state vector is $X_{t}=\left[
+\begin{array}{cccccccccc}
+y_{t}^{\ast } & y_{t-1}^{\ast } & g_{t} & r_{t}^{\ast } & r_{t-1}^{\ast } &
+\varepsilon _{t} & \varepsilon _{2t} & \varepsilon _{3t} & \varepsilon _{4t}
+& \varepsilon _{5t}%
+\end{array}%
+\right] ^{\prime }.$
+
+\bls
+
+Written out, the full SSM is:%
+%TCIMACRO{\TeXButton{Single}{\setstretch{\sngl}}}%
+%BeginExpansion
+\setstretch{\sngl}%
+%EndExpansion
+\begin{align*}
+\underbrace{\left[
+\begin{array}{c}
+Z_{1t} \\
+Z_{2t}%
+\end{array}%
+\right] }_{Z_{t}}& =\underbrace{%
+\begin{bmatrix}
+1 & -\alpha _{1} & 0 & 0 & -\frac{a_{r}}{2} & \sigma _{1} & 0 & 0 & 0 & 0 \\
+0 & b_{y} & 0 & 0 & 0 & 0 & \sigma _{2} & 0 & 0 & 0%
+\end{bmatrix}%
+}_{D_{1}}\underbrace{\left[
+\begin{array}{c}
+y_{t}^{\ast } \\
+y_{t-1}^{\ast } \\
+g_{t} \\
+r_{t}^{\ast } \\
+r_{t-1}^{\ast } \\
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{4t} \\
+\varepsilon _{5t}%
+\end{array}%
+\right] }_{X_{t}}+\underbrace{%
+\begin{bmatrix}
+0 & -\alpha _{2} & 0 & 0 & -\frac{a_{r}}{2} & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0%
+\end{bmatrix}%
+}_{D_{2}}\underbrace{\left[
+\begin{array}{c}
+y_{t-1}^{\ast } \\
+y_{t-2}^{\ast } \\
+g_{t-1} \\
+r_{t-1}^{\ast } \\
+r_{t-2}^{\ast } \\
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{3t-1} \\
+\varepsilon _{4t-1} \\
+\varepsilon _{5t-1}%
+\end{array}%
+\right] }_{X_{t-1}}+\underbrace{%
+\begin{bmatrix}
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0%
+\end{bmatrix}%
+}_{R}\underbrace{\left[
+\begin{array}{c}
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{4t} \\
+\varepsilon _{5t}%
+\end{array}%
+\right] }_{\varepsilon _{t}} \\
+\underbrace{\left[
+\begin{array}{c}
+y_{t}^{\ast } \\
+y_{t-1}^{\ast } \\
+g_{t} \\
+r_{t}^{\ast } \\
+r_{t-1}^{\ast } \\
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{4t} \\
+\varepsilon _{5t}%
+\end{array}%
+\right] }_{X_{t}}& =\underbrace{%
+\begin{bmatrix}
+1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0%
+\end{bmatrix}%
+}_{A}\underbrace{\left[
+\begin{array}{c}
+y_{t-1}^{\ast } \\
+y_{t-2}^{\ast } \\
+g_{t-1} \\
+r_{t-1}^{\ast } \\
+r_{t-2}^{\ast } \\
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{3t-1} \\
+\varepsilon _{4t-1} \\
+\varepsilon _{5t-1}%
+\end{array}%
+\right] }_{X_{t-1}}+\underbrace{%
+\begin{bmatrix}
+0 & 0 & 0 & \sigma _{4} & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & \sigma _{5} \\
+0 & 0 & \sigma _{3} & 0 & c\sigma _{5} \\
+0 & 0 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 1%
+\end{bmatrix}%
+}_{C}\underbrace{\left[
+\begin{array}{c}
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{4t} \\
+\varepsilon _{5t}%
+\end{array}%
+\right] }_{\varepsilon _{t}}
+\end{align*}
+
+\els
+
+The parameter values from LW(2003) are:%
+\begin{align*}
+\sigma _{1}& =0.387,~\sigma _{2}=~~0.731,~\sigma _{3}=0.323,~\sigma
+_{4}=0.605,~~\sigma _{5}=0.102 \\
+\alpha _{1}& =1.51,~~~\alpha _{2}=-0.57,~~b_{y}=0.043,~\alpha
+_{r}=-0.098,~c=1.068.
+\end{align*}%
+$\allowbreak $
+
+\end{document}

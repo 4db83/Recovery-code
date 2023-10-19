@@ -100,4 +100,8 @@ for iObs = nObs:-1:1
     
 end
 
+resStruct.att = att;
+resStruct.Ptt = Ptt;
+
+
 end
