@@ -9,8 +9,7 @@ set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',14)
 set(groot,'defaultAxesXTickLabelRotationMode','manual')
 set(groot,'defaultAxesFontName','Times New Roman')
 addpath(genpath('./functions'))
-addpath(genpath('./utility.Functions'))               % set path to db functions
-% addpath(genpath('D:/matlab.tools/db.toolbox/db'))   % set path to db functions
+addpath(genpath('D:/matlab.tools/db.toolbox/db'))           % set path to db functions
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % Sample size and seed for random number generator in simulation
@@ -89,7 +88,7 @@ KS_deJ  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % NO INV, NO INITV
 % --------------------------------------------------------------------------------------------------
 
 % % UNCOMMENT TO PLOT TRUE VS ESTIMATED STATES -----------------------------------------------------
-% % PLOT THE KF/KS ESTIMATES OF THE STATES 
+% PLOT THE KF/KS ESTIMATES OF THE STATES 
 % clf; tiledlayout(3,2,TileSpacing="compact",Padding="compact");
 % for k = 6:size(KS_deJ.atT,2)
 %   nexttile
@@ -107,7 +106,7 @@ KS_deJ  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % NO INV, NO INITV
 %   else;       addsubtitle(['$\varepsilon_{' num2str(k-5) 't}$']); end
 % end
 % % UNCOMMENT TO SHOW SCATTER PLOTS 
-% for k = 6:size(KS_deJ.atT,2)
+% for k = 6:10
 %   nexttile
 %   hold on;
 %     scatter(Xs(:,k),KS_deJ.att(:,k)); 
