@@ -1,4 +1,4 @@
-% HLW17 Shock recovery (https://www.newyorkfed.org/research/policy/rstar)
+% HLW23_post_COVID19 Shock recovery (https://www.newyorkfed.org/research/policy/rstar)
 % SSF: ---------------------------------------------------------------------------------------------
 %   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
 %   X(t) = A*X(t-1)            + C*ε(t),      ε(t) ~ MN(0,I)
@@ -23,25 +23,31 @@ dim_Z = 2;                % rows Z(t)
 dim_X = 10 + ADD_Drstar;  % rows X(t)
 dim_R = 5;                % rows ε(t)
 % --------------------------------------------------------------------------------------------------   
-% parameters (from the published paper, Table 1 on page S60.                                           
-ay1         =  1.530;       % paper only gives the sum as 0.942
-ay2         = -0.588;
-ar          = -0.071;
-by          =  0.079;
-bpi         =  0.668;       % not needed
-c           =  1.0;         % set to 1 in HLW17
+% parameters (from the published paper, Table 1 on page 26 and Holston_Laubach_Williams_current_estimates_23Q1.xlsx.
+ay1         =  1.385;       % paper only gives the sum as 0.942
+ay2         = -0.449;
+ar          = -0.079;
+by          =  0.073;
+bpi         =  0.680;       % not needed
+c           =  1.128;       % set to 1 in HLW17
 % standard deviations      (NOTE the order in Table 1 is different, here I use the same order as in the LW03 code)                                                                         
-sigma_ytild =  0.354;       % sigma(ytild)                                                                           
-sigma_pi    =  0.791;       % sigma(pi)                                                                              
-sigma_z     =  0.150;       % sigma(z)                                                                               
-sigma_ystar =  0.575;       % sigma(ystar)                                                                           
-sigma_g     =  0.122/4;     % sigma(g)       reported as annualized rate -->                                                
-% divide by 4 to express in quarterly rate (annualized later in the C Matrix)                         
+sigma_ytild =  0.452;       % sigma(ytild)                                                                           
+sigma_pi    =  0.787;       % sigma(pi)                                                                              
+sigma_z     =  0.118;       % sigma(z)                                                                               
+sigma_ystar =  0.500;       % sigma(ystar)                                                                           
+sigma_g     =  0.145/4;     % sigma(g)       reported as annualized rate -->                                                
+% divide by 4 to express in quarterly rate (annualized later in the C Matrix)             
+% kappa values for the differen time periods
+kappa = 9.033;              % kappa_2020Q2-Q4	
+kappa = 1.791;              % kappa_2021	    
+kappa = 1.676;              % kappa_2022	  
+% kappa = 1;
+
 % --------------------------------------------------------------------------------------------------   
 % Define D1
 D1 = zeros(dim_Z,dim_X); 
-D1(1,1) = 1;    D1(1,6) = sigma_ytild;
-D1(2,2) = -by;  D1(2,7) = sigma_pi;
+D1(1,1) = 1;    D1(1,6) = kappa*sigma_ytild;
+D1(2,2) = -by;  D1(2,7) = kappa*sigma_pi;
 % Define D2
 D2 = zeros(dim_Z,dim_X); 
 D2(1,1:2) = [-ay1 -ay2]; D2(1,4:5) = -ar/2;
@@ -91,22 +97,23 @@ KS_deJ  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % NO INV, NO INITV
 
 % % UNCOMMENT TO PLOT TRUE VS ESTIMATED STATES -----------------------------------------------------
 % PLOT THE KF/KS ESTIMATES OF THE STATES 
-% clf; tiledlayout(3,2,TileSpacing="compact",Padding="compact");
-% for k = 6:size(KS_deJ.atT,2)
-%   nexttile
-%   hold on;
-%     plot(Xs(:,k), 'LineWidth',3); 
-%     plot(KS_deJ.att(:,k),'--','Color',clr(3),'LineWidth',2);  % Filtered States
-%     plot(KS_deJ.atT(:,k),'--','Color',clr(3),'LineWidth',2);    % Smoothed States
-%   hold off;
-%   hline(0)
-%   box on; grid on;
-%   set(gca,'GridLineStyle',':' ,'GridAlpha',1/3, 'LineWidth',5/5);
-%   add2yaxislabel;
-%   addlegend({'True','Estimate:$\,a_{t|T}$'},1)
-%   if k == 11; addsubtitle(['$\Delta r^{\ast}_{t}$']); 
-%   else;       addsubtitle(['$\varepsilon_{' num2str(k-5) 't}$']); end
-% end
+clf; tiledlayout(3,2,TileSpacing="compact",Padding="compact");
+for k = 6:size(KS_deJ.atT,2)
+  nexttile
+  hold on;
+    plot(Xs(:,k), 'LineWidth',3); 
+    plot(KS_deJ.att(:,k),'--','Color',clr(3),'LineWidth',2);  % Filtered States
+    plot(KS_deJ.atT(:,k),'--','Color',clr(3),'LineWidth',2);    % Smoothed States
+  hold off;
+  hline(0)
+  box on; grid on;
+  set(gca,'GridLineStyle',':' ,'GridAlpha',1/3, 'LineWidth',5/5);
+  add2yaxislabel;
+  addlegend({'True','Estimate:$\,a_{t|T}$'},1)
+  if k == 11; addsubtitle(['$\Delta r^{\ast}_{t}$']); 
+  else;       addsubtitle(['$\varepsilon_{' num2str(k-5) 't}$']); end
+end
+
 % % UNCOMMENT TO SHOW SCATTER PLOTS 
 % clf; tiledlayout(3,2,TileSpacing="compact",Padding="compact");
 % for k = 6:size(KS_deJ.atT,2)

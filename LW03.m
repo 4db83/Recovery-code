@@ -155,7 +155,7 @@ end
 Drstar = KS_deJ.atT(:,4)-KS_deJ.atT(:,5);
 
 fprintf('\n');sep('=');fprintf('Identity (21). Dependent variable: ET∆r*(t) \n')
-ID2 = ols(Drstar, [n5 n3], 1, {'ETη5(t)','ETη3(t)'});
+ID2 = ols(Drstar, [4*c*n5 n3], 1, {'4*c*ETη5(t)','ETη3(t)'});
  
 fprintf('\n');sep('=');fprintf('Identity (22). Dependent variable: ET∆r*(t) \n')
 ID3 = ols(Drstar, [lag(Drstar) n1 n2 n4 lag(n1) lag(n4)], 1, ...
