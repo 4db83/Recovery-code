@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage{graphicx,hyperref,mathpple,amsmath,exscale,setspace,xcolor}
 \usepackage[left=20mm,right=20mm,top=20mm,bottom=20mm]{geometry}
-\usepackage{pdflscape,showkeys}
+\usepackage{pdflscape,showkeys,changepage}
 \usepackage[round]{natbib}
 
 \setcounter{MaxMatrixCols}{10}
@@ -12,7 +12,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Tuesday, October 17, 2023 13:48:02}
+%TCIDATA{LastRevised=Thursday, October 26, 2023 23:02:49}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -23,13 +23,15 @@
 \newcommand{\bsq}{\begin{subequations}}\newcommand{\esq}{\end{subequations}}
 \newcommand{\bls}{\begin{landscape}}\newcommand{\els}{\end{landscape}}
 \renewcommand\showkeyslabelformat[1]{{\parbox[t]{\marginparwidth}{\raggedright\footnotesize\url{#1}}}}
-}
+\newcommand{\intxt}[1]{\intertext{#1}}\newcommand{\BAW}[1]{\begin{adjustwidth}{-#1mm}{-5mm}}\newcommand{\EAW}{\end{adjustwidth}}
+\newcommand{\vsp}[1]{\vspace*{#1mm}}\newcommand{\hsp}[1]{\hspace*{#1mm}}  }
 \makeatletter
 \renewcommand*{\@fnsymbol}[1]{\ensuremath{\ifcase#1\or *\or
     \#\or \star\or \bowtie\or \star\star\or \ddagger\ddagger \else\@ctrerr\fi}}
 \makeatother
 \allowdisplaybreaks
 \IfFileExists{C:/swp55/TCITeX/TeX/LaTeX/SWmacros/tcilatex.tex}{\input{tcilatex}}{}
+\graphicspath{{../graphics/}{graphics/}}
 \newcommand{\dble}{1.77}
 \newcommand{\sngl}{1.23}
 \definecolor{myred}{rgb}{.50,.10,.10}
@@ -41,22 +43,10 @@
 \begin{document}
 
 
-\section{SSMs with lagged states following Kurz (2018)\ }
-
-Kurz's SSM takes the following general from:\bsq\label{SSM}%
-\begin{align}
-\mathsf{Measurement}& :\quad Z_{t}=D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
-\label{ssm1} \\
-\mathsf{State}& :\quad X_{t}=AX_{t-1}+C\varepsilon _{t},  \label{ssm2}
-\end{align}%
-\esq where $\varepsilon _{t}\sim MN(0,I_{m})$, $D_{1},D_{2},A,R$ are $C$ are
-conformable system matrices, $Z_{t}$ the observed variable and $X_{t}$ the
-latent state.
-
 \section{HP97}
 
-The HP-Filter of Hodrick and Prescott\ (1997) can be expressed as an SSM
-following a UC\ model structure as:\bsq\label{HP0}%
+The Filter of Hodrick and Prescott\ (1997, HP-Filter) can be expressed as an
+SSM following a UC\ model structure as:\bsq\label{HP0}%
 \begin{align}
 y_{t}& =y_{t}^{\ast }+y_{t}^{c}  \label{HP0a} \\
 \Delta ^{2}y_{t}^{\ast }& =\varepsilon _{1t}  \label{HP0b} \\
@@ -67,24 +57,43 @@ _{1t}$ and $\varepsilon _{2t}$ are $N(0,1)$. The standard deviation $\phi $
 is the (square root of the) smoothing parameter, generally set to $40$,
 implying a value of `$\lambda $' of $1600$.
 
-To assess recovery, re-write the model in`\emph{shock recovery}' state-space
-from\ (SSF). That is, collect all observables in $Z_{t}$ and all shocks (and
-other state variables)\ in $X_{t}$. The relation in \ref{HP0} can be written
-as:%
+\section{Shock recovery SSM}
+
+\subsection{SSM with lagged states}
+
+Kurz's (2018) SSM has the following general from:\bsq\label{SSM}%
+\begin{align}
+\mathsf{Measurement}& :\quad Z_{t}=D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
+\label{ssm1} \\
+\mathsf{State}& :\quad X_{t}=AX_{t-1}+C\varepsilon _{t},  \label{ssm2}
+\end{align}%
+\esq where $\varepsilon _{t}\sim MN(0,I_{m})$, $D_{1},D_{2},A,R$ are $C$ are
+conformable system matrices, $Z_{t}$ the observed variable and $X_{t}$ the
+latent state variable.
+
+\subsection{HP97 SSM\ for shock recovery}
+
+To assess recovery, re-write the model in \ref{HP0} in `\emph{shock recovery}%
+' State Space Form (SSF). That is, collect all observables in $Z_{t}$ and
+all shocks (and other state variables)\ in $X_{t}$ to yield:%
 \begin{align}
 \Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}y_{t}^{c}  \notag \\
 & =\varepsilon _{1t}+\phi \Delta ^{2}\varepsilon _{2t}  \notag \\
-Z_{t}& =\varepsilon _{1t}+\phi \varepsilon _{2t}-2\phi \varepsilon
-_{2t-1}+\phi \varepsilon _{2t-2},  \label{Z}
+& =\varepsilon _{1t}+\phi \varepsilon _{2t}-2\phi \varepsilon _{2t-1}+\phi
+\varepsilon _{2t-2},  \label{Z}
 \end{align}%
-where $Z_{t}=\Delta ^{2}y_{t}$ is the observed variable.
+where $\Delta ^{2}y_{t}=Z_{t}$ is the only observed variable.\pagebreak 
 
-The Measurement and State equations corresponding to \ref{SSM} are:\bsq\label%
+The Measurement and State equations corresponding to \ref{Z} are:\bsq\label%
 {K0SSM}%
 \begin{align}
+\mathsf{Measurement}:\quad Z_{t}& =D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
+\notag \\
+& =\varepsilon _{1t}+\phi \varepsilon _{2t}-2\phi \varepsilon _{2t-1}+\phi
+\varepsilon _{2t-2} \\[2mm]
 Z_{t}& =\underbrace{%
 \begin{bmatrix}
-1 & \phi  & -2\phi 
+1 & \phi  & 0%
 \end{bmatrix}%
 }_{D_{1}}\underbrace{%
 \begin{bmatrix}
@@ -94,7 +103,7 @@ Z_{t}& =\underbrace{%
 \end{bmatrix}%
 }_{X_{t}}+\underbrace{%
 \begin{bmatrix}
-0 & 0 & \phi 
+0 & -2\phi  & \phi 
 \end{bmatrix}%
 }_{D_{2}}\underbrace{%
 \begin{bmatrix}
@@ -111,7 +120,8 @@ Z_{t}& =\underbrace{%
 \varepsilon _{1t} \\ 
 \varepsilon _{2t}%
 \end{bmatrix}%
-}_{\varepsilon _{t}} \\
+} \\
+\mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t},  \notag \\[5mm]
 \underbrace{%
 \begin{bmatrix}
 \varepsilon _{1t} \\ 
@@ -141,26 +151,8 @@ Z_{t}& =\underbrace{%
 \varepsilon _{1t} \\ 
 \varepsilon _{2t}%
 \end{bmatrix}%
-}_{\varepsilon _{t}}
+}_{\varepsilon _{t}}.
 \end{align}%
-\esq$\allowbreak $
-
-The Kalman Filter and Smoother based steady-state $\mathrm{diag}(P)$ are,
-respectively:%
-\begin{equation}
-\mathrm{diag}(P_{t|t}^{\ast })=%
-\begin{bmatrix}
-0.9995 \\ 
-0.2006 \\ 
-0.1608%
-\end{bmatrix}%
-\text{ \ and \ }\mathrm{diag}(P_{t|T}^{\ast })=%
-\begin{bmatrix}
-0.9439 \\ 
-0.0561 \\ 
-0.0561%
-\end{bmatrix}%
-.
-\end{equation}
+\esq
 
 \end{document}

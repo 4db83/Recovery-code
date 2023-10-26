@@ -12,7 +12,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Monday, October 23, 2023 14:47:13}
+%TCIDATA{LastRevised=Wednesday, October 25, 2023 14:33:38}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -69,20 +69,20 @@ y_{t-1} & y_{t-2} & r_{t-1} & r_{t-2} & \pi _{t-1} & \pi _{t-2,4}%
 ^{\prime }, \\
 \boldsymbol{\xi }_{t}& =%
 \begin{bmatrix}
-y_{t}^{\ast } & y_{t-1}^{\ast } & y_{t-2}^{\ast } & g_{t-1} & g_{t-2} &
+y_{t}^{\ast } & y_{t-1}^{\ast } & y_{t-2}^{\ast } & g_{t-1} & g_{t-2} & 
 z_{t-1} & z_{t-2}%
 \end{bmatrix}%
 ^{\prime }, \\
 \mathbf{A}& =%
 \begin{bmatrix}
-a_{y,1} & a_{y,2} & \frac{a_{r}}{2} & \frac{a_{r}}{2} & 0 & 0 \\
+a_{y,1} & a_{y,2} & \frac{a_{r}}{2} & \frac{a_{r}}{2} & 0 & 0 \\ 
 b_{y} & 0 & 0 & 0 & b_{\pi } & 1-b_{\pi }%
 \end{bmatrix}%
 , \\
 \mathbf{H}& =%
 \begin{bmatrix}
 1 & -a_{y,1} & -a_{y,2} & -4\frac{a_{r}}{2} & -4\frac{a_{r}}{2} & -\frac{%
-a_{r}}{2} & -\frac{a_{r}}{2} \\
+a_{r}}{2} & -\frac{a_{r}}{2} \\ 
 0 & -b_{y} & 0 & 0 & 0 & 0 & 0%
 \end{bmatrix}%
 .
@@ -101,8 +101,8 @@ is now held fixed at $1$, rather than estimated due to `\emph{identification
 problems}', so that $r_{t}^{\ast }=4g_{t}+z_{t}$. They write to this on page
 S63: `\emph{In Laubach and Williams (2003), we estimated this relationship
 and found a coefficient of close to unity. Because this relationship is not
-well identified in the data, we chose to impose a coefficient of unity.}'. In
-the description of their SSM, the constant $c$ has thus been removed for
+well identified in the data, we chose to impose a coefficient of unity.}'.
+In the description of their SSM, the constant $c$ has thus been removed for
 comparability, but in the SSM used for recovery in Section 2, it is left in
 the equations to make the adaption of the code easiest to the
 HLW23-post-COVID19 version.
@@ -112,14 +112,14 @@ annualized, but not in the state equations for $g_{t}$. That is, in the
 matrices above, the entries in $\mathbf{H(}1,4:5\mathbf{)}$ corresponding to
 trend growth are multiplied by 4 (as well as $c$) in the code that performs
 the estimation (see \texttt{unpack.parameters.stage3.R} in \texttt{%
-HLW\_replication.zip} files, line 22, which reads):\
+HLW\_replication.zip} files, line 22, which reads):\ 
 
 \texttt{H[1, 4:5] \TEXTsymbol{<}- -parameters[3] * 2 \# -a\_r/2 (annualized)}%
 .
 
 \noindent The standard deviations of the shocks are denoted by $%
 \begin{bmatrix}
-\sigma _{\tilde{y}} & \sigma _{\pi } & \sigma _{y^{\ast }} & \sigma _{g} &
+\sigma _{\tilde{y}} & \sigma _{\pi } & \sigma _{y^{\ast }} & \sigma _{g} & 
 \sigma _{z}%
 \end{bmatrix}%
 ^{\prime }$ in the documentation in `\texttt{HLW\_Code\_Guide.pdf}'.
@@ -128,54 +128,54 @@ HLW\_replication.zip} files, line 22, which reads):\
 
 \subsection{SSM of HLW17}
 
-The measurement equation is:\bsq\label{obs0}
+The measurement equation is:\bsq\label{obs0} 
 \begin{align}
 \mathbf{y}_{t}& =\mathbf{Ax}_{t}+\mathbf{H}\xi _{t}+\boldsymbol{R}^{1/2}%
 \boldsymbol{\varepsilon }_{t}^{\mathbf{y}}  \notag \\
 \underbrace{%
 \begin{bmatrix}
-y_{t} \\
+y_{t} \\ 
 \pi _{t}%
 \end{bmatrix}%
 }_{\mathbf{y}_{t}}& =\underbrace{%
 \begin{bmatrix}
-a_{y,1} & a_{y,2} & \frac{a_{r}}{2} & \frac{a_{r}}{2} & 0 & 0 \\
+a_{y,1} & a_{y,2} & \frac{a_{r}}{2} & \frac{a_{r}}{2} & 0 & 0 \\ 
 b_{y} & 0 & 0 & 0 & b_{\pi } & 1-b_{\pi }%
 \end{bmatrix}%
 }_{\mathbf{A}}\underbrace{%
 \begin{bmatrix}
-y_{t-1} \\
-y_{t-2} \\
-r_{t-1} \\
-r_{t-2} \\
-\pi _{t-1} \\
+y_{t-1} \\ 
+y_{t-2} \\ 
+r_{t-1} \\ 
+r_{t-2} \\ 
+\pi _{t-1} \\ 
 \pi _{t-2,4}%
 \end{bmatrix}%
 }_{\mathbf{x}_{t}} \\
 & +\underbrace{%
 \begin{bmatrix}
 1 & -a_{y,1} & -a_{y,2} & -4\frac{a_{r}}{2} & -4\frac{a_{r}}{2} & -\frac{%
-a_{r}}{2} & -\frac{a_{r}}{2} \\
+a_{r}}{2} & -\frac{a_{r}}{2} \\ 
 0 & -b_{y} & 0 & 0 & 0 & 0 & 0%
 \end{bmatrix}%
 }_{\mathbf{H}}\underbrace{%
 \begin{bmatrix}
-y_{t}^{\ast } \\
-y_{t-1}^{\ast } \\
-y_{t-2}^{\ast } \\
-g_{t-1} \\
-g_{t-2} \\
-z_{t-1} \\
+y_{t}^{\ast } \\ 
+y_{t-1}^{\ast } \\ 
+y_{t-2}^{\ast } \\ 
+g_{t-1} \\ 
+g_{t-2} \\ 
+z_{t-1} \\ 
 z_{t-2}%
 \end{bmatrix}%
 }_{\boldsymbol{\xi }_{t}}+\underbrace{%
 \begin{bmatrix}
-\sigma _{\tilde{y}} & 0 \\
+\sigma _{\tilde{y}} & 0 \\ 
 0 & \sigma _{\pi }%
 \end{bmatrix}%
 }_{\boldsymbol{R}^{1/2}}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{t}^{\tilde{y}} \\
+\varepsilon _{t}^{\tilde{y}} \\ 
 \varepsilon _{t}^{\pi }%
 \end{bmatrix}%
 }_{\boldsymbol{\varepsilon }_{t}^{\mathbf{y}}}.
@@ -186,48 +186,48 @@ z_{t-2}%
 ^{1/2}\boldsymbol{\varepsilon }_{t}^{\boldsymbol{\xi }}  \notag \\[5mm]
 \underbrace{%
 \begin{bmatrix}
-y_{t}^{\ast } \\
-y_{t-1}^{\ast } \\
-y_{t-2}^{\ast } \\
-g_{t-1} \\
-g_{t-2} \\
-z_{t-1} \\
+y_{t}^{\ast } \\ 
+y_{t-1}^{\ast } \\ 
+y_{t-2}^{\ast } \\ 
+g_{t-1} \\ 
+g_{t-2} \\ 
+z_{t-1} \\ 
 z_{t-2}%
 \end{bmatrix}%
 }_{\boldsymbol{\xi }_{t}}& =\underbrace{%
 \begin{bmatrix}
-1 & 0 & 0 & 1 & 0 & 0 & 0 \\
-1 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 1 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 1 & 0 & 0 & 0 \\
-0 & 0 & 0 & 1 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+1 & 0 & 0 & 1 & 0 & 0 & 0 \\ 
+1 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 1 & 0 \\ 
 0 & 0 & 0 & 0 & 0 & 1 & 0%
 \end{bmatrix}%
 }_{\mathbf{F}}\underbrace{%
 \begin{bmatrix}
-y_{t-1}^{\ast } \\
-y_{t-2}^{\ast } \\
-y_{t-3}^{\ast } \\
-g_{t-2} \\
-g_{t-3} \\
-z_{t-2} \\
+y_{t-1}^{\ast } \\ 
+y_{t-2}^{\ast } \\ 
+y_{t-3}^{\ast } \\ 
+g_{t-2} \\ 
+g_{t-3} \\ 
+z_{t-2} \\ 
 z_{t-3}%
 \end{bmatrix}%
 }_{\boldsymbol{\xi }_{t-1}}+\underbrace{%
 \begin{bmatrix}
-\sigma _{y^{\ast }} & \sigma _{g} & 0 \\
-0 & 0 & 0 \\
-0 & 0 & 0 \\
-0 & \sigma _{g} & 0 \\
-0 & 0 & 0 \\
-0 & 0 & \sigma _{z} \\
+\sigma _{y^{\ast }} & \sigma _{g} & 0 \\ 
+0 & 0 & 0 \\ 
+0 & 0 & 0 \\ 
+0 & \sigma _{g} & 0 \\ 
+0 & 0 & 0 \\ 
+0 & 0 & \sigma _{z} \\ 
 0 & 0 & 0%
 \end{bmatrix}%
 }_{\boldsymbol{Q}^{1/2}}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{t}^{y^{\ast }} \\
-\varepsilon _{t-1}^{g} \\
+\varepsilon _{t}^{y^{\ast }} \\ 
+\varepsilon _{t-1}^{g} \\ 
 \varepsilon _{t-1}^{z}%
 \end{bmatrix}%
 }_{\boldsymbol{\varepsilon }_{t}^{\boldsymbol{\xi }}}  \label{state1}
@@ -239,19 +239,19 @@ Expanding the relations in \ref{obs0} and \ref{state1} and re-arranging
 yields:%
 \begin{equation}
 \begin{bmatrix}
-y_{t} \\
-\\
-\\
-\pi _{t} \\
+y_{t} \\ 
+\\ 
+\\ 
+\pi _{t} \\ 
 \end{bmatrix}%
 =%
 \begin{bmatrix}
 y_{t}^{\ast }+a_{y,1}\left( y_{t-1}-y_{t-1}^{\ast }\right) +a_{y,2}\left(
-y_{t-2}-y_{t-2}^{\ast }\right)  \\
+y_{t-2}-y_{t-2}^{\ast }\right) \\ 
 +\frac{1}{2}a_{r}\left( \left[ r_{t-1}-4cg_{t-1}-z_{t-1}\right] +\left[
 r_{t-2}-4cg_{t-2}-z_{t-2}\right] \right) +\sigma _{\tilde{y}}\varepsilon
-_{t}^{\tilde{y}} \\
-\\
+_{t}^{\tilde{y}} \\ 
+\\ 
 b_{y}\left( y_{t-1}-y_{t-1}^{\ast }\right) +b_{\pi }\pi _{t-1}+(1-b_{\pi
 })\pi _{t-2,4}+\sigma _{\pi }\varepsilon _{t}^{\pi }%
 \end{bmatrix}
@@ -260,40 +260,40 @@ b_{y}\left( y_{t-1}-y_{t-1}^{\ast }\right) +b_{\pi }\pi _{t-1}+(1-b_{\pi
 
 \begin{equation}
 \begin{bmatrix}
-y_{t}^{\ast } \\
-y_{t-1}^{\ast } \\
-y_{t-2}^{\ast } \\
-g_{t-1} \\
-g_{t-2} \\
-z_{t-1} \\
+y_{t}^{\ast } \\ 
+y_{t-1}^{\ast } \\ 
+y_{t-2}^{\ast } \\ 
+g_{t-1} \\ 
+g_{t-2} \\ 
+z_{t-1} \\ 
 z_{t-2}%
 \end{bmatrix}%
 =%
 \begin{bmatrix}
 y_{t-1}^{\ast }+\overbrace{g_{t-2}+\sigma _{g}\varepsilon _{t-1}^{g}}%
-^{g_{t-1}}+\sigma _{y^{\ast }}\varepsilon _{t}^{y^{\ast }} \\
-y_{t-1}^{\ast } \\
-y_{t-2}^{\ast } \\
-g_{t-2}+\sigma _{g}\varepsilon _{t-1}^{g} \\
-g_{t-2} \\
-z_{t-2}+\sigma _{z}\varepsilon _{t-1}^{z} \\
+^{g_{t-1}}+\sigma _{y^{\ast }}\varepsilon _{t}^{y^{\ast }} \\ 
+y_{t-1}^{\ast } \\ 
+y_{t-2}^{\ast } \\ 
+g_{t-2}+\sigma _{g}\varepsilon _{t-1}^{g} \\ 
+g_{t-2} \\ 
+z_{t-2}+\sigma _{z}\varepsilon _{t-1}^{z} \\ 
 z_{t-2}%
 \end{bmatrix}%
-\Rightarrow
+\Rightarrow 
 \begin{bmatrix}
-\Delta y_{t}^{\ast } \\
-\Delta g_{t-1} \\
+\Delta y_{t}^{\ast } \\ 
+\Delta g_{t-1} \\ 
 \Delta z_{t-1}%
 \end{bmatrix}%
 =%
 \begin{bmatrix}
-g_{t-1}+\sigma _{y^{\ast }}\varepsilon _{t}^{y^{\ast }} \\
-\sigma _{g}\varepsilon _{t-1}^{g} \\
+g_{t-1}+\sigma _{y^{\ast }}\varepsilon _{t}^{y^{\ast }} \\ 
+\sigma _{g}\varepsilon _{t-1}^{g} \\ 
 \sigma _{z}\varepsilon _{t-1}^{z}%
 \end{bmatrix}
 \label{lwb}
 \end{equation}%
-and with $r_{t}^{\ast }=4g_{t}+z_{t}$, we get: \vsp{-4}
+and with $r_{t}^{\ast }=4g_{t}+z_{t}$, we get: \vsp{-4} 
 \begin{align}
 \Delta r_{t}^{\ast }& =4\overbrace{\Delta g_{t}}^{\sigma _{g}\varepsilon
 _{t}^{g}}+\overbrace{\Delta z_{t}}^{\sigma _{z}\varepsilon _{t}^{z}}  \notag
@@ -336,7 +336,25 @@ _{t-1}+(1-b_{\pi })\pi _{t-2,4}+\sigma _{\pi }\varepsilon _{t}^{\pi } \\
 \intxt{with}\Delta r_{t}^{\ast }& =4\sigma _{g}\varepsilon _{t}^{g}+\sigma
 _{z}\varepsilon _{t}^{z}.  \label{LW03f}
 \end{align}%
-\esq
+\esq where the numbered shock to named shock mapping is:%
+\begin{equation}
+\begin{bmatrix}
+\varepsilon _{1t} \\ 
+\varepsilon _{2t} \\ 
+\varepsilon _{3t} \\ 
+\varepsilon _{4t} \\ 
+\varepsilon _{5t}%
+\end{bmatrix}%
+=%
+\begin{bmatrix}
+\varepsilon _{t}^{\tilde{y}} \\ 
+\varepsilon _{t}^{\pi } \\ 
+\varepsilon _{t}^{z} \\ 
+\varepsilon _{t}^{y^{\ast }} \\ 
+\varepsilon _{t}^{g}%
+\end{bmatrix}%
+.
+\end{equation}
 
 \subsection{HLW17 SSM for shock recovery}
 
@@ -360,7 +378,7 @@ _{g}\varepsilon _{t}^{g} \\
 \label{drstar2}
 \end{align}%
 \esq with the observables $Z_{t}$ in the measurement equations defined as:%
-\vsp{-3}
+\vsp{-3} 
 \begin{align*}
 Z_{1t}& =y_{t}-\sum_{i=1}^{2}a_{y,i}y_{t-i}-\tfrac{1}{2}a_{r}%
 \sum_{i=1}^{2}r_{t-i} \\
@@ -372,117 +390,117 @@ then: \bsq\label{K0SSM}%
 \begin{align}
 \mathsf{Measurement}:\quad Z_{t}& =D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
 \notag \\[-4mm]
-\underbrace{\left[
+\underbrace{\left[ 
 \begin{array}{c}
-Z_{1t} \\
+Z_{1t} \\ 
 Z_{2t}%
 \end{array}%
 \right] }_{Z_{t}}& =\underbrace{%
 \begin{bmatrix}
-1 & 0 & 0 & 0 & 0 & \sigma _{\tilde{y}} & 0 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 & 0 & \sigma _{\tilde{y}} & 0 & 0 & 0 & 0 \\ 
 0 & -b_{y} & 0 & 0 & 0 & 0 & \sigma _{\pi } & 0 & 0 & 0%
 \end{bmatrix}%
-}_{D_{1}}\underbrace{\left[
+}_{D_{1}}\underbrace{\left[ 
 \begin{array}{c}
-y_{t}^{\ast } \\
-y_{t-1}^{\ast } \\
-g_{t} \\
-r_{t}^{\ast } \\
-r_{t-1}^{\ast } \\
-\varepsilon _{t}^{\tilde{y}} \\
-\varepsilon _{t}^{\pi } \\
-\varepsilon _{t}^{z} \\
-\varepsilon _{t}^{y^{\ast }} \\
+y_{t}^{\ast } \\ 
+y_{t-1}^{\ast } \\ 
+g_{t} \\ 
+r_{t}^{\ast } \\ 
+r_{t-1}^{\ast } \\ 
+\varepsilon _{t}^{\tilde{y}} \\ 
+\varepsilon _{t}^{\pi } \\ 
+\varepsilon _{t}^{z} \\ 
+\varepsilon _{t}^{y^{\ast }} \\ 
 \varepsilon _{t}^{g}%
 \end{array}%
 \right] }_{X_{t}} \\
 & +\underbrace{%
 \begin{bmatrix}
 -a_{y,1} & -a_{y,2} & 0 & -\frac{a_{r}}{2} & -\frac{a_{r}}{2} & 0 & 0 & 0 & 0
-& 0 \\
+& 0 \\ 
 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0%
 \end{bmatrix}%
-}_{D_{2}}\underbrace{\left[
+}_{D_{2}}\underbrace{\left[ 
 \begin{array}{c}
-y_{t-1}^{\ast } \\
-y_{t-2}^{\ast } \\
-g_{t-1} \\
-r_{t-1}^{\ast } \\
-r_{t-2}^{\ast } \\
-\varepsilon _{t-1}^{\tilde{y}} \\
-\varepsilon _{t-1}^{\pi } \\
-\varepsilon _{t-1}^{z} \\
-\varepsilon _{t-1}^{y^{\ast }} \\
+y_{t-1}^{\ast } \\ 
+y_{t-2}^{\ast } \\ 
+g_{t-1} \\ 
+r_{t-1}^{\ast } \\ 
+r_{t-2}^{\ast } \\ 
+\varepsilon _{t-1}^{\tilde{y}} \\ 
+\varepsilon _{t-1}^{\pi } \\ 
+\varepsilon _{t-1}^{z} \\ 
+\varepsilon _{t-1}^{y^{\ast }} \\ 
 \varepsilon _{t-1}^{g}%
 \end{array}%
 \right] }_{X_{t-1}}+\underbrace{\boldsymbol{0}_{2\times 5}}_{R}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{t}^{\tilde{y}} \\
-\varepsilon _{t}^{\pi } \\
-\varepsilon _{t}^{z} \\
-\varepsilon _{t}^{y^{\ast }} \\
+\varepsilon _{t}^{\tilde{y}} \\ 
+\varepsilon _{t}^{\pi } \\ 
+\varepsilon _{t}^{z} \\ 
+\varepsilon _{t}^{y^{\ast }} \\ 
 \varepsilon _{t}^{g}%
 \end{bmatrix}%
 }_{\varepsilon _{t}} \\
 \mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t},  \notag \\[5mm]
-\underbrace{\left[
+\underbrace{\left[ 
 \begin{array}{c}
-y_{t}^{\ast } \\
-y_{t-1}^{\ast } \\
-g_{t} \\
-r_{t}^{\ast } \\
-r_{t-1}^{\ast } \\
-\varepsilon _{t}^{\tilde{y}} \\
-\varepsilon _{t}^{\pi } \\
-\varepsilon _{t}^{z} \\
-\varepsilon _{t}^{y^{\ast }} \\
+y_{t}^{\ast } \\ 
+y_{t-1}^{\ast } \\ 
+g_{t} \\ 
+r_{t}^{\ast } \\ 
+r_{t-1}^{\ast } \\ 
+\varepsilon _{t}^{\tilde{y}} \\ 
+\varepsilon _{t}^{\pi } \\ 
+\varepsilon _{t}^{z} \\ 
+\varepsilon _{t}^{y^{\ast }} \\ 
 \varepsilon _{t}^{g}%
 \end{array}%
 \right] }_{X_{t}}& =\underbrace{%
 \begin{bmatrix}
-1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0%
 \end{bmatrix}%
-}_{A}\underbrace{\left[
+}_{A}\underbrace{\left[ 
 \begin{array}{c}
-y_{t-1}^{\ast } \\
-y_{t-2}^{\ast } \\
-g_{t-1} \\
-r_{t-1}^{\ast } \\
-r_{t-2}^{\ast } \\
-\varepsilon _{t-1}^{\tilde{y}} \\
-\varepsilon _{t-1}^{\pi } \\
-\varepsilon _{t-1}^{z} \\
-\varepsilon _{t-1}^{y^{\ast }} \\
+y_{t-1}^{\ast } \\ 
+y_{t-2}^{\ast } \\ 
+g_{t-1} \\ 
+r_{t-1}^{\ast } \\ 
+r_{t-2}^{\ast } \\ 
+\varepsilon _{t-1}^{\tilde{y}} \\ 
+\varepsilon _{t-1}^{\pi } \\ 
+\varepsilon _{t-1}^{z} \\ 
+\varepsilon _{t-1}^{y^{\ast }} \\ 
 \varepsilon _{t-1}^{g}%
 \end{array}%
 \right] }_{X_{t-1}}+\underbrace{%
 \begin{bmatrix}
-0 & 0 & 0 & \sigma _{y^{\ast }} & 0 \\
-0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & \sigma _{g} \\
-0 & 0 & \sigma _{z} & 0 & 4c\sigma _{g} \\
-0 & 0 & 0 & 0 & 0 \\
-1 & 0 & 0 & 0 & 0 \\
-0 & 1 & 0 & 0 & 0 \\
-0 & 0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & \sigma _{y^{\ast }} & 0 \\ 
+0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & \sigma _{g} \\ 
+0 & 0 & \sigma _{z} & 0 & 4c\sigma _{g} \\ 
+0 & 0 & 0 & 0 & 0 \\ 
+1 & 0 & 0 & 0 & 0 \\ 
+0 & 1 & 0 & 0 & 0 \\ 
+0 & 0 & 1 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 0 \\ 
 0 & 0 & 0 & 0 & 1%
 \end{bmatrix}%
 }_{C}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{t}^{\tilde{y}} \\
-\varepsilon _{t}^{\pi } \\
-\varepsilon _{t}^{z} \\
-\varepsilon _{t}^{y^{\ast }} \\
+\varepsilon _{t}^{\tilde{y}} \\ 
+\varepsilon _{t}^{\pi } \\ 
+\varepsilon _{t}^{z} \\ 
+\varepsilon _{t}^{y^{\ast }} \\ 
 \varepsilon _{t}^{g}%
 \end{bmatrix}%
 }_{\varepsilon _{t}}
@@ -511,130 +529,130 @@ and augment the remaining matrices to be conformable. The required $\phi $
 term is then the entry of $\mathrm{diag}(P_{t|T}^{\ast })$ that corresponds
 to $\Delta r_{t}^{\ast }$, which will be the very last element.
 
-The augmented SSF of \ref{K0SSM} is then:
+The augmented SSF of \ref{K0SSM} is then: 
 \begin{align}
 \mathsf{Measurement}:\quad Z_{t}& =D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
 \notag \\[-4mm]
-\underbrace{\left[
+\underbrace{\left[ 
 \begin{array}{c}
-Z_{1t} \\
+Z_{1t} \\ 
 Z_{2t}%
 \end{array}%
 \right] }_{Z_{t}}& =\underbrace{%
 \begin{bmatrix}
-1 & 0 & 0 & 0 & 0 & \sigma _{\tilde{y}} & 0 & 0 & 0 & 0 & \color{red}{0} \\
+1 & 0 & 0 & 0 & 0 & \sigma _{\tilde{y}} & 0 & 0 & 0 & 0 & \color{red}{0} \\ 
 0 & -b_{y} & 0 & 0 & 0 & 0 & \sigma _{\pi } & 0 & 0 & 0 & \color{red}{0}%
 \end{bmatrix}%
-}_{D_{1}}\underbrace{\left[
+}_{D_{1}}\underbrace{\left[ 
 \begin{array}{c}
-y_{t}^{\ast } \\
-y_{t-1}^{\ast } \\
-g_{t} \\
-r_{t}^{\ast } \\
-r_{t-1}^{\ast } \\
-\varepsilon _{t}^{\tilde{y}} \\
-\varepsilon _{t}^{\pi } \\
-\varepsilon _{t}^{z} \\
-\varepsilon _{t}^{y^{\ast }} \\
-\varepsilon _{t}^{g} \\
+y_{t}^{\ast } \\ 
+y_{t-1}^{\ast } \\ 
+g_{t} \\ 
+r_{t}^{\ast } \\ 
+r_{t-1}^{\ast } \\ 
+\varepsilon _{t}^{\tilde{y}} \\ 
+\varepsilon _{t}^{\pi } \\ 
+\varepsilon _{t}^{z} \\ 
+\varepsilon _{t}^{y^{\ast }} \\ 
+\varepsilon _{t}^{g} \\ 
 \color{red}{\Delta r_t^*}%
 \end{array}%
 \right] }_{X_{t}} \\
 & +\underbrace{%
 \begin{bmatrix}
 -a_{y,1} & -a_{y,2} & 0 & -\frac{a_{r}}{2} & -\frac{a_{r}}{2} & 0 & 0 & 0 & 0
-& 0 & \color{red}{0} \\
+& 0 & \color{red}{0} \\ 
 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0}%
 \end{bmatrix}%
-}_{D_{2}}\underbrace{\left[
+}_{D_{2}}\underbrace{\left[ 
 \begin{array}{c}
-y_{t-1}^{\ast } \\
-y_{t-2}^{\ast } \\
-g_{t-1} \\
-r_{t-1}^{\ast } \\
-r_{t-2}^{\ast } \\
-\varepsilon _{t-1}^{\tilde{y}} \\
-\varepsilon _{t-1}^{\pi } \\
-\varepsilon _{t-1}^{z} \\
-\varepsilon _{t-1}^{y^{\ast }} \\
-\varepsilon _{t-1}^{g} \\
+y_{t-1}^{\ast } \\ 
+y_{t-2}^{\ast } \\ 
+g_{t-1} \\ 
+r_{t-1}^{\ast } \\ 
+r_{t-2}^{\ast } \\ 
+\varepsilon _{t-1}^{\tilde{y}} \\ 
+\varepsilon _{t-1}^{\pi } \\ 
+\varepsilon _{t-1}^{z} \\ 
+\varepsilon _{t-1}^{y^{\ast }} \\ 
+\varepsilon _{t-1}^{g} \\ 
 \color{red}{\Delta r_{t-1}^*}%
 \end{array}%
 \right] }_{X_{t-1}}+\underbrace{\boldsymbol{0}_{2\times 5}}_{R}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{t}^{\tilde{y}} \\
-\varepsilon _{t}^{\pi } \\
-\varepsilon _{t}^{z} \\
-\varepsilon _{t}^{y^{\ast }} \\
+\varepsilon _{t}^{\tilde{y}} \\ 
+\varepsilon _{t}^{\pi } \\ 
+\varepsilon _{t}^{z} \\ 
+\varepsilon _{t}^{y^{\ast }} \\ 
 \varepsilon _{t}^{g}%
 \end{bmatrix}%
 }_{\varepsilon _{t}} \\
 \mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t},  \notag \\[5mm]
-\underbrace{\left[
+\underbrace{\left[ 
 \begin{array}{c}
-y_{t}^{\ast } \\
-y_{t-1}^{\ast } \\
-g_{t} \\
-r_{t}^{\ast } \\
-r_{t-1}^{\ast } \\
-\varepsilon _{t}^{\tilde{y}} \\
-\varepsilon _{t}^{\pi } \\
-\varepsilon _{t}^{z} \\
-\varepsilon _{t}^{y^{\ast }} \\
-\varepsilon _{t}^{g} \\
+y_{t}^{\ast } \\ 
+y_{t-1}^{\ast } \\ 
+g_{t} \\ 
+r_{t}^{\ast } \\ 
+r_{t-1}^{\ast } \\ 
+\varepsilon _{t}^{\tilde{y}} \\ 
+\varepsilon _{t}^{\pi } \\ 
+\varepsilon _{t}^{z} \\ 
+\varepsilon _{t}^{y^{\ast }} \\ 
+\varepsilon _{t}^{g} \\ 
 \color{red}{\Delta r_t^*}%
 \end{array}%
 \right] }_{X_{t}}& =\underbrace{%
 \begin{bmatrix}
-1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\
-1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\
-0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\
-0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\
-0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\
+1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\ 
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\ 
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\ 
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\ 
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \color{red}{0} \\ 
 \color{red}{0} & \color{red}{0} & \color{red}{0} & \color{red}{0} & %
 \color{red}{0} & \color{red}{0} & \color{red}{0} & \color{red}{0} & %
 \color{red}{0} & \color{red}{0} & \color{red}{0}%
 \end{bmatrix}%
-}_{A}\underbrace{\left[
+}_{A}\underbrace{\left[ 
 \begin{array}{c}
-y_{t-1}^{\ast } \\
-y_{t-2}^{\ast } \\
-g_{t-1} \\
-r_{t-1}^{\ast } \\
-r_{t-2}^{\ast } \\
-\varepsilon _{t-1}^{\tilde{y}} \\
-\varepsilon _{t-1}^{\pi } \\
-\varepsilon _{t-1}^{z} \\
-\varepsilon _{t-1}^{y^{\ast }} \\
-\varepsilon _{t-1}^{g} \\
+y_{t-1}^{\ast } \\ 
+y_{t-2}^{\ast } \\ 
+g_{t-1} \\ 
+r_{t-1}^{\ast } \\ 
+r_{t-2}^{\ast } \\ 
+\varepsilon _{t-1}^{\tilde{y}} \\ 
+\varepsilon _{t-1}^{\pi } \\ 
+\varepsilon _{t-1}^{z} \\ 
+\varepsilon _{t-1}^{y^{\ast }} \\ 
+\varepsilon _{t-1}^{g} \\ 
 \color{red}{\Delta r_{t-1}^*}%
 \end{array}%
 \right] }_{X_{t-1}}+\underbrace{%
 \begin{bmatrix}
-0 & 0 & 0 & \sigma _{y^{\ast }} & 0 \\
-0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & \sigma _{g} \\
-0 & 0 & \sigma _{z} & 0 & 4c\sigma _{g} \\
-0 & 0 & 0 & 0 & 0 \\
-1 & 0 & 0 & 0 & 0 \\
-0 & 1 & 0 & 0 & 0 \\
-0 & 0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 1 & 0 \\
-0 & 0 & 0 & 0 & 1 \\
+0 & 0 & 0 & \sigma _{y^{\ast }} & 0 \\ 
+0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & \sigma _{g} \\ 
+0 & 0 & \sigma _{z} & 0 & 4c\sigma _{g} \\ 
+0 & 0 & 0 & 0 & 0 \\ 
+1 & 0 & 0 & 0 & 0 \\ 
+0 & 1 & 0 & 0 & 0 \\ 
+0 & 0 & 1 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 0 \\ 
+0 & 0 & 0 & 0 & 1 \\ 
 \color{red}{0} & \color{red}{0} & \color{red}{\sigma _{z}} & \color{red}{0}
 & \color{red}{4c\sigma _{g}}%
 \end{bmatrix}%
 }_{C}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{t}^{\tilde{y}} \\
-\varepsilon _{t}^{\pi } \\
-\varepsilon _{t}^{z} \\
-\varepsilon _{t}^{y^{\ast }} \\
+\varepsilon _{t}^{\tilde{y}} \\ 
+\varepsilon _{t}^{\pi } \\ 
+\varepsilon _{t}^{z} \\ 
+\varepsilon _{t}^{y^{\ast }} \\ 
 \varepsilon _{t}^{g}%
 \end{bmatrix}%
 }_{\varepsilon _{t}}

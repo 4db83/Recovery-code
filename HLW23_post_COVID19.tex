@@ -12,7 +12,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Monday, October 23, 2023 16:43:22}
+%TCIDATA{LastRevised=Wednesday, October 25, 2023 14:32:42}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -266,7 +266,7 @@ d_{t-1}}^{\tilde{y}_{t-1,COVID}})+a_{y,2}(\overbrace{y_{t-2}-y_{t-2}^{\ast
 +\frac{1}{2}a_{r}\left( \left[ r_{t-1}-4cg_{t-1}-z_{t-1}\right] +\left[
 r_{t-2}-4cg_{t-2}-z_{t-2}\right] \right) +\kappa _{t}\sigma _{\tilde{y}%
 }\varepsilon _{t}^{\tilde{y}} \\ 
-\\[-5mm]
+\\[-5mm] 
 b_{y}(\overbrace{y_{t-1}-y_{t-1}^{\ast }-\phi d_{t-1}}^{\tilde{y}%
 _{t-1,COVID}})+b_{\pi }\pi _{t-1}+\left( 1-b_{\pi }1\right) \pi
 _{t-2,4}+\kappa _{t}\sigma _{\pi }\kappa _{t}\varepsilon _{t}^{\pi }%
@@ -366,7 +366,25 @@ _{t}^{\pi } \\
 \intxt{with}\Delta r_{t}^{\ast }& =4c\sigma _{g}\varepsilon _{t}^{g}+\sigma
 _{z}\varepsilon _{t}^{z}.  \label{LW03f}
 \end{align}%
-\esq
+\esq where the numbered shock to named shock mapping is:%
+\begin{equation}
+\begin{bmatrix}
+\varepsilon _{1t} \\ 
+\varepsilon _{2t} \\ 
+\varepsilon _{3t} \\ 
+\varepsilon _{4t} \\ 
+\varepsilon _{5t}%
+\end{bmatrix}%
+=%
+\begin{bmatrix}
+\varepsilon _{t}^{\tilde{y}} \\ 
+\varepsilon _{t}^{\pi } \\ 
+\varepsilon _{t}^{z} \\ 
+\varepsilon _{t}^{y^{\ast }} \\ 
+\varepsilon _{t}^{g}%
+\end{bmatrix}%
+.
+\end{equation}
 
 \subsection{HLW23 SSM for shock recovery}
 
@@ -406,11 +424,11 @@ possibilities for $\kappa _{t}$: $\kappa _{20220Q2-Q4},\kappa _{2021},\kappa
 _{2022}$ and 1 for the baseline, but with the 2023 estimates of all other
 parameters.
 
-\pagebreak The `\emph{shock recovery}' SSF\ corresponding to \ref{ssm0} is
-then: \bsq\label{K0SSM}%
+The `\emph{shock recovery}' SSF\ corresponding to \ref{ssm0} is then: \bsq%
+\label{K0SSM}%
 \begin{align}
 \mathsf{Measurement}:\quad Z_{t}& =D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
-\notag \\[-4mm]
+\notag \\[-24mm]
 \underbrace{\left[ 
 \begin{array}{c}
 Z_{1t} \\ 

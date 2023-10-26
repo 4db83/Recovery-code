@@ -1,4 +1,4 @@
-% LW03 Shock recovery (https://www.newyorkfed.org/research/policy/rstar)
+% MR17_with_MP_rule Shock recovery (https://www.newyorkfed.org/research/policy/rstar)
 % SSF: ---------------------------------------------------------------------------------------------
 %   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
 %   X(t) = A*X(t-1)            + C*ε(t),      ε(t) ~ MN(0,I)
@@ -15,56 +15,80 @@ addpath(genpath('./utility.Functions'))               % set path to db functions
 
 % Sample size and seed for random number generator in simulation
 Ts = 1e4; rng(123);
+% set to 1 if wanting to add ∆r*(t) to State vector X(t)
+ADD_Drstar  = 1;
 PLOT_STATES = 0;
 
-
-
 % DEFINE SSM INPUT MATRICES ------------------------------------------------------------------------
-dim_Z = 1;       % rows Z(t)
-dim_X = 3;       % rows X(t)
-dim_R = 2;       % rows ε(t)
+dim_Z = 4;                % rows Z(t)
+dim_X = 15 + ADD_Drstar;  % rows X(t)
+dim_R = 8;                % rows ε(t)
 % offset for the first k latent state variables before the shocks.
-k = dim_X - dim_R; 
-k = 0;
-% --------------------------------------------------------------------------------------------------    % this is what you get when running their LW code                                          
-% standard deviation sqrt(lambda = 1600)
-phi = 40;
-% --------------------------------------------------------------------------------------------------    % over the sample.start <- c(1961,1) sample.end   <- c(2002,2) with data vintage 2018      
+k = dim_X - dim_R - ADD_Drstar; 
+% --------------------------------------------------------------------------------------------------
+% Posterior Means (from Table A2: Parameter Estimates on page 17 in Bulletin).    
+% MP rule equation is from MARTIN Model equation 36 converted to real rate via i(t) = r(t) + pi(t).
+ay1   =  1.48;      % ay1   paper only gives the sum as 0.945                                         
+ay2   =  -.53;      % ay2                                                                            
+ar    =   .06;      % ar -> NOTE: MR17 use -ar/2 in SSM instead of + ar/2 as in LW03 who have a negative estimate. It is the same in the end, but be careful with the construction and comparison
+beta2 = -0.33;      % beta_2   --> unemployment gap
+beta  =  0.64;      % beta     --> output gap in Okun's law
+b1    =  0.3;
+% standard deviations                                                                               
+s1 = 0.37;          % s(ytild) --> IS curve                                                                        
+s2 = 0.80;          % s(pi)    --> Phillips curve                                                                       
+s3 = 0.34;          % s(z)     --> Unexplained r*                                                                           
+s4 = 0.55;          % s(ystar) --> Trend output
+s5 = 0.05;          % s(g)     --> Trend growth, quarterly rate, not annualized ???
+s6 = 0.15;          % s(u*)    --> NAIRU
+s7 = 0.07;          % s(u)     --> Unemployment 
+s8 = 1.19;          % s(r)     --> MP rule shock
+% Structural parameters -------- Mode   Mean  ------------------------------------------------------
+% IS curve – y!t−1               1.53   1.48      Normal 1.10 1.50
+% IS curve – y!t−2              –0.54  –0.53      Normal –0.20 1.50
+% IS curve – rt(L)−rt∗(L)        0.05   0.06      Inverse gamma 0.15 1.00
+% Phillips curve – t (L)         0.39   0.41      Beta 0.50 0.25
+% Phillips curve – ut−1−ut−1∗   –0.32  –0.33      Normal –0.50 0.30
+% Okun’s law – y!t (L)           0.62   0.64      Normal 0.50 0.3
+% Shock processes ----------------------------------------------------------------------------------
+% IS curve                       0.38   0.37      Inverse gamma 1.00 1.00
+% Phillips curve                 0.79   0.80      Inverse gamma 1.00 1.00
+% Unemployment                   0.07   0.07      Inverse gamma 0.25 0.25
+% Trend output                   0.54   0.55      Inverse gamma 1.00 1.00
+% NAIRU                          0.15   0.15      Inverse gamma 0.40 0.25
+% Trend growth                   0.05   0.05      Inverse gamma 0.25 0.50
+% Unexplained r*                 0.22   0.34      Inverse gamma 0.40 0.25
+
+% --------------------------------------------------------------------------------------------------
 % Define D1
 D1 = zeros(dim_Z,dim_X); 
-D1(1,1) = 1;  D1(1,2) = phi; D1(1,3) = -2*phi;
+D1(1,1:3) = [1 -ay1 -ay2];    D1(1,8)   = s1;
+                              D1(2,9)   = s2;
+D1(3,1:3) = -beta*[.4 .3 .2]; D1(3,14)  = s7;
+D1(4,[5 7]) = [b1 2*b1];      D1(4,15)  = s8;
 % Define D2
 D2 = zeros(dim_Z,dim_X); 
-D2(1,3) = phi;
+D2(1,5:6) = -ar/2;
+D2(2,7)   = -beta2;
+D2(3,3)   = -beta*.1;
 % Define R
 R  = zeros(dim_Z,dim_R);
 % --------------------------------------------------------------------------------------------------
 % Define A
 A = zeros(dim_X); 
-A(3,2) = 1; 
+A([1 2],1) = 1; A(3,2) = 1; A([1 4],4) = 1; 
+A(5:6,5) = 1; A([1 4],4) = 1; A(7,7) = 1;
 % Define C
-C = [eye(dim_R); zeros(1,2); ];
+C = zeros(dim_X,dim_R); C(k+1:(dim_X-ADD_Drstar),:) = eye(dim_R);
+C(1,4) = s4; C(4,5) = s5; C(5,[3 5]) = [s3 4*s5]; C(7,6) = s6;
+if ADD_Drstar; C(end,[3 5]) = [s3 4*s5]; end
 % --------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 % CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
 [PtT, Ptt] = Kurz_steadystate_P(D1, D2, R, A, C);
 ss = k+1:dim_X;
-% row_names = make_table_names('ε',1:dim_R,'(t)');          % make display names 
-row_names = {'ε1(t)',' ε2(t)','ε2(t-1)'} ; 
+row_names = make_table_names('ε',1:dim_R,'(t)');              % make display names 
+if ADD_Drstar; row_names = [row_names; {'∆r*(t)'}]; end   % add ∆r* to display names 
 
 Pstar = array2table([ diag(PtT(ss,ss)) diag(Ptt(ss,ss)) ], ...
         'VariableNames',{'P(t|T)','P(t|t)'}, 'RowNames', row_names);
@@ -132,32 +156,28 @@ corr_table = array2table( corr(Xs(:,k+1:end), KS_deJ.atT(:,k+1:end)), ...
              'RowNames', row_names, 'VariableNames',row_names);
 print_table(corr_table,4,1,'Correlation matrix of True and estimated smoothed States');sep
 
-% % CALCULATE CORRELATION between ∆r*(t) and ET∆r*(t) [ie., actual vs. estimate)
-% if ADD_Drstar 
-%   PHI = PtT(end,end);
-%   % Theoretical stdev 
-%   sig_KS_Drstar = std( KS_deJ.atT(:,end) );
-%   % Theoretical from model
-%   sig_Drstar = sqrt( (4*c*s5)^2 + s3^2 );
-%   % correlation between smoothed dr* and actual 
-%   rho = 0.5*(sig_Drstar^2 + sig_KS_Drstar^2 - PHI) / (sig_Drstar*sig_KS_Drstar);
-%   fprintf('Corr(ET(∆r*(t)),∆r*(t) from simulation) Analytical formulas: %4.4f\n', rho);
-% end
-
-% Define/Make eta(i) = eps(i)
-for jj = 1:dim_R
-  eval(['etT_' num2str(jj) ' = KS_deJ.atT(:,k+' num2str(jj) ');']);
-  eval(['ett_' num2str(jj) ' = KS_deJ.att(:,k+' num2str(jj) ');']);
+% CALCULATE CORRELATION between ∆r*(t) and ET∆r*(t) [ie., actual vs. estimate)
+if ADD_Drstar 
+  PHI = PtT(end,end);
+  % Theoretical stdev 
+  sig_KS_Drstar = std( KS_deJ.atT(:,end) );
+  % Theoretical from model
+  sig_Drstar = sqrt( (4*s5)^2 + s3^2 );
+  % correlation between smoothed dr* and actual 
+  rho = 0.5*(sig_Drstar^2 + sig_KS_Drstar^2 - PHI) / (sig_Drstar*sig_KS_Drstar);
+  fprintf('Corr(ET(∆r*(t)),∆r*(t) from simulation) Analytical formulas: %4.4f\n', rho);
 end
 
-% Check some identities by running ols regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
-fprintf('\n');sep('=');fprintf('Filter Identity on page 17 in EER(2022). Dependent variable: Etε2(t) \n')
-Xnames_ID1 = {'Etε1(t)'};  % Xnames_ID1 = [];
-ID1 = ols(ett_2, [ett_1], 1, Xnames_ID1);
+% Define/Make eta(i) = sig(i)*eps(i)
+for jj = 1:dim_R
+  eval(['n' num2str(jj) ' = s' num2str(jj) '*KS_deJ.atT(:,k+' num2str(jj) ');']);
+end
 
-fprintf('\n');sep('=');fprintf('Smoother Identity on page 10 in Stars(2023). Dependent variable: Δ²ETε1(t) \n')
-Xnames_ID2 = {'ETε2(t)'};  % Xnames_ID2 = [];
-ID2 = ols(delta(delta(etT_1)), [etT_2], 1, Xnames_ID2);
+% % Check some identities by running ols regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
+% fprintf('\n');sep('=');fprintf('Identity (20). Dependent variable: ∆ETη5t \n')
+% Xnames_ID1 = {'∆ETη3(t)','ETη4(t)'};
+% % Xnames_ID1 = [];
+% ID1 = ols( delta(n1), [lag(delta(n1)) lag(delta(n3)) lag(n4,2)], 1, Xnames_ID1);
 
 % % --------------------------------------------------------------------------------------------------
 % % OTHER IDENTITIES 
