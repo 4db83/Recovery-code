@@ -1,15 +1,17 @@
 function dyout = delta(y,k,remove_nans)
 % function dy = delta(varargin)
-% Function: Computes the kth change in y(t) as: y(t)-y(t-k)
-%______________________________________________________________
+% Function: Computes the kth difference/change in y(t): Δᵏy(t) = (1-L)ᵏy(t)
+%
+% NOTE: This is different form the function delta_long or long_diff which 
+%       compute the long-difference, that is, Δₖy(t) = (1-Lᵏ)y(t) = y(t) - y(t-k)
+%_______________________________________________________________________________________
 %
 % DESCRIPTION:
-%
-%	Computes the kth change in y(t) as: y(t)-y(t-k)
-%______________________________________________________________
+%     Computes the kth difference/change in y(t): Δᵏy(t) = (1-L)ᵏy(t)
+%_______________________________________________________________________________________
 %
 % USAGE:	dy = delta(y,k).
-%______________________________________________________________
+%_______________________________________________________________________________________
 %
 % INPUT:
 %		
@@ -23,10 +25,10 @@ function dyout = delta(y,k,remove_nans)
 %	
 % NOTES:-------------------------------------------------------
 %		NONE.
-%______________________________________________________________
+%_______________________________________________________________________________________
 %   
-%   		Created by Daniel Buncic on 29/8/2005.
-% 			Modified on: 29/8/2005.
+%   		Created by Daniel Buncic on 27.10.2023.
+% 			Modified on:                27.10.2023.
 
 SetDefaultValue(2,'k',1);
 SetDefaultValue(3,'remove_nans',0);
@@ -41,68 +43,24 @@ if isTT
 	dates0	= y.Properties.RowTimes;
 	% datamat 
 	matx0		= y.Variables;
-	[~,cy] = size(matx0);
-	dy_tmp  = [NaN(k,cy); trimr_F(matx0,k,0)-trimr_F(matx0,0,k)];
-	% dy			= fints(dates0,dy_tmp,names0(end-cy+1:end));
+	[~,cy]  = size(matx0);
+	dy_tmp  = [NaN(k,cy); diff(matx0,k)];
   dy      = make_timetable(dy_tmp,names0,dates0);
   switch k
     case 1;   dyout = prefix_varnames(['Δ' ],dy);
-    % case 2;   dyout = prefix_varnames(['Δ₂'],dy);
-    % case 3;   dyout = prefix_varnames(['Δ³'],dy);
-    % case 4;   dyout = prefix_varnames(['Δ⁴'],dy);
-    % case 5;   dyout = prefix_varnames(['Δ⁵'],dy);
+    case 2;   dyout = prefix_varnames(['Δ²'],dy);
+    case 3;   dyout = prefix_varnames(['Δ³'],dy);
+    case 4;   dyout = prefix_varnames(['Δ⁴'],dy);
+    case 5;   dyout = prefix_varnames(['Δ⁵'],dy);
     otherwise
       dyout = prefix_varnames(['Δ' num2str(k)],dy);
   end
 else
 	[~,cy] = size(y);
-	dyout  = [NaN(k,cy); trimr_F(y,k,0) - trimr_F(y,0,k)];	
+	dyout  = [NaN(k,cy); diff(y,k)];	
 end
 
 if remove_nans  
-dyout = removenans(dyout);
+  dyout = removenans(dyout);
 end
 
-% % [cax,args,nargs] = axescheck(varargin{:});
-% % y = args{1};
-% % [ry,cy] = size(y);
-% % 
-% % if nargs == 1;
-% %   dy  = [NaN(1,cy); trimr_F(y,1,0)-trimr_F(y,0,1)];
-% % else
-% %   k   = args{2};
-% %   dy  = [NaN(k,cy); trimr_F(y,k,0)-trimr_F(y,0,k)];
-% % end
-
-
-
-
-
-
-function z = trimr_F(x,n1,n2)
-% PURPOSE: return a matrix (or vector) x stripped of the specified rows.
-% -----------------------------------------------------
-% USAGE: z = trimr_F(x,n1,n2)
-% where: x = input matrix (or vector) (n x k)
-%       n1 = first n1 rows to strip
-%       n2 = last  n2 rows to strip
-% NOTE: modeled after Gauss trimr_F function
-% -----------------------------------------------------
-% RETURNS: z = x(n1+1:n-n2,:)
-% -----------------------------------------------------
-
-% written by:
-% James P. LeSage, Dept of Economics
-% University of Toledo
-% 2801 W. Bancroft St,
-% Toledo, OH 43606
-% jpl@jpl.econ.utoledo.edu
-
-  n = size(x);
-  if (n1+n2) >= n 
-     error('Attempting to trim too much in trimr_F');
-  end
-  h1 = n1+1;   
-  h2 = n-n2;
-  z = x(h1:h2,:);
-  

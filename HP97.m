@@ -17,8 +17,6 @@ addpath(genpath('./utility.Functions'))               % set path to db functions
 Ts = 1e4; rng(123);
 PLOT_STATES = 0;
 
-
-
 % DEFINE SSM INPUT MATRICES ------------------------------------------------------------------------
 dim_Z = 1;       % rows Z(t)
 dim_X = 3;       % rows X(t)
@@ -26,10 +24,10 @@ dim_R = 2;       % rows ε(t)
 % offset for the first k latent state variables before the shocks.
 k = dim_X - dim_R; 
 k = 0;
-% --------------------------------------------------------------------------------------------------    % this is what you get when running their LW code                                          
+% --------------------------------------------------------------------------------------------------    
 % standard deviation sqrt(lambda = 1600)
 phi = 40;
-% --------------------------------------------------------------------------------------------------    % over the sample.start <- c(1961,1) sample.end   <- c(2002,2) with data vintage 2018      
+% --------------------------------------------------------------------------------------------------    
 % Define D1
 D1 = zeros(dim_Z,dim_X); 
 D1(1,1) = 1;  D1(1,2) = phi; D1(1,3) = -2*phi;
@@ -46,20 +44,6 @@ A(3,2) = 1;
 C = [eye(dim_R); zeros(1,2); ];
 % --------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 % CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
 [PtT, Ptt] = Kurz_steadystate_P(D1, D2, R, A, C);
 ss = k+1:dim_X;
@@ -73,6 +57,19 @@ sep; print_table(Pstar,4,1,0)
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
 [Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, dim_Z, dim_X, dim_R, Ts);
 Z = Zs; 
+
+% % % UNCOMMENT TO USE US REAL GDP DATA
+% load('US-GDP.mat')
+% y   = log(usGDP);
+% D2y = delta(y, 2);    % don't use diff due to y being a TimeTable, --> use delta instead
+% Z   = D2y.("Δ²gdp");
+% HP  = hp_filter(y, phi^2);
+% fprintf('\n');sep('=');fprintf('Smoother Identity on page 10 in Stars(2023). Dependent variable: Δ²ETε1(t) \n')
+% sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and not ETε2(t) as stated)\n');sep
+% Xnames_ID2 = {'ETε2(t-2)'};  % Xnames_ID2 = [];
+% ID2 = ols( delta(HP.trend, 4) , [ lag(HP.cycle, 2) ], 1, Xnames_ID2);
+
+%%
 % --------------------------------------------------------------------------------------------------
 % CALL TO FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH 
 % MY CODE ABOVE AND USE OF PINV IN AM SMOOTHER OTHERWISE NON-SINGULARITY ISSUES.
@@ -81,7 +78,7 @@ Z = Zs;
 % Note: errors will always be N(0,1), but latent states may need more careful initialization.
 a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 % Filter
-[~, Kurz_KF] = Kurz_Filter(Z, D1, D2, R, A, C, a00, P00);
+[~, Kurz_KF] = Kurz_Filter(removenans(Z), D1, D2, R, A, C, a00, P00);
 % Smoothers 
 % --------------------------------------------------------------------------------------------------
 % Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother (Eq. (4.11) in Kurz (2018))
@@ -156,8 +153,9 @@ Xnames_ID1 = {'Etε1(t)'};  % Xnames_ID1 = [];
 ID1 = ols(ett_2, [ett_1], 1, Xnames_ID1);
 
 fprintf('\n');sep('=');fprintf('Smoother Identity on page 10 in Stars(2023). Dependent variable: Δ²ETε1(t) \n')
-Xnames_ID2 = {'ETε2(t)'};  % Xnames_ID2 = [];
-ID2 = ols(delta(delta(etT_1)), [etT_2], 1, Xnames_ID2);
+sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and not ETε2(t) as stated)\n');sep
+Xnames_ID2 = {'ETε2(t-2)'};  % Xnames_ID2 = [];
+ID2 = ols( delta(etT_1, 2) , [ lag(etT_2, 2)], 1, Xnames_ID2);
 
 % % --------------------------------------------------------------------------------------------------
 % % OTHER IDENTITIES 
