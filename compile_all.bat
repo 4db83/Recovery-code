@@ -9,4 +9,4 @@ for %%f in (*.tex) do (
 :: pause
 
 :: to delete some auxiliary files
-del *.log *.aux *.out
+del *.log *.aux *.out *.aaa *.bak
