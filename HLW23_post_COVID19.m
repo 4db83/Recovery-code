@@ -152,13 +152,14 @@ end
 
 % Define/Make eta(i) = sig(i)*eps(i)
 for jj = 1:dim_R
-  eval(['n' num2str(jj) ' = s' num2str(jj) '*KS_deJ.atT(:,k+' num2str(jj) ');']);
+  eval(['ETn' num2str(jj) ' = s' num2str(jj) '*KS_deJ.atT(:,k+' num2str(jj) ');']);
+  eval(['Etn' num2str(jj) ' = s' num2str(jj) '*KS_deJ.att(:,k+' num2str(jj) ');']);
 end
 
 % Check some identities by running ols regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
 fprintf('\n');sep('=');fprintf('Identity (20). Dependent variable: ∆ETη5t \n')
 Xnames_ID1 = {'∆ETη3(t)','ETη4(t)'};  % Xnames_ID1 = [];
-ID1 = ols(delta(n5), [delta(n3) n4], 1, Xnames_ID1);
+ID1 = ols(delta(ETn5), [delta(ETn3) ETn4], 1, Xnames_ID1);
 
 % --------------------------------------------------------------------------------------------------
 % OTHER IDENTITIES 
@@ -169,12 +170,11 @@ ID1 = ols(delta(n5), [delta(n3) n4], 1, Xnames_ID1);
 Drstar = KS_deJ.atT(:,4)-KS_deJ.atT(:,5);
 
 fprintf('\n');sep('=');fprintf('Identity (21). Dependent variable: ET∆r*(t) \n')
-ID2 = ols(Drstar, [4*n5 n3], 1, {'4*ETη5(t)','ETη3(t)'});
+ID2 = ols(Drstar, [4*ETn5 ETn3], 1, {'4*ETη5(t)','ETη3(t)'});
 
 fprintf('\n');sep('=');fprintf('Identity (22). Dependent variable: ET∆r*(t) \n')
-ID3 = ols(Drstar, [lag(Drstar) n1 n2 n4 lag(n1) lag(n4)], 1, ...
+ID3 = ols(Drstar, [lag(Drstar) ETn1 ETn2 ETn4 lag(ETn1) lag(ETn4)], 1, ...
       {'ET∆r*(t-1)','ETη1(t)','ETη2(t)','ETη4(t)','ETη1(t-1)','ETη2(t-4)'});
-
 
 
 

@@ -166,14 +166,15 @@ end
 
 % Define/Make eta(i) = sig(i)*eps(i)
 for jj = 1:dim_R
-  eval(['n' num2str(jj) ' = s' num2str(jj) '*KS_deJ.atT(:,k+' num2str(jj) ');']);
+  eval(['ETn' num2str(jj) ' = s' num2str(jj) '*KS_deJ.atT(:,k+' num2str(jj) ');']);
+  eval(['Etn' num2str(jj) ' = s' num2str(jj) '*KS_deJ.att(:,k+' num2str(jj) ');']);
 end
 
 % Check some identities by running ols regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
 fprintf('\n');sep('=');fprintf('Identity in Footnote 11. Dependent variable: ETη1t \n')
 Xnames_ID1 = {'ET∆η1(t-1)', 'ET∆η5(t-1)', 'ETη4(t-2)'};
 % Xnames_ID1 = [];
-ID1 = ols( n1, [ lag(delta(n1)) lag(delta(n5)) lag(n4,2) ], 1, Xnames_ID1);
+ID1 = ols( ETn1, [ lag(delta(ETn1)) lag(delta(ETn5)) lag(ETn4,2) ], 1, Xnames_ID1);
 
 % % --------------------------------------------------------------------------------------------------
 % % OTHER IDENTITIES 
@@ -181,16 +182,12 @@ ID1 = ols( n1, [ lag(delta(n1)) lag(delta(n5)) lag(n4,2) ], 1, Xnames_ID1);
 % % ET∆r*(t) = ETη5t + ETη3t (21) --> this should be: ET∆r*(t) = 4*ETη5t + ETη3t
 % % make ET∆r*(t) from X(:,4)-X(:,5) or alternatively from KS_deJ.atT(:,11);
 % % --------------------------------------------------------------------------------------------------
-% Drstar = KS_deJ.atT(:,4)-KS_deJ.atT(:,5);
-% 
-% fprintf('\n');sep('=');fprintf('Identity (21). Dependent variable: ET∆r*(t) \n')
-% ID2 = ols(Drstar, [4*n5 n3], 1, {'4*ETη5(t)','ETη3(t)'});
-% 
-% fprintf('\n');sep('=');fprintf('Identity (22). Dependent variable: ET∆r*(t) \n')
-% ID3 = ols(Drstar, [lag(Drstar) n1 n2 n4 lag(n1) lag(n4)], 1, ...
-%       {'ET∆r*(t-1)','ETη1(t)','ETη2(t)','ETη4(t)','ETη1(t-1)','ETη2(t-4)'});
-% 
-% 
+fprintf('\n');sep('=');fprintf('Identity (??). Dependent variable: ETη1t \n')
+Xnames_ID2 = {'ET∆η1(t-1)', 'ET∆η3(t-1)', 'ET∆η3(t-2)'};
+ID2 = ols( ETn1, [ lag(delta(ETn1)) lag(delta(ETn3)) lag(delta(ETn3),2) ], 1, Xnames_ID2);
+% ID2 = ols( ETn1, [ lag(delta(ETn1)) mlag(delta(ETn3),2) ], 1, Xnames_ID2);
+
+
 
 
 
