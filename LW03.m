@@ -97,7 +97,7 @@ if PLOT_STATES
   plot_names = make_table_names('$\epsilon_{', 1:k, 't}$');
   if ADD_Drstar; plot_names = [plot_names; '$\Delta r^{\ast}_{t}$']; end
   % loop through plots
-  for ii = k+1:dim_X
+  for ii = ss
     nexttile
     hold on;
       plot(Xs(:,ii), 'LineWidth',3); 
@@ -128,7 +128,7 @@ end
 
 %% CORRELATIONS (can also read off directly from the corr_table below -------------------------------
 % print simple correlations
-corr_table = array2table( corr(Xs(:,k+1:end), KS_deJ.atT(:,k+1:end)), ...
+corr_table = array2table( corr(Xs(:,ss), KS_deJ.atT(:,ss)), ...
              'RowNames', row_names, 'VariableNames',row_names);
 print_table(corr_table,4,1,'Correlation matrix of True and estimated smoothed States');sep
 

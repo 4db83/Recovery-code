@@ -12,7 +12,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Friday, October 27, 2023 17:35:06}
+%TCIDATA{LastRevised=Tuesday, October 31, 2023 15:36:14}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -50,19 +50,17 @@ linear trend model) that can be expressed as an SSM taking the following
 form:\bsq\label{clark0}%
 \begin{align}
 y_{t}& =y_{t}^{\ast }+\tilde{y}_{t} \\
-\Delta y_{t}^{\ast }& =g_{t-1}+\sigma _{y^{\ast }}\varepsilon _{t}^{y^{\ast
-}} \\
-\Delta g_{t}& =\sigma _{g}\varepsilon _{t}^{g} \\
-\alpha (L)\tilde{y}_{t}& =\sigma _{\tilde{y}}\varepsilon _{t}^{\tilde{y}},
+\Delta y_{t}^{\ast }& =g_{t-1}+\sigma _{1}\varepsilon _{1t} \\
+\Delta g_{t}& =\sigma _{2}\varepsilon _{2t} \\
+a(L)\tilde{y}_{t}& =\sigma _{3}\varepsilon _{3t},
 \end{align}%
-\esq where the $\varepsilon _{t}^{i}$ $(\forall i=\{\tilde{y},y^{\ast },g\})$
-are assumed to be $i.i.d.$ standard normal and mutually uncorrelated, with
-standard deviation $\sigma _{i}$ and $\alpha (L)$ is commonly assumed to be
-a stable AR(2), so that $\alpha (L)=(1-\alpha _{1}L-\alpha _{2}L^{2})$. The
-only observable is $y_{t}$ (generally 100 times) the log of real GDP and
-with the cycle (denoted by $\tilde{y}_{t}$) now allowed to be serially
-correlated, following a stationary AR(2) process. There are 3 shocks in the
-model.
+\esq where the shocks $\left\{ \varepsilon _{it}\right\} _{i=1}^{3}$ are
+assumed to be $i.i.d.$ standard normal and mutually uncorrelated, with
+standard deviation $\sigma _{i}$ and $a(L)$ is commonly assumed to be a
+stable AR(2), so that $a(L)=(1-a_{1}L-a_{2}L^{2})$. The only observable is $%
+y_{t}$ (generally 100 times) the log of real GDP and with the cycle (denoted
+by $\tilde{y}_{t}$) now allowed to be serially correlated, following a
+stationary AR(2) process. There are 3 shocks in the model.
 
 The `\emph{numbered}' shock to `\emph{named}' shock mapping is:%
 \begin{equation}
@@ -96,229 +94,156 @@ latent state variable.
 
 \subsection{Clark87 SSM\ for shock recovery}
 
-To assess recovery, re-write the model in \ref{HP0} in `\emph{shock recovery}%
-' State Space Form (SSF). That is, collect all observables in $Z_{t}$ and
-all shocks (and other state variables)\ in $X_{t}$ to yield:%
+To assess recovery, re-write the model in \ref{clark0} in `\emph{shock
+recovery}' State Space Form (SSF). That is, collect all observables in $Z_{t}
+$ and all shocks (and other state variables)\ in $X_{t}$ to yield:%
 \begin{align}
-\Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}y_{t}^{c}  \notag \\
-& =\varepsilon _{1t}+\phi \Delta ^{2}\varepsilon _{2t}  \notag \\
-& =\varepsilon _{1t}+\phi \varepsilon _{2t}-2\phi \varepsilon _{2t-1}+\phi
-\varepsilon _{2t-2},  \label{Z}
+\Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}\tilde{y}_{t}  \notag
+\label{Z} \\
+& =\sigma _{1}\Delta \varepsilon _{1t}+\Delta g_{t-1}+\Delta ^{2}\tilde{y}%
+_{t}  \notag \\
+& =\sigma _{1}\Delta \varepsilon _{1t}+\sigma _{2}\varepsilon
+_{2t-1}+a(L)^{-1}\Delta ^{2}\sigma _{3}\varepsilon _{3t}  \notag \\
+\Leftrightarrow a(L)\Delta ^{2}y_{t}& =\sigma _{1}a(L)\Delta \varepsilon
+_{1t}+\sigma _{2}a(L)\varepsilon _{2t-1}+\sigma _{3}\Delta ^{2}\varepsilon
+_{3t}  \notag \\
+Z_{t}& =\sigma _{1}\left[ \varepsilon _{1t}-\left( 2+a_{1}\right)
+\varepsilon _{1t-1}+\left( 1+2a_{1}-a_{2}\right) \varepsilon _{1t-2}+\left(
+2a_{2}-a_{1}\right) \varepsilon _{1t-3}-a_{2}\varepsilon _{1t-4}\right]  
+\notag \\
+& \hspace{1pt}+\hspace{1pt}\sigma _{2}(\varepsilon _{2t-1}-a_{1}\varepsilon
+_{2t-2}-a_{2}\varepsilon _{2t-3}) \\
+& \hspace{1pt}+\hspace{1pt}\sigma _{3}(\varepsilon _{3t}-2\varepsilon
+_{3t-1}+\varepsilon _{3t-2}),  \notag
 \end{align}%
-where $\Delta ^{2}y_{t}=Z_{t}$ is the only observed variable.
+where I\ have made use of the fact: 
+%$Z_{t}=\sigma _{1}[\varepsilon _{1t}-(1+a_{1})\varepsilon
+%_{1t-1}-(a_{1}+a_{2})\varepsilon _{1t-2}+a_{2}\varepsilon _{1t-3}]$
+%\begin{align*}
+%& 1-\left( 2+a_{1}\right) L+\left( 1+2a_{1}-a_{2}\right) L^{2}+\left(
+%-a_{1}+2a_{2}\right) L^{3}-a_{2}L^{4} \\
+%& \sigma _{1}\left[ \varepsilon _{1t}-\left( 2+a_{1}\right) \varepsilon
+%_{1t-1}+\left( 1+2a_{1}-a_{2}\right) \varepsilon _{1t-2}+\left(
+%-a_{1}+2a_{2}\right) \varepsilon _{1t-3}-a_{2}\varepsilon _{1t-4}\right]
+%\end{align*}
+%p == 1 - (2 + a) x + (1 + 2 a - b) x\symbol{94}2 + (-a + 2 b) x\symbol{94}3
+%- b x\symbol{94}4
+\begin{align}
+a(L)\Delta & =(1-a_{1}L-a_{2}L^{2})(1-L)^{2}  \notag \\
+& =1-\left( 2+a_{1}\right) L+\left( 1+2a_{1}-a_{2}\right) L^{2}+\left(
+2a_{2}-a_{1}\right) L^{3}-a_{2}L^{4},  \label{expaL}
+\end{align}%
+and $Z_{t}=a(L)\Delta ^{2}y_{t}$ is the only observed variable.
 
-The Measurement and State equations corresponding to \ref{Z} are:\bsq\label%
-{K0SSM}%
+The Measurement and State equations corresponding to \ref{Z} are:\BAW{12}\bsq%
+\label{K0SSM}%
 \begin{align}
 \mathsf{Measurement}:\quad Z_{t}& =D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
 \notag \\
-& =\varepsilon _{1t}+\phi \varepsilon _{2t}-2\phi \varepsilon _{2t-1}+\phi
-\varepsilon _{2t-2} \\[2mm]
 Z_{t}& =\underbrace{%
 \begin{bmatrix}
-1 & \phi  & 0%
+\sigma _{1} & 0 & \sigma _{3} & -\sigma _{1}\left( 2+a_{1}\right) & \sigma
+_{1}\left( 1+2a_{1}-a_{2}\right) & \sigma _{1}\left( 2a_{2}-a_{1}\right) & 0
+& 0 & 0%
 \end{bmatrix}%
 }_{D_{1}}\underbrace{%
 \begin{bmatrix}
 \varepsilon _{1t} \\ 
 \varepsilon _{2t} \\ 
-\varepsilon _{2t-1}%
+\varepsilon _{3t} \\ 
+\varepsilon _{1t-1} \\ 
+\varepsilon _{1t-2} \\ 
+\varepsilon _{1t-3} \\ 
+\varepsilon _{2t-1} \\ 
+\varepsilon _{2t-2} \\ 
+\varepsilon _{3t-1}%
 \end{bmatrix}%
-}_{X_{t}}+\underbrace{%
+}_{X_{t}} \\
+& +\underbrace{%
 \begin{bmatrix}
-0 & -2\phi  & \phi 
+0 & \sigma _{2} & -2\sigma _{3} & 0 & 0 & -\sigma _{1}a_{2} & -\sigma
+_{2}a_{1} & -\sigma _{2}a_{2} & \sigma _{3}%
 \end{bmatrix}%
 }_{D_{2}}\underbrace{%
 \begin{bmatrix}
 \varepsilon _{1t-1} \\ 
 \varepsilon _{2t-1} \\ 
-\varepsilon _{2t-2}%
+\varepsilon _{3t-1} \\ 
+\varepsilon _{1t-2} \\ 
+\varepsilon _{1t-3} \\ 
+\varepsilon _{1t-4} \\ 
+\varepsilon _{2t-2} \\ 
+\varepsilon _{2t-3} \\ 
+\varepsilon _{3t-2}%
 \end{bmatrix}%
 }_{X_{t-1}}+\underbrace{%
 \begin{bmatrix}
-0 & 0%
+0 & 0 & 0%
 \end{bmatrix}%
 }_{R}\underbrace{%
 \begin{bmatrix}
 \varepsilon _{1t} \\ 
-\varepsilon _{2t}%
+\varepsilon _{2t} \\ 
+\varepsilon _{3t}%
 \end{bmatrix}%
-} \\
+}_{\varepsilon _{t}} \\
 \mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t},  \notag \\[5mm]
 \underbrace{%
 \begin{bmatrix}
 \varepsilon _{1t} \\ 
 \varepsilon _{2t} \\ 
-\varepsilon _{2t-1}%
+\varepsilon _{3t} \\ 
+\varepsilon _{1t-1} \\ 
+\varepsilon _{1t-2} \\ 
+\varepsilon _{1t-3} \\ 
+\varepsilon _{2t-1} \\ 
+\varepsilon _{2t-2} \\ 
+\varepsilon _{3t-1}%
 \end{bmatrix}%
 }_{X_{t}}& =\underbrace{%
 \begin{bmatrix}
-0 & 0 & 0 \\ 
-0 & 0 & 0 \\ 
-0 & 1 & 0%
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\ 
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\ 
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0%
 \end{bmatrix}%
 }_{A}\underbrace{%
 \begin{bmatrix}
 \varepsilon _{1t-1} \\ 
 \varepsilon _{2t-1} \\ 
-\varepsilon _{2t-2}%
-\end{bmatrix}%
-}_{X_{t-1}}+\underbrace{%
-\begin{bmatrix}
-1 & 0 \\ 
-0 & 1 \\ 
-0 & 0%
-\end{bmatrix}%
-}_{C}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t}%
-\end{bmatrix}%
-}_{\varepsilon _{t}}.
-\end{align}%
-\esq
-
-\bigskip 
-
-Using somewhat different notation than in Clark (1987), the UC model is:\bsq%
-\label{UC}%
-\begin{align}
-y_{t}& =y_{t}^{\ast }+\tilde{y}_{t}  \label{yUC} \\
-\alpha (L)\tilde{y}_{t}& =\sigma _{\tilde{y}}\varepsilon _{t}^{\tilde{y}}
-\label{ytldUC} \\
-\Delta y_{t}^{\ast }& =g_{t-1}+\sigma _{y^{\ast }}\varepsilon _{t}^{y^{\ast
-}}  \label{dy*UC} \\
-\Delta g_{t}& =\sigma _{g}\varepsilon _{t}^{g}.  \label{dgUC}
-\end{align}%
-\esq where the $\varepsilon _{t}^{i}$ $(\forall i=\{\tilde{y},y^{\ast },g\})$
-are assumed to be $i.i.d.$ standard normal and mutually uncorrelated, with
-standard deviation $\sigma _{i}$. The only observable is $y_{t}$ and we have
-3 shocks. Using the same approach as for the HP\ filter model above, we get:%
-\begin{align}
-\Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}\tilde{y}_{t}  \notag
-\\
-& =\underbrace{\Delta g_{t-1}+\Delta \sigma _{y^{\ast }}\varepsilon
-_{t}^{y^{\ast }}}_{\Delta ^{2}y_{t}^{\ast }}+\Delta ^{2}\tilde{y}_{t}
-\label{d2y} \\
-& =\underbrace{\sigma _{g}\varepsilon _{t-1}^{g}}_{\Delta g_{t-1}}+\Delta
-\sigma _{y^{\ast }}\varepsilon _{t}^{y^{\ast }}+\underbrace{\alpha
-(L)^{-1}\Delta ^{2}\sigma _{\tilde{y}}\varepsilon _{t}^{\tilde{y}}}_{\Delta
-^{2}\tilde{y}_{t}}  \notag \\
-\Leftrightarrow \alpha (L)\Delta ^{2}y_{t}& =\alpha (L)\sigma
-_{g}\varepsilon _{t-1}^{g}+\alpha (L)\Delta \sigma _{y^{\ast }}\varepsilon
-_{t}^{y^{\ast }}+\Delta ^{2}\sigma _{\tilde{y}}\varepsilon _{t}^{\tilde{y}} 
-\notag \\
-\Leftrightarrow Z_{t}& =\sigma _{g}(\varepsilon _{t-1}^{g}-\alpha
-_{1}\varepsilon _{t-2}^{g}-\alpha _{2}\varepsilon _{t-3}^{g})  \notag \\
-& \hspace{1pt}+\hspace{1pt}\sigma _{\tilde{y}}(\varepsilon _{t}^{\tilde{y}%
-}-2\varepsilon _{t-1}^{\tilde{y}}+\varepsilon _{t-2}^{\tilde{y}})  \notag \\
-& \hspace{1pt}+\hspace{1pt}\sigma _{y^{\ast }}(\varepsilon _{t}^{y^{\ast
-}}-(\alpha _{1}+1)\varepsilon _{t-1}^{y^{\ast }}-(\alpha _{2}+\alpha
-_{1})\varepsilon _{t-2}^{y^{\ast }}+\alpha _{2}\varepsilon _{t-3}^{y^{\ast
-}}),  \notag
-\end{align}%
-where I\ have made use of the fact: 
-\begin{align*}
-\alpha (L)\Delta & =(1-\alpha _{1}L-\alpha _{2}L^{2})(1-L) \\
-& =(1-(\alpha _{1}+1)L-(\alpha _{2}+\alpha _{1})L^{2}+\alpha _{2}L^{3}).
-\end{align*}%
-Defining the state vector as
-
-\begin{align*}
-\underbrace{%
-\begin{bmatrix}
-\varepsilon _{t}^{\tilde{y}} \\ 
-\varepsilon _{t-1}^{\tilde{y}} \\ 
-\varepsilon _{t}^{y^{\ast }} \\ 
-\varepsilon _{t-1}^{y^{\ast }} \\ 
-\varepsilon _{t-2}^{y^{\ast }} \\ 
-\varepsilon _{t-1}^{g} \\ 
-\varepsilon _{t-2}^{g}%
-\end{bmatrix}%
-}_{X_{t}}& =\underbrace{%
-\begin{bmatrix}
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-1 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 1 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 1 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 1 & 0%
-\end{bmatrix}%
-}_{A}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{t-1}^{\tilde{y}} \\ 
-\varepsilon _{t-2}^{\tilde{y}} \\ 
-\varepsilon _{t-1}^{y^{\ast }} \\ 
-\varepsilon _{t-2}^{y^{\ast }} \\ 
-\varepsilon _{t-3}^{y^{\ast }} \\ 
-\varepsilon _{t-2}^{g} \\ 
-\varepsilon _{t-3}^{g}%
+\varepsilon _{3t-1} \\ 
+\varepsilon _{1t-2} \\ 
+\varepsilon _{1t-3} \\ 
+\varepsilon _{1t-4} \\ 
+\varepsilon _{2t-2} \\ 
+\varepsilon _{2t-3} \\ 
+\varepsilon _{3t-2}%
 \end{bmatrix}%
 }_{X_{t-1}}+\underbrace{%
 \begin{bmatrix}
 1 & 0 & 0 \\ 
-0 & 0 & 0 \\ 
 0 & 1 & 0 \\ 
-0 & 0 & 0 \\ 
-0 & 0 & 0 \\ 
 0 & 0 & 1 \\ 
+0 & 0 & 0 \\ 
+0 & 0 & 0 \\ 
+0 & 0 & 0 \\ 
+0 & 0 & 0 \\ 
+0 & 0 & 0 \\ 
 0 & 0 & 0%
 \end{bmatrix}%
 }_{C}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{t}^{\tilde{y}} \\ 
-\varepsilon _{t}^{y^{\ast }} \\ 
-\varepsilon _{t-1}^{g}%
+\varepsilon _{1t} \\ 
+\varepsilon _{2t} \\ 
+\varepsilon _{3t}%
 \end{bmatrix}%
-}_{u_{t}} \\
-X_{t}& =AX_{t-1}+Cu_{t}
-\end{align*}
-$\allowbreak $and the measurement for $Z_{t}$ as:%
-\begin{align*}
-Z_{t}& =\underbrace{%
-\begin{bmatrix}
-\sigma _{\tilde{y}} & -2\sigma _{\tilde{y}} & \sigma _{y^{\ast }} & -\sigma
-_{y^{\ast }}(\alpha _{1}+1) & -\sigma _{y^{\ast }}(\alpha _{1}+\alpha _{2})
-& \sigma _{g} & -\alpha _{1}\sigma _{g}%
-\end{bmatrix}%
-}_{D_{1}}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{t}^{\tilde{y}} \\ 
-\varepsilon _{t-1}^{\tilde{y}} \\ 
-\varepsilon _{t}^{y^{\ast }} \\ 
-\varepsilon _{t-1}^{y^{\ast }} \\ 
-\varepsilon _{t-2}^{y^{\ast }} \\ 
-\varepsilon _{t-1}^{g} \\ 
-\varepsilon _{t-2}^{g}%
-\end{bmatrix}%
-}_{X_{t}} \\
-& +\underbrace{%
-\begin{bmatrix}
-0 & \sigma _{\tilde{y}} & 0 & 0 & \alpha _{2}\sigma _{y^{\ast }} & 0 & 
--\alpha _{2}\sigma _{g}%
-\end{bmatrix}%
-}_{D_{2}}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{t-1}^{\tilde{y}} \\ 
-\varepsilon _{t-2}^{\tilde{y}} \\ 
-\varepsilon _{t-1}^{y^{\ast }} \\ 
-\varepsilon _{t-2}^{y^{\ast }} \\ 
-\varepsilon _{t-3}^{y^{\ast }} \\ 
-\varepsilon _{t-2}^{g} \\ 
-\varepsilon _{t-3}^{g}%
-\end{bmatrix}%
-}_{X_{t-1}}+\underbrace{%
-\begin{bmatrix}
-0 & 0 & 0%
-\end{bmatrix}%
-}_{R}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{t}^{\tilde{y}} \\ 
-\varepsilon _{t}^{y^{\ast }} \\ 
-\varepsilon _{t-1}^{g}%
-\end{bmatrix}%
-}_{u_{t}}
-\end{align*}
+}_{\varepsilon _{t}}.
+\end{align}%
+\esq\EAW
 
 \end{document}
