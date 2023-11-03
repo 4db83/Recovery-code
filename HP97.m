@@ -15,7 +15,8 @@ addpath(genpath('./utility.Functions'))               % set path to db functions
 
 % Sample size and seed for random number generator in simulation
 Ts = 1e4; rng(123);
-PLOT_STATES = 0;
+PLOT_STATES = 1;
+PLOT_COMPARISON = 1;
 
 % DEFINE SSM INPUT MATRICES ------------------------------------------------------------------------
 dim_Z = 1;       % rows Z(t)
@@ -92,7 +93,7 @@ if PLOT_STATES
     box on; grid on;
     set(gca,'GridLineStyle',':' ,'GridAlpha',1/3, 'LineWidth',5/5);
     add2yaxislabel;
-    addlegend({'True','Estimate:$\,a_{t|T}$'},1)
+    addlegend({'True','Estimate:$\,a_{t|t}$'},1)
     % addsubtitle(plot_names(ii-k),-1.10)
   end
 end
@@ -115,18 +116,6 @@ end
 corr_table = array2table( corr(Xs(:,ss), KS_deJ.atT(:,ss)), ...
              'RowNames', row_names, 'VariableNames',row_names);
 print_table(corr_table,4,1,'Correlation matrix of True and estimated smoothed States');sep
-
-% % CALCULATE CORRELATION between ∆r*(t) and ET∆r*(t) [ie., actual vs. estimate)
-% if ADD_Drstar 
-%   PHI = PtT(end,end);
-%   % Theoretical stdev 
-%   sig_KS_Drstar = std( KS_deJ.atT(:,end) );
-%   % Theoretical from model
-%   sig_Drstar = sqrt( (4*c*s5)^2 + s3^2 );
-%   % correlation between smoothed dr* and actual 
-%   rho = 0.5*(sig_Drstar^2 + sig_KS_Drstar^2 - PHI) / (sig_Drstar*sig_KS_Drstar);
-%   fprintf('Corr(ET(∆r*(t)),∆r*(t) from simulation) Analytical formulas: %4.4f\n', rho);
-% end
 
 % Define/Make eta(i) = eps(i)
 for jj = 1:dim_R
@@ -166,35 +155,34 @@ SSM.trend = cumsum([HP.trend(1); cumsum([dHP_trend(1); KS_deJ_US.atT(:,1)])]);
 % head2tail([SSM.trend HP.trend])
 
 % PLOT trend
-clf;
-% tiledlayout(3,1)
-tiledlayout(3,1, TileSpacing = 'loose', Padding = 'compact');
-nexttile
-hold on;
-  plot(HP.trend)
-  plot(SSM.trend,'--')
-  hline(0)
-hold off; 
-box on; addgrid;
-% ylim([7 11]*100)
-setdateticks(HP.Date,25)
-addlegend({'HP-Filter','Shock-Recovery SSM'},1)
-addsubtitle('Trend in US-GDP data')
-
-% PLOT cycles 
-% subplot(2,1,2)
-nexttile
-hold on;
-  plot(HP.cycle)
-  plot(SSM.cycle,'--')
-  hline(0)
-hold off; 
-box on; addgrid;
-% ylim([-.10 .06])
-setdateticks(HP.Date,25)
-addlegend({'HP-Filter','Shock-Recovery SSM'})
-addsubtitle('Cycle in US-GDP data')
-
+if PLOT_COMPARISON
+  figure(2); clf;
+  % tiledlayout(3,1)
+  tiledlayout(3,1, TileSpacing = 'loose', Padding = 'compact');
+  nexttile
+  hold on;
+    plot(HP.trend)
+    plot(SSM.trend,'--')
+    hline(0)
+  hold off; 
+  box on; addgrid;
+  % ylim([7 11]*100)
+  setdateticks(HP.Date,25)
+  addlegend({'HP-Filter','Shock-Recovery SSM'},1)
+  addsubtitle('Trend in US-GDP data')
+  % PLOT cycles 
+  nexttile
+  hold on;
+    plot(HP.cycle)
+    plot(SSM.cycle,'--')
+    hline(0)
+  hold off; 
+  box on; addgrid;
+  % ylim([-.10 .06])
+  setdateticks(HP.Date,25)
+  addlegend({'HP-Filter','Shock-Recovery SSM'})
+  addsubtitle('Cycle in US-GDP data')
+end
 
 
 
