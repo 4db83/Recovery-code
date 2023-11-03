@@ -154,11 +154,16 @@ D2y = delta(y, 2);    % don't use diff due to y being a TimeTable, --> use delta
 % make Z(t) variable for 'shock recovery' SSM form: ie. Z(t)=Δ²y(t)
 ZZ  = D2y.("Δ²gdp");
 HP  = hp_filter(y, phi^2);
+dHP_trend = delta(HP.trend,1,1); 
 [~, Kurz_KF_US] = Kurz_Filter(removenans(ZZ), D1, D2, R, A, C, a00, P00);
 % construct the cycle from the shock recovery SSM
 KS_deJ_US = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
 SSM.cycle = phi*addnans(KS_deJ_US.atT(:,2),2,0);
-SSM.trend = HP.trend(1)+cumsum(cumsum(KS_deJ_US.atT(:,1)));
+
+% Reconstruct HP.trend from KS_deJ_US.atT(:,1) using initVals from HP.trend (∆2y*(t) = ε1(t))
+% cumsum([HP.trend(1); cumsum([ΔHP.trend(1); ETε1(t)])])
+SSM.trend = cumsum([HP.trend(1); cumsum([dHP_trend(1); KS_deJ_US.atT(:,1)])]);
+% head2tail([SSM.trend HP.trend])
 
 % PLOT trend
 clf;
@@ -167,12 +172,11 @@ tiledlayout(3,1, TileSpacing = 'loose', Padding = 'compact');
 nexttile
 hold on;
   plot(HP.trend)
-  % plot(y.gdp-SSM.cycle,'--')
   plot(SSM.trend,'--')
   hline(0)
 hold off; 
 box on; addgrid;
-ylim([7 11]*100)
+% ylim([7 11]*100)
 setdateticks(HP.Date,25)
 addlegend({'HP-Filter','Shock-Recovery SSM'},1)
 addsubtitle('Trend in US-GDP data')
