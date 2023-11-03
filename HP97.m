@@ -97,18 +97,6 @@ if PLOT_STATES
     % addsubtitle(plot_names(ii-k),-1.10)
   end
 end
-% % UNCOMMENT TO SHOW SCATTER PLOTS 
-% % for ii = 6:size(KS_deJ.atT,2)
-% %   nexttile
-% %   hold on;
-% %     scatter(Xs(:,ii),KS_deJ.att(:,ii)); 
-% %   hold off;
-% %   box on; grid on;
-% %   set(gca,'GridLineStyle',':' ,'GridAlpha',1/3, 'LineWidth',5/5);
-% %   add2yaxislabel;
-% %   addlegend({'True vs. Estimate'},1)
-% %   addsubtitle(row_names{ii-5})
-% % end
 % --------------------------------------------------------------------------------------------------
 
 % CORRELATIONS (can also read off directly from the corr_table below -------------------------------
@@ -133,12 +121,12 @@ sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and no
 Xnames_ID2 = {'ETε2(t-2)'};  % Xnames_ID2 = [];
 ID2 = ols( delta(etT_1, 2) , [ lag(etT_2, 2)], 1, Xnames_ID2);
 
-% % ------------------------------------------------------------------------------------------------
+%% -------------------------------------------------------------------------------------------------
 % UNCOMMENT TO USE US REAL GDP DATA
 % USE HP Filter routine to back out trend and cycle shocks and compare
 % --------------------------------------------------------------------------------------------------
 load('US-GDP.mat')
-y   = 100.*log(usGDP);
+y   = log(usGDP);
 D2y = delta(y, 2);    % don't use diff due to y being a TimeTable, --> use delta instead
 % make Z(t) variable for 'shock recovery' SSM form: ie. Z(t)=Δ²y(t)
 ZZ  = D2y.("Δ²gdp");
@@ -154,7 +142,8 @@ SSM.cycle = phi*addnans(KS_deJ_US.atT(:,2),2,0);
 SSM.trend = cumsum([HP.trend(1); cumsum([dHP_trend(1); KS_deJ_US.atT(:,1)])]);
 % head2tail([SSM.trend HP.trend])
 
-% PLOT trend
+% PLOT HP
+% --------------------------------------------------------------------------------------------------
 if PLOT_COMPARISON
   figure(2); clf;
   % tiledlayout(3,1)
@@ -166,7 +155,8 @@ if PLOT_COMPARISON
     hline(0)
   hold off; 
   box on; addgrid;
-  % ylim([7 11]*100)
+  % ylim([7 11])
+  setyticklabels(7:.5:10.5,1)
   setdateticks(HP.Date,25)
   addlegend({'HP-Filter','Shock-Recovery SSM'},1)
   addsubtitle('Trend in US-GDP data')
@@ -178,7 +168,7 @@ if PLOT_COMPARISON
     hline(0)
   hold off; 
   box on; addgrid;
-  % ylim([-.10 .06])
+  setyticklabels(-.10:.02:.06)
   setdateticks(HP.Date,25)
   addlegend({'HP-Filter','Shock-Recovery SSM'})
   addsubtitle('Cycle in US-GDP data')
