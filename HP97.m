@@ -58,17 +58,6 @@ sep; print_table(Pstar,4,1,0)
 [Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, dim_Z, dim_X, dim_R, Ts);
 Z = Zs; 
 
-% % % UNCOMMENT TO USE US REAL GDP DATA
-% load('US-GDP.mat')
-% y   = log(usGDP);
-% D2y = delta(y, 2);    % don't use diff due to y being a TimeTable, --> use delta instead
-% Z   = D2y.("Δ²gdp");
-% HP  = hp_filter(y, phi^2);
-% fprintf('\n');sep('=');fprintf('Smoother Identity on page 10 in Stars(2023). Dependent variable: Δ²ETε1(t) \n')
-% sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and not ETε2(t) as stated)\n');sep
-% Xnames_ID2 = {'ETε2(t-2)'};  % Xnames_ID2 = [];
-% ID2 = ols( delta(HP.trend, 4) , [ lag(HP.cycle, 2) ], 1, Xnames_ID2);
-
 % --------------------------------------------------------------------------------------------------
 % CALL TO FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH 
 % MY CODE ABOVE AND USE OF PINV IN AM SMOOTHER OTHERWISE NON-SINGULARITY ISSUES.
@@ -90,25 +79,24 @@ KS_deJ  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % NO INV, NO INITV
 if PLOT_STATES
   clf; tiledlayout(4,2,TileSpacing="compact",Padding="compact");
   % make plot names
-  plot_names = make_table_names('$\epsilon_{', 1:k, 't}$');
-  if ADD_Drstar; plot_names = [plot_names; '$\Delta r^{\ast}_{t}$']; end
+  % plot_names = make_table_names('$\epsilon_{', 1:k, 't}$');
   % loop through plots
   for ii = k+1:dim_X
     nexttile
     hold on;
       plot(Xs(:,ii), 'LineWidth',3); 
-      % plot(KS_deJ.att(:,ii),'--','Color',clr(3),'LineWidth',2.5);   % Filtered States
-      plot(KS_deJ.atT(:,ii),'--','Color',clr(3),'LineWidth',2.5);   % Smoothed States
+      plot(KS_deJ.att(:,ii),'--','Color',clr(3),'LineWidth',2.5);   % Filtered States
+      % plot(KS_deJ.atT(:,ii),'--','Color',clr(3),'LineWidth',2.5);   % Smoothed States
     hold off;
     hline(0)
     box on; grid on;
     set(gca,'GridLineStyle',':' ,'GridAlpha',1/3, 'LineWidth',5/5);
     add2yaxislabel;
     addlegend({'True','Estimate:$\,a_{t|T}$'},1)
-    addsubtitle(plot_names(ii-k),-1.10)
+    % addsubtitle(plot_names(ii-k),-1.10)
   end
 end
-% % % UNCOMMENT TO SHOW SCATTER PLOTS 
+% % UNCOMMENT TO SHOW SCATTER PLOTS 
 % % for ii = 6:size(KS_deJ.atT,2)
 % %   nexttile
 % %   hold on;
@@ -122,7 +110,7 @@ end
 % % end
 % --------------------------------------------------------------------------------------------------
 
-%% CORRELATIONS (can also read off directly from the corr_table below -------------------------------
+% CORRELATIONS (can also read off directly from the corr_table below -------------------------------
 % print simple correlations
 corr_table = array2table( corr(Xs(:,ss), KS_deJ.atT(:,ss)), ...
              'RowNames', row_names, 'VariableNames',row_names);
@@ -149,33 +137,59 @@ end
 % Check some identities by running ols regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
 fprintf('\n');sep('=');fprintf('Filter Identity on page 17 in EER(2022). Dependent variable: Etε2(t) \n')
 Xnames_ID1 = {'Etε1(t)'};  % Xnames_ID1 = [];
-ID1 = ols(ett_2, [ett_1], 1, Xnames_ID1);
+ID1 = ols(ett_2, [ ett_1 ], 1, Xnames_ID1);
 
 fprintf('\n');sep('=');fprintf('Smoother Identity on page 10 in Stars(2023). Dependent variable: Δ²ETε1(t) \n')
 sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and not ETε2(t) as stated)\n');sep
 Xnames_ID2 = {'ETε2(t-2)'};  % Xnames_ID2 = [];
 ID2 = ols( delta(etT_1, 2) , [ lag(etT_2, 2)], 1, Xnames_ID2);
 
-% % --------------------------------------------------------------------------------------------------
-% % OTHER IDENTITIES 
-% % --------------------------------------------------------------------------------------------------
-% % ET∆r*(t) = ETη5t + ETη3t (21) --> this should be: ET∆r*(t) = 4*ETη5t + ETη3t
-% % make ET∆r*(t) from X(:,4)-X(:,5) or alternatively from KS_deJ.atT(:,11);
-% % --------------------------------------------------------------------------------------------------
-% Drstar = KS_deJ.atT(:,4)-KS_deJ.atT(:,5);
-% 
-% fprintf('\n');sep('=');fprintf('Identity (21). Dependent variable: ET∆r*(t) \n')
-% ID2 = ols(Drstar, [4*n5 n3], 1, {'4*ETη5(t)','ETη3(t)'});
-% 
-% fprintf('\n');sep('=');fprintf('Identity (22). Dependent variable: ET∆r*(t) \n')
-% ID3 = ols(Drstar, [lag(Drstar) n1 n2 n4 lag(n1) lag(n4)], 1, ...
-%       {'ET∆r*(t-1)','ETη1(t)','ETη2(t)','ETη4(t)','ETη1(t-1)','ETη2(t-4)'});
-% 
-% 
+% % ------------------------------------------------------------------------------------------------
+% UNCOMMENT TO USE US REAL GDP DATA
+% USE HP Filter routine to back out trend and cycle shocks and compare
+% --------------------------------------------------------------------------------------------------
+load('US-GDP.mat')
+y   = 100.*log(usGDP);
+D2y = delta(y, 2);    % don't use diff due to y being a TimeTable, --> use delta instead
+% make Z(t) variable for 'shock recovery' SSM form: ie. Z(t)=Δ²y(t)
+ZZ  = D2y.("Δ²gdp");
+HP  = hp_filter(y, phi^2);
+[~, Kurz_KF_US] = Kurz_Filter(removenans(ZZ), D1, D2, R, A, C, a00, P00);
+% construct the cycle from the shock recovery SSM
+KS_deJ_US = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
+SSM.cycle = phi*addnans(KS_deJ_US.atT(:,2),2,0);
+SSM.trend = HP.trend(1)+cumsum(cumsum(KS_deJ_US.atT(:,1)));
 
+% PLOT trend
+clf;
+% tiledlayout(3,1)
+tiledlayout(3,1, TileSpacing = 'loose', Padding = 'compact');
+nexttile
+hold on;
+  plot(HP.trend)
+  % plot(y.gdp-SSM.cycle,'--')
+  plot(SSM.trend,'--')
+  hline(0)
+hold off; 
+box on; addgrid;
+ylim([7 11]*100)
+setdateticks(HP.Date,25)
+addlegend({'HP-Filter','Shock-Recovery SSM'},1)
+addsubtitle('Trend in US-GDP data')
 
-
-
+% PLOT cycles 
+% subplot(2,1,2)
+nexttile
+hold on;
+  plot(HP.cycle)
+  plot(SSM.cycle,'--')
+  hline(0)
+hold off; 
+box on; addgrid;
+% ylim([-.10 .06])
+setdateticks(HP.Date,25)
+addlegend({'HP-Filter','Shock-Recovery SSM'})
+addsubtitle('Cycle in US-GDP data')
 
 
 

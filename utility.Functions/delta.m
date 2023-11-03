@@ -3,7 +3,7 @@ function dyout = delta(y,k,remove_nans)
 % Function: Computes the kth difference/change in y(t): Δᵏy(t) = (1-L)ᵏy(t)
 %
 % NOTE: This is different form the function delta_long or long_diff which 
-%       compute the long-difference, that is, Δₖy(t) = (1-Lᵏ)y(t) = y(t) - y(t-k)
+%       compute the long-difference, that is, Δ_k(y(t)) = (1-Lᵏ)y(t) = y(t) - y(t-k)
 %_______________________________________________________________________________________
 %
 % DESCRIPTION:

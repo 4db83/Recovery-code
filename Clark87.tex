@@ -12,7 +12,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Tuesday, October 31, 2023 15:36:14}
+%TCIDATA{LastRevised=Thursday, November 02, 2023 17:27:24}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -129,7 +129,7 @@ where I\ have made use of the fact:
 %p == 1 - (2 + a) x + (1 + 2 a - b) x\symbol{94}2 + (-a + 2 b) x\symbol{94}3
 %- b x\symbol{94}4
 \begin{align}
-a(L)\Delta & =(1-a_{1}L-a_{2}L^{2})(1-L)^{2}  \notag \\
+a(L)\Delta ^{2}& =(1-a_{1}L-a_{2}L^{2})(1-L)^{2}  \notag \\
 & =1-\left( 2+a_{1}\right) L+\left( 1+2a_{1}-a_{2}\right) L^{2}+\left(
 2a_{2}-a_{1}\right) L^{3}-a_{2}L^{4},  \label{expaL}
 \end{align}%
@@ -142,9 +142,9 @@ The Measurement and State equations corresponding to \ref{Z} are:\BAW{12}\bsq%
 \notag \\
 Z_{t}& =\underbrace{%
 \begin{bmatrix}
-\sigma _{1} & 0 & \sigma _{3} & -\sigma _{1}\left( 2+a_{1}\right) & \sigma
-_{1}\left( 1+2a_{1}-a_{2}\right) & \sigma _{1}\left( 2a_{2}-a_{1}\right) & 0
-& 0 & 0%
+\sigma _{1} & 0 & \sigma _{3} & -\sigma _{1}\left( 2+a_{1}\right)  & \sigma
+_{1}\left( 1+2a_{1}-a_{2}\right)  & \sigma _{1}\left( 2a_{2}-a_{1}\right)  & 
+0 & 0 & 0%
 \end{bmatrix}%
 }_{D_{1}}\underbrace{%
 \begin{bmatrix}
@@ -245,5 +245,133 @@ _{2}a_{1} & -\sigma _{2}a_{2} & \sigma _{3}%
 }_{\varepsilon _{t}}.
 \end{align}%
 \esq\EAW
+
+\section{Alternative formulation}
+
+Try to reduce the state vector $X_{t}$ by using changes:%
+\begin{align}
+\Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}\tilde{y}_{t} \\
+\Delta ^{2}y_{t}^{\ast }& =\sigma _{2}\varepsilon _{2t-1}+\sigma _{1}\Delta
+\varepsilon _{1t} \\
+\Delta ^{2}\tilde{y}_{t}& =a(L)^{-1}\sigma _{3}\Delta ^{2}\varepsilon _{3t},
+\end{align}%
+so that%
+\begin{align*}
+\Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}\tilde{y}_{t} \\
+& =\sigma _{2}\varepsilon _{2t-1}+\sigma _{1}\Delta \varepsilon
+_{1t}+a(L)^{-1}\sigma _{3}\Delta ^{2}\varepsilon _{3t} \\
+\Leftrightarrow \underbrace{a(L)\Delta ^{2}y_{t}}_{Z_{t}}& =\sigma
+_{2}a(L)\varepsilon _{2t-1}+\sigma _{1}a(L)\Delta \varepsilon _{1t}+\sigma
+_{3}\Delta ^{2}\varepsilon _{3t} \\
+Z_{t}& =\sigma _{1}a(L)\Delta \varepsilon _{1t}+\sigma _{2}a(L)\varepsilon
+_{2t-1}+\sigma _{3}\Delta ^{2}\varepsilon _{3t} \\
+& =\sigma _{1}\Delta \varepsilon _{1t}-a_{1}\sigma _{1}\Delta \varepsilon
+_{1t-1}-a_{2}\sigma _{1}\Delta \varepsilon _{1t-2} \\
+& +\sigma _{2}\varepsilon _{2t-1}-a_{1}\sigma _{2}\varepsilon
+_{2t-2}-a_{2}\sigma _{2}\varepsilon _{2t-3} \\
+& +\sigma _{3}\Delta \varepsilon _{3t}-\sigma _{3}\Delta \varepsilon _{3t-1}
+\end{align*}
+
+\BAW{12}
+
+This is correct now:
+
+$%
+\begin{bmatrix}
+\sigma _{1} & 0 & 0 & -a_{1}\sigma _{2} & -a_{1}\sigma _{1} & \sigma _{3}%
+\end{bmatrix}%
+\begin{bmatrix}
+\varepsilon _{1t} \\ 
+\varepsilon _{2t} \\ 
+\varepsilon _{3t} \\ 
+\varepsilon _{2t-2} \\ 
+\Delta \varepsilon _{1t-1} \\ 
+\Delta \varepsilon _{3t}%
+\end{bmatrix}%
++%
+\begin{bmatrix}
+-\sigma _{1} & \sigma _{2} & 0 & -a_{2}\sigma _{2} & -a_{2}\sigma _{1} & 
+-\sigma _{3}%
+\end{bmatrix}%
+\begin{bmatrix}
+\varepsilon _{1t-1} \\ 
+\varepsilon _{2t-1} \\ 
+\varepsilon _{3t-1} \\ 
+\varepsilon _{2t-3} \\ 
+\Delta \varepsilon _{1t-2} \\ 
+\Delta \varepsilon _{3t-1}%
+\end{bmatrix}%
+=\allowbreak \sigma _{2}\varepsilon _{2t-1}-\sigma _{1}\varepsilon
+_{t-1}+\sigma _{1}\varepsilon _{t}+\Delta \sigma _{3}\varepsilon
+_{3t}-\Delta \sigma _{3}\varepsilon _{3t-1}-\sigma _{2}a_{1}\varepsilon
+_{2t-2}-\sigma _{2}a_{2}\varepsilon _{2t-3}-\Delta \sigma
+_{1}a_{1}\varepsilon _{t-1}-\Delta \sigma _{1}a_{2}\varepsilon
+_{t-2}\allowbreak $
+
+\bigskip 
+
+\EAW
+
+\bigskip 
+
+\bigskip 
+
+\bigskip 
+
+\bigskip 
+
+\bigskip 
+
+\begin{align}
+\mathsf{Measurement}:\quad Z_{t}& =D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
+\notag \\
+Z_{t}& =\underbrace{%
+\begin{bmatrix}
+\sigma _{1} & 0 & \sigma _{3} & -\sigma _{1}\left( 2+a_{1}\right)  & \sigma
+_{1}\left( 1+2a_{1}-a_{2}\right)  & \sigma _{1}\left( 2a_{2}-a_{1}\right)  & 
+0 & 0 & 0%
+\end{bmatrix}%
+}_{D_{1}}\underbrace{%
+\begin{bmatrix}
+\varepsilon _{1t} \\ 
+\varepsilon _{2t} \\ 
+\varepsilon _{3t} \\ 
+\varepsilon _{1t-1} \\ 
+\varepsilon _{1t-2} \\ 
+\varepsilon _{1t-3} \\ 
+\varepsilon _{2t-1} \\ 
+\varepsilon _{2t-2} \\ 
+\varepsilon _{3t-1}%
+\end{bmatrix}%
+}_{X_{t}} \\
+& +\underbrace{%
+\begin{bmatrix}
+0 & \sigma _{2} & -2\sigma _{3} & 0 & 0 & -\sigma _{1}a_{2} & -\sigma
+_{2}a_{1} & -\sigma _{2}a_{2} & \sigma _{3}%
+\end{bmatrix}%
+}_{D_{2}}\underbrace{%
+\begin{bmatrix}
+\varepsilon _{1t-1} \\ 
+\varepsilon _{2t-1} \\ 
+\varepsilon _{3t-1} \\ 
+\varepsilon _{1t-2} \\ 
+\varepsilon _{1t-3} \\ 
+\varepsilon _{1t-4} \\ 
+\varepsilon _{2t-2} \\ 
+\varepsilon _{2t-3} \\ 
+\varepsilon _{3t-2}%
+\end{bmatrix}%
+}_{X_{t-1}}+\underbrace{%
+\begin{bmatrix}
+0 & 0 & 0%
+\end{bmatrix}%
+}_{R}\underbrace{%
+\begin{bmatrix}
+\varepsilon _{1t} \\ 
+\varepsilon _{2t} \\ 
+\varepsilon _{3t}%
+\end{bmatrix}%
+}_{\varepsilon _{t}}
+\end{align}
 
 \end{document}

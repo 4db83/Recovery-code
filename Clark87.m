@@ -61,51 +61,6 @@ sep; print_table(Pstar,4,1,0)
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
 [Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, dim_Z, dim_X, dim_R, Ts);
 Z = Zs; 
-
-%% % % UNCOMMENT TO USE US REAL GDP DATA
-% % NOW ESTIMATE THE DOUBLE DRIFT UNOBSERVED COMPONENT (UC) MODEL OF CLARK
-% % ---------------------------------------------------------------------------------------------
-% % STATE vector alpha = [trend(t); g(t); cycle(t); cycle(t-1)];
-% % ---------------------------------------------------------------------------------------------
-load('US-GDP.mat')
-Y  = log(usGDP);
-% set sample period
-TT = timerange('Q1-1947','Q4-2019','closed');
-y  = 100.*Y(TT,:);
-% HP Filter on Y to get initial estiamtes
-HP = hp_filter(y,1600);		% Lambda = 36000 is what is used by them in the paper
-% ols on HP_cycle to get intial estimates AR(2) parameter estimates
-AR2 = estimate_armax(HP.cycle,0,[1 2],[]);% print_arma_results(AR2);
-
-% INITIVAL VALUES
-sig_Dg		= nanstd(delta(HP.trend));
-sig_trend = 1;
-sig_cycle = AR2.SE_reg;
-% INITIVAL VALUE AND PRIORS FOR UC0 
-Clark_initVals	= [-AR2.aL(2:3)'; sig_trend; sig_Dg; sig_cycle];
-Clark_prior.a00 = [HP.trend(1); diff(HP.trend(1:2)); 0; 0];
-Clark_prior.P00 = 1e6;
-% RHO CORRELATION PARAMETER
-Clark_prior.rho = 0;
-% DATA TO BE PARSED IN;
-Y_in = y.gdp';
-LL_Clark_initVals = LogLike_Clark_UC0(Clark_initVals, Y_in, Clark_prior,1);
-
-% ESTIMATE USING UNCORRELATED ERRORS MODEL WITH FMINUNC
-% opts_fminunc = optimoptions(@fminunc,'FunctionTolerance',1e-8,'FiniteDifferenceType', 'central');
-opts_fminunc = optimoptions(@fminunc,'Display','none');
-[theta_Clark, LL_Clark,~,~,~,H_Clark] = fminunc(@LogLike_Clark_UC0, Clark_initVals, opts_fminunc, Y_in, Clark_prior);
-% EXTRACT NOW THE SMOOTHED SERIES OF TREND GROWTH
-[~, KFS_Clark] = LogLike_Clark_UC0(theta_Clark, Y_in, Clark_prior, 1);
-sep; fprintf(' Clark (1987) Model parameter estimates \n')
-model_names = { 'Fminunc'; 'Stderr'; 'InitVals' };
-par_names	  = {'AR(1)'; 'AR(2)'; 'sigma_y*'; 'sigma_g'; 'sigma_y~'; 'Log-Like'};
-par_est	    = [ [theta_Clark sqrt(diag(inv(H_Clark)))  Clark_initVals ];
-                [-LL_Clark    nan                      -LL_Clark_initVals ] ];
-% print to screen
-print2screen( par_est, par_names, model_names, '%17.4f'); %, '/_output/Table5.Clarks.UC.xls');
-sep
-
 % --------------------------------------------------------------------------------------------------
 % CALL TO FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH 
 % MY CODE ABOVE AND USE OF PINV IN AM SMOOTHER OTHERWISE NON-SINGULARITY ISSUES.
@@ -114,7 +69,7 @@ sep
 % Note: errors will always be N(0,1), but latent states may need more careful initialization.
 a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 % Filter
-[~, Kurz_KF] = Kurz_Filter(removenans(Z), D1, D2, R, A, C, a00, P00);
+[~, Kurz_KF] = Kurz_Filter(Z, D1, D2, R, A, C, a00, P00);
 % Smoothers 
 % --------------------------------------------------------------------------------------------------
 % Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother (Eq. (4.11) in Kurz (2018))
@@ -164,7 +119,7 @@ end
 % % end
 % --------------------------------------------------------------------------------------------------
 
-%% CORRELATIONS (can also read off directly from the corr_table below -------------------------------
+%% CORRELATIONS (can also read off directly from the corr_table below ------------------------------
 % print simple correlations
 corr_table = array2table( corr(Xs(:,ss), KS_deJ.atT(:,ss)), ...
              'RowNames', row_names, 'VariableNames',row_names);
@@ -184,36 +139,111 @@ print_table(corr_table,4,1,'Correlation matrix of True and estimated smoothed St
 
 % Define/Make eta(i) = eps(i)
 for jj = 1:dim_R
-  eval(['etT_' num2str(jj) ' = KS_deJ.atT(:,k+' num2str(jj) ');']);
-  eval(['ett_' num2str(jj) ' = KS_deJ.att(:,k+' num2str(jj) ');']);
+  eval(['ETe' num2str(jj) ' = KS_deJ.atT(:,k+' num2str(jj) ');']);
+  eval(['Ete' num2str(jj) ' = KS_deJ.att(:,k+' num2str(jj) ');']);
 end
 
 % Check some identities by running ols regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
-% fprintf('\n');sep('=');fprintf('Filter Identity on page 17 in EER(2022). Dependent variable: Etε2(t) \n')
-% Xnames_ID1 = {'Etε1(t)'};  % Xnames_ID1 = [];
-% ID1 = ols(ett_2, [ett_1], 1, Xnames_ID1);
+fprintf('\n');sep('=');fprintf('Smoother Identity same/similar as for HP Filter. Dependent variable: Etε1(t) (trend y*)\n')
+% sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and not ETε2(t) as stated)\n');sep
+Xnames_ID2 = {'Etε3(t) (cycle y~)'};  
+ID2 = ols( Ete1,  [ Ete3  ], 1, Xnames_ID2);
+% Xnames_ID2 = [];
+% ID2 = ols( delta(ETe1,2),  [ mlag(delta(ETe1),3) mlag(ETe2,2) mlag(ETe3,3) ], 1, Xnames_ID2);
 
-fprintf('\n');sep('=');fprintf('Smoother Identity on page 10 in Stars(2023). Dependent variable: Δ²ETε1(t) \n')
-sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and not ETε2(t) as stated)\n');sep
-Xnames_ID2 = {'ETε2(t-2)'};  % Xnames_ID2 = [];
-ID2 = ols( delta(etT_1, 2) , [ lag(etT_2, 2)], 1, Xnames_ID2);
 
-% % --------------------------------------------------------------------------------------------------
-% % OTHER IDENTITIES 
-% % --------------------------------------------------------------------------------------------------
-% % ET∆r*(t) = ETη5t + ETη3t (21) --> this should be: ET∆r*(t) = 4*ETη5t + ETη3t
-% % make ET∆r*(t) from X(:,4)-X(:,5) or alternatively from KS_deJ.atT(:,11);
-% % --------------------------------------------------------------------------------------------------
-% Drstar = KS_deJ.atT(:,4)-KS_deJ.atT(:,5);
-% 
-% fprintf('\n');sep('=');fprintf('Identity (21). Dependent variable: ET∆r*(t) \n')
-% ID2 = ols(Drstar, [4*n5 n3], 1, {'4*ETη5(t)','ETη3(t)'});
-% 
-% fprintf('\n');sep('=');fprintf('Identity (22). Dependent variable: ET∆r*(t) \n')
-% ID3 = ols(Drstar, [lag(Drstar) n1 n2 n4 lag(n1) lag(n4)], 1, ...
-%       {'ET∆r*(t-1)','ETη1(t)','ETη2(t)','ETη4(t)','ETη1(t-1)','ETη2(t-4)'});
-% 
-% 
+% % ------------------------------------------------------------------------------------------------
+% UNCOMMENT TO USE US REAL GDP DATA
+% NOW ESTIMATE THE DOUBLE DRIFT UNOBSERVED COMPONENT (UC) MODEL OF CLARK
+% --------------------------------------------------------------------------------------------------
+% STATE vector alpha = [trend(t); g(t); cycle(t); cycle(t-1)];
+% --------------------------------------------------------------------------------------------------
+load('US-GDP.mat')
+Y  = log(usGDP);
+% set sample period
+TT = timerange('Q1-1947','Q4-2019','closed');
+y  = 100.*Y(TT,:);
+% HP Filter on Y to get initial estiamtes
+HP = hp_filter(y,1600);		% Lambda = 36000 is what is used by them in the paper
+% ols on HP_cycle to get intial estimates AR(2) parameter estimates
+AR2 = estimate_armax(HP.cycle,0,[1 2],[]);% print_arma_results(AR2);
+
+% INITIVAL VALUES
+sig_Dg		= nanstd(delta(HP.trend));
+sig_trend = 1;
+sig_cycle = AR2.SE_reg;
+% INITIVAL VALUE AND PRIORS FOR UC0 
+Clark_initVals	= [-AR2.aL(2:3)'; sig_trend; sig_Dg; sig_cycle];
+Clark_prior.a00 = [HP.trend(1); diff(HP.trend(1:2)); 0; 0];
+Clark_prior.P00 = 1e6;
+% RHO CORRELATION PARAMETER
+Clark_prior.rho = 0;
+% DATA TO BE PARSED IN;
+Y_in = y.gdp';
+LL_Clark_initVals = LogLike_Clark_UC0(Clark_initVals, Y_in, Clark_prior,1);
+
+% ESTIMATE USING UNCORRELATED ERRORS MODEL WITH FMINUNC
+% opts_fminunc = optimoptions(@fminunc,'FunctionTolerance',1e-8,'FiniteDifferenceType', 'central');
+opts_fminunc = optimoptions(@fminunc,'Display','none');
+[theta_Clark, LL_Clark,~,~,~,H_Clark] = fminunc(@LogLike_Clark_UC0, Clark_initVals, opts_fminunc, Y_in, Clark_prior);
+% EXTRACT NOW THE SMOOTHED SERIES OF TREND GROWTH
+[~, KFS_Clark] = LogLike_Clark_UC0(theta_Clark, Y_in, Clark_prior, 1);
+sep; fprintf(' Clark (1987) Model parameter estimates \n')
+model_names = { 'Fminunc'; 'Stderr'; 'InitVals' };
+par_names	  = {'AR(1)'; 'AR(2)'; 'sigma_y*'; 'sigma_g'; 'sigma_y~'; 'Log-Like'};
+par_est	    = [ [theta_Clark sqrt(diag(inv(H_Clark)))  Clark_initVals ];
+                [-LL_Clark    nan                      -LL_Clark_initVals ] ];
+% print to screen
+print2screen( par_est, par_names, model_names, '%17.4f'); %, '/_output/Table5.Clarks.UC.xls');
+sep
+
+% make Z(t) variable for 'shock recovery' SSM form: ie. Z(t)=a(L)Δ²y(t)
+DY = delta(y.gdp,2);
+ZZ = DY - a1*lag(DY) -a2*lag(DY,2);
+[~, Kurz_KF_US] = Kurz_Filter(removenans(ZZ), D1, D2, R, A, C, a00, P00);
+% Smoothers 
+% --------------------------------------------------------------------------------------------------
+% Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother (Eq. (4.11) in Kurz (2018))
+KS_deJ_US  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
+
+% PLOT TREND GROWTH ETC FOR US GDP DATA
+ytld = KFS_Clark.KFS.atT(:,3);
+
+clf;
+tiledlayout(1,1, TileSpacing = 'loose', Padding = 'compact');
+nexttile
+hold on;
+  % plot(delta(y.gdp))
+  plot(ytld - a1*lag(ytld) - a2*lag(ytld,2))
+  % plot(KFS_Clark.KFS.atT(:,2))
+  plot(s3*KS_deJ_US.atT(:,3))
+  hline(0)
+hold off
+box on; addgrid;
+setdateticks(y.Date,25)
+addlegend({'US Cycle $\tilde{y}$','Trend grwoth g(t) from Clark SSF'},1)
+
+
+%% check filters
+% aLytild = ytld - a1*lag(ytld) - a2*lag(ytld,2);
+% clc
+% plot(aLytild)
+% hold on;
+% plot(KS_deJ_US.atT(:,3))
+% hold off;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

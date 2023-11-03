@@ -6,6 +6,7 @@ function Xout = mlag(Xin,nlag,return_Xt,intitValue)
 %       or: xlag1 = mlag(x), which defaults to 1-lag
 % where:		 x = a matrix (or vector), nobs x nvar
 %					nlag = # of contiguous lags for each vector in x (default = 1 lag)
+%                if == 0, returns X(t)
 % return_Xt		 = returns also the x(t) vector/matrix in the first column(s), default set to NO (default = 0)
 %		intitValue = (optional) scalar value to feed initial missing values (default = 0)
 %---------------------------------------------------
@@ -17,7 +18,7 @@ function Xout = mlag(Xin,nlag,return_Xt,intitValue)
 %---------------------------------------------------
 % orgininally by lesage, but modded by db.
 
-SetDefaultValue(2,'n',1);
+SetDefaultValue(2,'nlag',1);
 SetDefaultValue(3,'return_Xt',0);
 SetDefaultValue(4,'intitValue',NaN);
 
@@ -28,16 +29,19 @@ if isTT
   xDates = Xin.Date;
   var_names = getvarnames(Xin);
   X = Xin.Variables;
-
   % make lagged names 
   N_names = length(var_names);
-  tlag_names = make_table_names('(t-', 1:1:nlag, ')');
+  tlag_names = cellstr(make_table_names('(t-', 1:1:nlag, ')'));
   Tlag_names = repmat(tlag_names',N_names,1);
   tmp_ = [];
-  for jj = 1: nlag
+  % loop through nlags for variable name output creation
+  for jj = 1:nlag
     tmp_ = [tmp_; cellstr([char(var_names) char(Tlag_names(:,jj))]) ]; 
   end
-  lag_names = strrep( tmp_,' ','');
+  % if nlag > 0
+  %   lag_names = strrep( tmp_,' ','.'); --> not needed, only to remove spaces in file anme
+  % end
+  lag_names = tmp_;
 else
   X = Xin;
 end
@@ -52,6 +56,13 @@ for i = 1:nlag
   Xlag = [Xlag lag_F(X, i, intitValue)];
 end 
 
+if nlag == 0
+  Xlag = X;
+  if isTT
+    lag_names = var_names;
+  end
+end
+
 if isTT
   if return_Xt % add the time t names
     lag_names = [var_names; lag_names];
@@ -60,8 +71,6 @@ if isTT
 else
   Xout = Xlag;
 end
-
-
 
 
 end % EOF 

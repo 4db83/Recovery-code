@@ -1,5 +1,5 @@
 function names_out = make_table_names(prefix, numbers, suffix, frmt)
-% function to easliy make cell array of indexed names. 
+% function to easily make cell array of indexed names. 
 % call as: aout = make_table_names('ridge_z_', 1:12, '%0.4g').
 % --------------------------------------------------------------------------------------------------
 

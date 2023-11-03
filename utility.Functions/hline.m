@@ -24,8 +24,9 @@ function hhh=hline(y,in1,in2,LW,CLR,LOS,LFNTS)
 % By Brandon Kuczenski for Kensington Labs.
 % brandon_kuczenski@kensingtonlabs.com
 % 8 November 2001
-
-SetDefaultValue(4, 'LW'			, 1.25);
+% aLW = get(gca,'LineWidth')
+% SetDefaultValue(4, 'LW'			, 1.25);
+SetDefaultValue(4, 'LW'			, get(gca,'LineWidth'));
 SetDefaultValue(5, 'CLR'		, 0.15*ones(1,3) );
 SetDefaultValue(6, 'LOS'		, [.2 .2]);
 SetDefaultValue(7, 'LFNTS'	, get(gca,'FontSize'));
