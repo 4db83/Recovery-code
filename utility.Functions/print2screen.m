@@ -583,17 +583,23 @@ for j=1:nsets;
  
  % ffmt = info.fmt;
  
- for k = begr:endr % print row labels and numbers in matrix
-  if rnum == 1; fprintf(fid,'%5d',k);
+ for K = begr:endr % print row labels and numbers in matrix
+  if rnum == 1; fprintf(fid,'%5d',K);
         elseif rflag == 1        
-  fprintf(fid,rfmt,rnames(k+1,:));
+  fprintf(fid,rfmt,rnames(K+1,:));
         end
-  for l = (j-1)*nwide+begc:j*nwide+begc-1
-   if l <= endc
+  for L = (j-1)*nwide+begc:j*nwide+begc-1
+   if L <= endc
     if nfmts == 1
-    fprintf(fid,ffmt,y(k,l));
+      if isnan(y(K,L)) 
+        % ffmt
+        fprintf(repmat(' ',17+1,1));
+        % ffmt
+      else
+        fprintf(fid,ffmt,y(K,L));
+      end
     else
-    fprintf(fid,ffmtv{l},y(k,l));
+    fprintf(fid,ffmtv{L},y(K,L));
     end
    end
   end % end of for l

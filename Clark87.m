@@ -15,7 +15,7 @@ addpath(genpath('./utility.Functions'))               % set path to db functions
 
 % Sample size and seed for random number generator in simulation
 Ts = 1e4; rng(123);
-PLOT_STATES = 0;
+PLOT_STATES = 1;
 
 % DEFINE SSM INPUT MATRICES ------------------------------------------------------------------------
 dim_Z = 1;       % rows Z(t)
@@ -105,18 +105,6 @@ if PLOT_STATES
     addsubtitle(plot_names(ii-k),-1.10)
   end
 end
-% % % UNCOMMENT TO SHOW SCATTER PLOTS 
-% % for ii = 6:size(KS_deJ.atT,2)
-% %   nexttile
-% %   hold on;
-% %     scatter(Xs(:,ii),KS_deJ.att(:,ii)); 
-% %   hold off;
-% %   box on; grid on;
-% %   set(gca,'GridLineStyle',':' ,'GridAlpha',1/3, 'LineWidth',5/5);
-% %   add2yaxislabel;
-% %   addlegend({'True vs. Estimate'},1)
-% %   addsubtitle(row_names{ii-5})
-% % end
 % --------------------------------------------------------------------------------------------------
 
 %% CORRELATIONS (can also read off directly from the corr_table below ------------------------------
@@ -124,18 +112,6 @@ end
 corr_table = array2table( corr(Xs(:,ss), KS_deJ.atT(:,ss)), ...
              'RowNames', row_names, 'VariableNames',row_names);
 print_table(corr_table,4,1,'Correlation matrix of True and estimated smoothed States');sep
-
-% % CALCULATE CORRELATION between ∆r*(t) and ET∆r*(t) [ie., actual vs. estimate)
-% if ADD_Drstar 
-%   PHI = PtT(end,end);
-%   % Theoretical stdev 
-%   sig_KS_Drstar = std( KS_deJ.atT(:,end) );
-%   % Theoretical from model
-%   sig_Drstar = sqrt( (4*c*s5)^2 + s3^2 );
-%   % correlation between smoothed dr* and actual 
-%   rho = 0.5*(sig_Drstar^2 + sig_KS_Drstar^2 - PHI) / (sig_Drstar*sig_KS_Drstar);
-%   fprintf('Corr(ET(∆r*(t)),∆r*(t) from simulation) Analytical formulas: %4.4f\n', rho);
-% end
 
 % Define/Make eta(i) = eps(i)
 for jj = 1:dim_R
@@ -152,7 +128,7 @@ ID2 = ols( Ete1,  [ Ete3  ], 1, Xnames_ID2);
 % ID2 = ols( delta(ETe1,2),  [ mlag(delta(ETe1),3) mlag(ETe2,2) mlag(ETe3,3) ], 1, Xnames_ID2);
 
 
-% % ------------------------------------------------------------------------------------------------
+%% -------------------------------------------------------------------------------------------------
 % UNCOMMENT TO USE US REAL GDP DATA
 % NOW ESTIMATE THE DOUBLE DRIFT UNOBSERVED COMPONENT (UC) MODEL OF CLARK
 % --------------------------------------------------------------------------------------------------
@@ -209,19 +185,19 @@ KS_deJ_US  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
 % PLOT TREND GROWTH ETC FOR US GDP DATA
 ytld = KFS_Clark.KFS.atT(:,3);
 
-clf;
-tiledlayout(1,1, TileSpacing = 'loose', Padding = 'compact');
-nexttile
-hold on;
-  % plot(delta(y.gdp))
-  plot(ytld - a1*lag(ytld) - a2*lag(ytld,2))
-  % plot(KFS_Clark.KFS.atT(:,2))
-  plot(s3*KS_deJ_US.atT(:,3))
-  hline(0)
-hold off
-box on; addgrid;
-setdateticks(y.Date,25)
-addlegend({'US Cycle $\tilde{y}$','Trend grwoth g(t) from Clark SSF'},1)
+% clf;
+% tiledlayout(1,1, TileSpacing = 'loose', Padding = 'compact');
+% nexttile
+% hold on;
+%   % plot(delta(y.gdp))
+%   plot(ytld - a1*lag(ytld) - a2*lag(ytld,2) )
+%   % plot(KFS_Clark.KFS.atT(:,2))
+%   plot(s3*KS_deJ_US.atT(:,3))
+%   hline(0)
+% hold off
+% box on; addgrid;
+% setdateticks(y.Date,25)
+% addlegend({'US Cycle $\tilde{y}$','Trend grwoth g(t) from Clark SSF'},1)
 
 
 %% check filters
