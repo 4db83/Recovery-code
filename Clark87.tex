@@ -12,7 +12,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Wednesday, November 08, 2023 10:48:55}
+%TCIDATA{LastRevised=Monday, November 13, 2023 17:06:10}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -78,6 +78,58 @@ The `\emph{numbered}' shock to `\emph{named}' shock mapping is:%
 .
 \end{equation}
 
+The (standard)\ SSM\ for ML\ estimation is:%
+\begin{align*}
+y_{t}& =%
+\begin{bmatrix}
+1 & 0 & 1 & 0%
+\end{bmatrix}%
+\begin{bmatrix}
+y_{t}^{\ast } \\ 
+g_{t} \\ 
+\tilde{y}_{t} \\ 
+\tilde{y}_{t-1}%
+\end{bmatrix}%
++0\varepsilon _{t} \\
+\begin{bmatrix}
+y_{t}^{\ast } \\ 
+g_{t} \\ 
+\tilde{y}_{t} \\ 
+\tilde{y}_{t-1}%
+\end{bmatrix}%
+& =%
+\begin{bmatrix}
+1 & 1 & 0 & 0 \\ 
+0 & 1 & 0 & 0 \\ 
+0 & 0 & a_{1} & a_{2} \\ 
+0 & 0 & 1 & 0%
+\end{bmatrix}%
+\begin{bmatrix}
+y_{t-1}^{\ast } \\ 
+g_{t-1} \\ 
+\tilde{y}_{t-1} \\ 
+\tilde{y}_{t-2}%
+\end{bmatrix}%
++%
+\begin{bmatrix}
+\sigma _{1} & 0 & 0 \\ 
+0 & \sigma _{2} & 0 \\ 
+0 & 0 & \sigma _{3} \\ 
+0 & 0 & 0%
+\end{bmatrix}%
+\begin{bmatrix}
+\varepsilon _{1t} \\ 
+\varepsilon _{2t} \\ 
+\varepsilon _{3t}%
+\end{bmatrix}%
+.
+\end{align*}
+
+The code estimates Clark's 87 model to use GDP\ data from $1947$:Q1 to $2019$%
+:Q4.
+
+\pagebreak 
+
 \section{Shock recovery SSM}
 
 \subsection{SSM with lagged states}
@@ -142,9 +194,9 @@ The Measurement and State equations corresponding to \ref{Z} are:\BAW{12}\bsq%
 \notag \\
 Z_{t}& =\underbrace{%
 \begin{bmatrix}
-\sigma _{1} & 0 & \sigma _{3} & -\sigma _{1}\left( 2+a_{1}\right)  & \sigma
-_{1}\left( 1+2a_{1}-a_{2}\right)  & \sigma _{1}\left( 2a_{2}-a_{1}\right)  & 
-0 & 0 & 0%
+\sigma _{1} & 0 & \sigma _{3} & -\sigma _{1}\left( 2+a_{1}\right) & \sigma
+_{1}\left( 1+2a_{1}-a_{2}\right) & \sigma _{1}\left( 2a_{2}-a_{1}\right) & 0
+& 0 & 0%
 \end{bmatrix}%
 }_{D_{1}}\underbrace{%
 \begin{bmatrix}
@@ -246,7 +298,7 @@ _{2}a_{1} & -\sigma _{2}a_{2} & \sigma _{3}%
 \end{align}%
 \esq\EAW
 
-\pagebreak 
+\pagebreak
 
 \subsection{Alternative formulation}
 
@@ -430,7 +482,7 @@ Z_{t}& =\underbrace{%
 
 \BAW{12}
 
-This is correct now:
+??correct now:
 
 $%
 \begin{bmatrix}

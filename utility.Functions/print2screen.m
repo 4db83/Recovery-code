@@ -591,13 +591,13 @@ for j=1:nsets;
   for L = (j-1)*nwide+begc:j*nwide+begc-1
    if L <= endc
     if nfmts == 1
-      if isnan(y(K,L)) 
-        % ffmt
-        fprintf(repmat(' ',17+1,1));
-        % ffmt
-      else
+      % if isnan(y(K,L)) 
+      %   % ffmt
+      %   fprintf(repmat(' ',17+1,1));
+      %   % ffmt
+      % else
         fprintf(fid,ffmt,y(K,L));
-      end
+      % end
     else
     fprintf(fid,ffmtv{L},y(K,L));
     end
