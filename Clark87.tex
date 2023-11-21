@@ -12,7 +12,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Monday, November 13, 2023 17:06:10}
+%TCIDATA{LastRevised=Tuesday, November 21, 2023 14:08:26}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -25,6 +25,8 @@
 \renewcommand\showkeyslabelformat[1]{{\parbox[t]{\marginparwidth}{\raggedright\footnotesize\url{#1}}}}
 \newcommand{\intxt}[1]{\intertext{#1}}\newcommand{\BAW}[1]{\begin{adjustwidth}{-#1mm}{-5mm}}\newcommand{\EAW}{\end{adjustwidth}}
 \newcommand{\vsp}[1]{\vspace*{#1mm}}\newcommand{\hsp}[1]{\hspace*{#1mm}}  }
+\renewcommand\section{\@startsection{section}{1}{\z@}{-2.5ex \@plus -1ex \@minus -.2ex}{0.01ex \@plus.2ex}{\Large\bfseries}}
+\renewcommand\subsection{\@startsection{subsection}{1}{\z@}{-1.5ex \@plus -1ex \@minus -.2ex}{0.01ex \@plus.2ex}{\large\bfseries}}
 \makeatletter
 \renewcommand*{\@fnsymbol}[1]{\ensuremath{\ifcase#1\or *\or
     \#\or \star\or \bowtie\or \star\star\or \ddagger\ddagger \else\@ctrerr\fi}}
@@ -32,13 +34,12 @@
 \allowdisplaybreaks
 \IfFileExists{C:/swp55/TCITeX/TeX/LaTeX/SWmacros/tcilatex.tex}{\input{tcilatex}}{}
 \graphicspath{{../graphics/}{graphics/}}
-\newcommand{\dble}{1.77}
-\newcommand{\sngl}{1.23}
 \definecolor{myred}{rgb}{.50,.10,.10}
 \definecolor{mygrn}{rgb}{.10,.35,.10}
 \definecolor{myblu}{rgb}{.10,.10,.35}
 \hypersetup{colorlinks,citecolor=myblu,filecolor=mygrn,linkcolor=myred,urlcolor=mygrn,breaklinks=true}
-\setstretch{\sngl}
+\setstretch{1.2345}
+\setlength{\parskip}{7pt}
 
 \begin{document}
 
@@ -65,70 +66,80 @@ stationary AR(2) process. There are 3 shocks in the model.
 The `\emph{numbered}' shock to `\emph{named}' shock mapping is:%
 \begin{equation}
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
 \varepsilon _{3t}%
 \end{bmatrix}%
 =%
 \begin{bmatrix}
-\varepsilon _{t}^{y^{\ast }} \\ 
-\varepsilon _{t}^{g} \\ 
+\varepsilon _{t}^{y^{\ast }} \\
+\varepsilon _{t}^{g} \\
 \varepsilon _{t}^{\tilde{y}}%
 \end{bmatrix}%
 .
 \end{equation}
 
 The (standard)\ SSM\ for ML\ estimation is:%
-\begin{align*}
+\begin{align}
 y_{t}& =%
 \begin{bmatrix}
 1 & 0 & 1 & 0%
 \end{bmatrix}%
 \begin{bmatrix}
-y_{t}^{\ast } \\ 
-g_{t} \\ 
-\tilde{y}_{t} \\ 
+y_{t}^{\ast } \\
+g_{t} \\
+\tilde{y}_{t} \\
 \tilde{y}_{t-1}%
 \end{bmatrix}%
-+0\varepsilon _{t} \\
++0\varepsilon _{t} \\[4mm]
 \begin{bmatrix}
-y_{t}^{\ast } \\ 
-g_{t} \\ 
-\tilde{y}_{t} \\ 
+y_{t}^{\ast } \\
+g_{t} \\
+\tilde{y}_{t} \\
 \tilde{y}_{t-1}%
 \end{bmatrix}%
 & =%
 \begin{bmatrix}
-1 & 1 & 0 & 0 \\ 
-0 & 1 & 0 & 0 \\ 
-0 & 0 & a_{1} & a_{2} \\ 
+1 & 1 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & a_{1} & a_{2} \\
 0 & 0 & 1 & 0%
 \end{bmatrix}%
 \begin{bmatrix}
-y_{t-1}^{\ast } \\ 
-g_{t-1} \\ 
-\tilde{y}_{t-1} \\ 
+y_{t-1}^{\ast } \\
+g_{t-1} \\
+\tilde{y}_{t-1} \\
 \tilde{y}_{t-2}%
 \end{bmatrix}%
 +%
 \begin{bmatrix}
-\sigma _{1} & 0 & 0 \\ 
-0 & \sigma _{2} & 0 \\ 
-0 & 0 & \sigma _{3} \\ 
+\sigma _{1} & 0 & 0 \\
+0 & \sigma _{2} & 0 \\
+0 & 0 & \sigma _{3} \\
 0 & 0 & 0%
 \end{bmatrix}%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
 \varepsilon _{3t}%
 \end{bmatrix}%
 .
-\end{align*}
+\end{align}
 
-The code estimates Clark's 87 model to use GDP\ data from $1947$:Q1 to $2019$%
-:Q4.
+\bigskip
 
-\pagebreak 
+The code estimates Clark's 87 model on US GDP\ data from $1947$:Q1 to $2019$%
+:Q4. A plot of the smoothed and filtered estimates is shown below.
+
+\begin{figure}[p!]
+\centering
+\includegraphics[angle=00, width=1\textwidth,trim={0 0 0 0},clip]{Clark_SSM}
+%\vspace{-5mm}
+%\caption{Equity risk premium (excess return) $xRet_t$}
+\label{fig:xRet}
+\end{figure}
+
+\pagebreak
 
 \section{Shock recovery SSM}
 
@@ -161,14 +172,14 @@ _{1t}+\sigma _{2}a(L)\varepsilon _{2t-1}+\sigma _{3}\Delta ^{2}\varepsilon
 _{3t}  \notag \\
 Z_{t}& =\sigma _{1}\left[ \varepsilon _{1t}-\left( 2+a_{1}\right)
 \varepsilon _{1t-1}+\left( 1+2a_{1}-a_{2}\right) \varepsilon _{1t-2}+\left(
-2a_{2}-a_{1}\right) \varepsilon _{1t-3}-a_{2}\varepsilon _{1t-4}\right] 
+2a_{2}-a_{1}\right) \varepsilon _{1t-3}-a_{2}\varepsilon _{1t-4}\right]
 \notag \\
 & \hspace{1pt}+\hspace{1pt}\sigma _{2}(\varepsilon _{2t-1}-a_{1}\varepsilon
 _{2t-2}-a_{2}\varepsilon _{2t-3}) \\
 & \hspace{1pt}+\hspace{1pt}\sigma _{3}(\varepsilon _{3t}-2\varepsilon
 _{3t-1}+\varepsilon _{3t-2}),  \notag
 \end{align}%
-where I\ have made use of the fact: 
+where I\ have made use of the fact:
 %$Z_{t}=\sigma _{1}[\varepsilon _{1t}-(1+a_{1})\varepsilon
 %_{1t-1}-(a_{1}+a_{2})\varepsilon _{1t-2}+a_{2}\varepsilon _{1t-3}]$
 %\begin{align*}
@@ -200,14 +211,14 @@ _{1}\left( 1+2a_{1}-a_{2}\right) & \sigma _{1}\left( 2a_{2}-a_{1}\right) & 0
 \end{bmatrix}%
 }_{D_{1}}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
-\varepsilon _{3t} \\ 
-\varepsilon _{1t-1} \\ 
-\varepsilon _{1t-2} \\ 
-\varepsilon _{1t-3} \\ 
-\varepsilon _{2t-1} \\ 
-\varepsilon _{2t-2} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{1t-1} \\
+\varepsilon _{1t-2} \\
+\varepsilon _{1t-3} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{2t-2} \\
 \varepsilon _{3t-1}%
 \end{bmatrix}%
 }_{X_{t}} \\
@@ -218,14 +229,14 @@ _{2}a_{1} & -\sigma _{2}a_{2} & \sigma _{3}%
 \end{bmatrix}%
 }_{D_{2}}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t-1} \\ 
-\varepsilon _{2t-1} \\ 
-\varepsilon _{3t-1} \\ 
-\varepsilon _{1t-2} \\ 
-\varepsilon _{1t-3} \\ 
-\varepsilon _{1t-4} \\ 
-\varepsilon _{2t-2} \\ 
-\varepsilon _{2t-3} \\ 
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{3t-1} \\
+\varepsilon _{1t-2} \\
+\varepsilon _{1t-3} \\
+\varepsilon _{1t-4} \\
+\varepsilon _{2t-2} \\
+\varepsilon _{2t-3} \\
 \varepsilon _{3t-2}%
 \end{bmatrix}%
 }_{X_{t-1}}+\underbrace{%
@@ -234,64 +245,64 @@ _{2}a_{1} & -\sigma _{2}a_{2} & \sigma _{3}%
 \end{bmatrix}%
 }_{R}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
 \varepsilon _{3t}%
 \end{bmatrix}%
 }_{\varepsilon _{t}} \\
 \mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t},  \notag \\[5mm]
 \underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
-\varepsilon _{3t} \\ 
-\varepsilon _{1t-1} \\ 
-\varepsilon _{1t-2} \\ 
-\varepsilon _{1t-3} \\ 
-\varepsilon _{2t-1} \\ 
-\varepsilon _{2t-2} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{1t-1} \\
+\varepsilon _{1t-2} \\
+\varepsilon _{1t-3} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{2t-2} \\
 \varepsilon _{3t-1}%
 \end{bmatrix}%
 }_{X_{t}}& =\underbrace{%
 \begin{bmatrix}
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\ 
-0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0%
 \end{bmatrix}%
 }_{A}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t-1} \\ 
-\varepsilon _{2t-1} \\ 
-\varepsilon _{3t-1} \\ 
-\varepsilon _{1t-2} \\ 
-\varepsilon _{1t-3} \\ 
-\varepsilon _{1t-4} \\ 
-\varepsilon _{2t-2} \\ 
-\varepsilon _{2t-3} \\ 
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{3t-1} \\
+\varepsilon _{1t-2} \\
+\varepsilon _{1t-3} \\
+\varepsilon _{1t-4} \\
+\varepsilon _{2t-2} \\
+\varepsilon _{2t-3} \\
 \varepsilon _{3t-2}%
 \end{bmatrix}%
 }_{X_{t-1}}+\underbrace{%
 \begin{bmatrix}
-1 & 0 & 0 \\ 
-0 & 1 & 0 \\ 
-0 & 0 & 1 \\ 
-0 & 0 & 0 \\ 
-0 & 0 & 0 \\ 
-0 & 0 & 0 \\ 
-0 & 0 & 0 \\ 
-0 & 0 & 0 \\ 
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1 \\
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & 0 & 0 \\
 0 & 0 & 0%
 \end{bmatrix}%
 }_{C}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
 \varepsilon _{3t}%
 \end{bmatrix}%
 }_{\varepsilon _{t}}.
@@ -338,26 +349,26 @@ Z_{t}& =\underbrace{%
 \end{bmatrix}%
 }_{D_{1}}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
-\varepsilon _{3t} \\ 
-\varepsilon _{2t-2} \\ 
-\Delta \varepsilon _{1t-1} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{2t-2} \\
+\Delta \varepsilon _{1t-1} \\
 \Delta \varepsilon _{3t}%
 \end{bmatrix}%
 }_{X_{t}} \\
 & +\underbrace{%
 \begin{bmatrix}
--\sigma _{1} & \sigma _{2} & 0 & -a_{2}\sigma _{2} & -a_{2}\sigma _{1} & 
+-\sigma _{1} & \sigma _{2} & 0 & -a_{2}\sigma _{2} & -a_{2}\sigma _{1} &
 -\sigma _{3}%
 \end{bmatrix}%
 }_{D_{2}}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t-1} \\ 
-\varepsilon _{2t-1} \\ 
-\varepsilon _{3t-1} \\ 
-\varepsilon _{2t-3} \\ 
-\Delta \varepsilon _{1t-2} \\ 
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{3t-1} \\
+\varepsilon _{2t-3} \\
+\Delta \varepsilon _{1t-2} \\
 \Delta \varepsilon _{3t-1}%
 \end{bmatrix}%
 }_{X_{t-1}}+\underbrace{%
@@ -366,52 +377,52 @@ Z_{t}& =\underbrace{%
 \end{bmatrix}%
 }_{R}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
 \varepsilon _{3t}%
 \end{bmatrix}%
 }_{\varepsilon _{t}} \\
 \mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t} \\
 \underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
-\varepsilon _{3t} \\ 
-\varepsilon _{2t-2} \\ 
-\Delta \varepsilon _{1t-1} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{2t-2} \\
+\Delta \varepsilon _{1t-1} \\
 \Delta \varepsilon _{3t}%
 \end{bmatrix}%
 }_{X_{t}}& =\underbrace{%
 \begin{bmatrix}
-0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 \\
 0 & 0 & -1 & 0 & 0 & 0%
 \end{bmatrix}%
 }_{A}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t-1} \\ 
-\varepsilon _{2t-1} \\ 
-\varepsilon _{3t-1} \\ 
-\varepsilon _{2t-3} \\ 
-\Delta \varepsilon _{1t-2} \\ 
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{3t-1} \\
+\varepsilon _{2t-3} \\
+\Delta \varepsilon _{1t-2} \\
 \Delta \varepsilon _{3t-1}%
 \end{bmatrix}%
 }_{X_{t-1}}+\underbrace{%
 \begin{bmatrix}
-1 & 0 & 0 \\ 
-0 & 1 & 0 \\ 
-0 & 0 & 1 \\ 
-0 & 0 & 0 \\ 
-0 & 0 & 0 \\ 
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1 \\
+0 & 0 & 0 \\
+0 & 0 & 0 \\
 0 & 0 & 1%
 \end{bmatrix}%
 }_{C}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
 \varepsilon _{3t}%
 \end{bmatrix}%
 }_{\varepsilon _{t}}.
@@ -422,46 +433,46 @@ Z_{t}& =\underbrace{%
 
 \bigskip $%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
-\varepsilon _{3t} \\ 
-\varepsilon _{2t-2} \\ 
-\varepsilon _{1t-1} \\ 
-\varepsilon _{1t-2} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\varepsilon _{2t-2} \\
+\varepsilon _{1t-1} \\
+\varepsilon _{1t-2} \\
 \Delta \varepsilon _{3t}%
 \end{bmatrix}%
 =%
 \begin{bmatrix}
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
-0 & 1 & 0 & 0 & -1 & 0 & 0 \\ 
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & -1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 0 & 0 & -1 & 0 & 0 & 0 & 0%
 \end{bmatrix}%
 \begin{bmatrix}
-\varepsilon _{1t-1} \\ 
-\varepsilon _{2t-1} \\ 
-\varepsilon _{3t-1} \\ 
-\varepsilon _{2t-3} \\ 
-\varepsilon _{1t-2} \\ 
-\varepsilon _{1t-3} \\ 
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{3t-1} \\
+\varepsilon _{2t-3} \\
+\varepsilon _{1t-2} \\
+\varepsilon _{1t-3} \\
 \Delta \varepsilon _{3t-1}%
 \end{bmatrix}%
 +%
 \begin{bmatrix}
-1 & 0 & 0 \\ 
-0 & 1 & 0 \\ 
-0 & 0 & 1 \\ 
-0 & 0 & 0 \\ 
-0 & 0 & 0 \\ 
-0 & 0 & 1 \\ 
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1 \\
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & 0 & 1 \\
 0 & 0 & 1%
 \end{bmatrix}%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
 \varepsilon _{3t}%
 \end{bmatrix}%
 \allowbreak $
@@ -472,52 +483,127 @@ Z_{t}& =\underbrace{%
 
 \bigskip $-\varepsilon _{t-2}$
 
-\bigskip
+\bigskip \pagebreak
 
-\bigskip
+\subsection{Alternative 2: lower number of states}
 
-\bigskip
+\begin{align}
+\Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}\tilde{y}_{t} \\
+\Delta ^{2}y_{t}& =\underbrace{\sigma _{2}\varepsilon _{2t-1}+\sigma
+_{1}\Delta \varepsilon _{1t}}_{\Delta ^{2}y_{t}^{\ast }}+\underbrace{%
+a(L)^{-1}\sigma _{3}\Delta ^{2}\varepsilon _{3t}}_{\Delta ^{2}\tilde{y}_{t}}%
+\text{, \ \ since we have} \\[-5mm]
+\Delta g_{t}& =\sigma _{2}\varepsilon _{2t} \\
+\Delta ^{2}y_{t}^{\ast }& =\Delta g_{t-1}+\sigma _{1}\Delta \varepsilon _{1t}
+\\
+& =\sigma _{2}\varepsilon _{2t-1}+\sigma _{1}\Delta \varepsilon _{1t} \\
+\Delta ^{2}\tilde{y}_{t}& =a(L)^{-1}\sigma _{3}\Delta ^{2}\varepsilon _{3t}
+\end{align}
 
-\bigskip
-
-\BAW{12}
-
-??correct now:
-
-$%
+These give then the Observed to shock relations:%
+\begin{align*}
+\underbrace{a(L)\Delta ^{2}y_{t}}_{Z_{t}}& =a(L)\sigma _{1}\Delta
+\varepsilon _{1t}+a(L)\sigma _{2}\varepsilon _{2t-1}+\sigma _{3}\Delta
+^{2}\varepsilon _{3t} \\[-6mm]
+& =\sigma _{1}\Delta \varepsilon _{1t}-a_{1}\sigma _{1}\Delta \varepsilon
+_{1t-1}-a_{2}\sigma _{1}\Delta \varepsilon _{1t-2} \\
+& +\sigma _{2}\varepsilon _{2t-1}-a_{1}\sigma _{2}\varepsilon
+_{2t-2}-a_{2}\sigma _{2}\varepsilon _{2t-3} \\
+& +\sigma _{3}\Delta \varepsilon _{3t}-\sigma _{3}\Delta \varepsilon _{3t-1}
+\end{align*}%
+\begin{align}
+\mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t} \\
 \begin{bmatrix}
-\sigma _{1} & 0 & 0 & -a_{1}\sigma _{2} & -a_{1}\sigma _{1} & \sigma _{3}%
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\Delta \varepsilon _{1t} \\
+\Delta \varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{2t-2} \\
+\Delta \varepsilon _{3t}%
+\end{bmatrix}%
+& =%
+\begin{bmatrix}
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+-1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & -1 & 0 & 0 & 0 & 0 & 0%
 \end{bmatrix}%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
-\varepsilon _{3t} \\ 
-\varepsilon _{2t-2} \\ 
-\Delta \varepsilon _{1t-1} \\ 
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{3t-1} \\
+\Delta \varepsilon _{1t-1} \\
+\Delta \varepsilon _{1t-2} \\
+\varepsilon _{2t-2} \\
+\varepsilon _{2t-3} \\
+\Delta \varepsilon _{3t-1}%
+\end{bmatrix}%
++%
+\begin{bmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1 \\
+1 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & 0 & 1%
+\end{bmatrix}%
+\begin{bmatrix}
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t}%
+\end{bmatrix}%
+.
+\end{align}
+\BAW{18}$\mathsf{Measurement}:\quad
+Z_{t}=D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}$%
+\begin{equation*}
+Z_{t}=%
+\begin{bmatrix}
+0 & 0 & 0 & \sigma _{1} & -a_{1}\sigma _{1} & 0 & 0 & \sigma _{3}%
+\end{bmatrix}%
+\begin{bmatrix}
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t} \\
+\Delta \varepsilon _{1t} \\
+\Delta \varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{2t-2} \\
 \Delta \varepsilon _{3t}%
 \end{bmatrix}%
 +%
 \begin{bmatrix}
--\sigma _{1} & \sigma _{2} & 0 & -a_{2}\sigma _{2} & -a_{2}\sigma _{1} & 
--\sigma _{3}%
+0 & \sigma _{2} & 0 & 0 & -a_{2}\sigma _{1} & -a_{1}\sigma _{2} &
+-a_{2}\sigma _{2} & -\sigma _{3}%
 \end{bmatrix}%
 \begin{bmatrix}
-\varepsilon _{1t-1} \\ 
-\varepsilon _{2t-1} \\ 
-\varepsilon _{3t-1} \\ 
-\varepsilon _{2t-3} \\ 
-\Delta \varepsilon _{1t-2} \\ 
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
+\varepsilon _{3t-1} \\
+\Delta \varepsilon _{1t-1} \\
+\Delta \varepsilon _{1t-2} \\
+\varepsilon _{2t-2} \\
+\varepsilon _{2t-3} \\
 \Delta \varepsilon _{3t-1}%
 \end{bmatrix}%
-=\allowbreak \sigma _{2}\varepsilon _{2t-1}-\sigma _{1}\varepsilon
-_{t-1}+\sigma _{1}\varepsilon _{t}+\Delta \sigma _{3}\varepsilon
-_{3t}-\Delta \sigma _{3}\varepsilon _{3t-1}-\sigma _{2}a_{1}\varepsilon
-_{2t-2}-\sigma _{2}a_{2}\varepsilon _{2t-3}-\Delta \sigma
-_{1}a_{1}\varepsilon _{t-1}-\Delta \sigma _{1}a_{2}\varepsilon
-_{t-2}\allowbreak $
-
-\EAW
-
-\bigskip
++%
+\begin{bmatrix}
+0 & 0 & 0%
+\end{bmatrix}%
+\begin{bmatrix}
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
+\varepsilon _{3t}%
+\end{bmatrix}%
+\end{equation*}
+$\allowbreak $\EAW
 
 \end{document}

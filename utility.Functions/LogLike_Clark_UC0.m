@@ -67,12 +67,12 @@ Q = zeros(nQ);
 Q(1,1) = (sigma_ystar)^2;
 Q(2,2) = (sigma_g)^2;
 Q(3,3) = (sigma_ytild)^2;
-Q(1,2) = sigma_ystar*sigma_g*rho_ystar_g;
-Q(2,1) = sigma_ystar*sigma_g*rho_ystar_g;
-Q(1,3) = sigma_ystar*sigma_ytild*rho_ystar_ytild;
-Q(3,1) = sigma_ystar*sigma_ytild*rho_ystar_ytild;
-Q(2,3) = sigma_ytild*sigma_g*rho_ytild_g;
-Q(3,2) = sigma_ytild*sigma_g*rho_ytild_g;
+% Q(1,2) = sigma_ystar*sigma_g*rho_ystar_g;
+% Q(2,1) = sigma_ystar*sigma_g*rho_ystar_g;
+% Q(1,3) = sigma_ystar*sigma_ytild*rho_ystar_ytild;
+% Q(3,1) = sigma_ystar*sigma_ytild*rho_ystar_ytild;
+% Q(2,3) = sigma_ytild*sigma_g*rho_ytild_g;
+% Q(3,2) = sigma_ytild*sigma_g*rho_ytild_g;
 
 % ------------------------------------------------------------------------------------------------------
 % INPUT DATA

@@ -16,37 +16,69 @@ addpath(genpath('./utility.Functions'))               % set path to db functions
 % Sample size and seed for random number generator in simulation
 Ts = 1e4; rng(123);
 PLOT_STATES = 1;
-
-% DEFINE SSM INPUT MATRICES ------------------------------------------------------------------------
-dim_Z = 1;       % rows Z(t)
-dim_X = 9;       % rows X(t)
-dim_R = 3;       % rows ε(t)
-% offset for the first k latent state variables before the shocks.
-k = 0;
 % --------------------------------------------------------------------------------------------------    
 % parameters are from the model fitted to US-GDP data from 1947:Q1 to 2019:Q4 (which can be estimated with the code below)
-a1  =  1.5102;   % a1   
-a2  = -0.5679;   % a2   
+a1  =  1.51023433332729;   % a1   
+a2  = -0.56787952465929;   % a2   
 % standard deviations                                                                             
-s1  =  0.5439;   % sigma(ystar)                                                                     
-s2  =  0.0209;   % sigma(g)                                                                        
-s3  =  0.5980;   % sigma(ytilde)                                                                         
+s1  =  0.54396737899273;   % sigma(ystar)                                                                     
+s2  =  0.02093523340402;   % sigma(g)                                                                        
+s3  =  0.59796738263493;   % sigma(ytilde)                                                                         
+% --------------------------------------------------------------------------------------------------    
+% offset for the first k latent state variables before the shocks.
+k = 0;
+% DEFINE SSM INPUT MATRICES ------------------------------------------------------------------------
+dim_Z = 1;       % rows Z(t)
+dim_X = 8;       % rows X(t)
+dim_R = 3;       % rows ε(t)
 % --------------------------------------------------------------------------------------------------    
 % Define D1
 D1 = zeros(dim_Z,dim_X); 
-D1(1,[1 3:6]) = [s1 s3 -s1*(2+a1) s1*(1+2*a1-a2) s1*(2*a2+a1)];
+D1(1,[4:5 8]) = [s1 -a1*s1 s3];
 % Define D2
 D2 = zeros(dim_Z,dim_X); 
-D2(1,[2:3 6:9]) = [s2 -2*s3 -s1*a2 -s2*a1 -s2*a2 s3];
+D2(1,[2 5:8]) = [s2 -a2*s1 -a1*s2 -a2*s2 -s3];
 % Define R
 R  = zeros(dim_Z,dim_R);
 % --------------------------------------------------------------------------------------------------
 % Define A
 A = zeros(dim_X); 
-A(4,1) = 1; A(5,4) = 1; A(6,5) = 1; A(7,2) = 1; A(8,6) = 1;A(9,3) = 1;
+A(4,1) = -1; A(5,4) = 1; A(6,2) = 1; A(7,6) = 1; A(8,3) = -1;
 % Define C
 C = [eye(dim_R); zeros(dim_X-dim_R,dim_R)];
+C(4,1) = 1; C(8,3) = 1;
 % --------------------------------------------------------------------------------------------------
+
+%% DEFINE SSM INPUT MATRICES ------------------------------------------------------------------------
+% dim_Z = 1;       % rows Z(t)
+% dim_X = 9;       % rows X(t)
+% dim_R = 3;       % rows ε(t)
+% % offset for the first k latent state variables before the shocks.
+% k = 0;
+% % --------------------------------------------------------------------------------------------------    
+% % parameters are from the model fitted to US-GDP data from 1947:Q1 to 2019:Q4 (which can be estimated with the code below)
+% a1  =  1.5102;   % a1   
+% a2  = -0.5679;   % a2   
+% % standard deviations                                                                             
+% s1  =  0.5439;   % sigma(ystar)                                                                     
+% s2  =  0.0209;   % sigma(g)                                                                        
+% s3  =  0.5980;   % sigma(ytilde)                                                                         
+% % --------------------------------------------------------------------------------------------------    
+% % Define D1
+% D1 = zeros(dim_Z,dim_X); 
+% D1(1,[1 3:6]) = [s1 s3 -s1*(2+a1) s1*(1+2*a1-a2) s1*(2*a2+a1)];
+% % Define D2
+% D2 = zeros(dim_Z,dim_X); 
+% D2(1,[2:3 6:9]) = [s2 -2*s3 -s1*a2 -s2*a1 -s2*a2 s3];
+% % Define R
+% R  = zeros(dim_Z,dim_R);
+% % --------------------------------------------------------------------------------------------------
+% % Define A
+% A = zeros(dim_X); 
+% A(4,1) = 1; A(5,4) = 1; A(6,5) = 1; A(7,2) = 1; A(8,6) = 1;A(9,3) = 1;
+% % Define C
+% C = [eye(dim_R); zeros(dim_X-dim_R,dim_R)];
+% % --------------------------------------------------------------------------------------------------
 
 % CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
 [PtT, Ptt] = Kurz_steadystate_P(D1, D2, R, A, C);
@@ -77,7 +109,7 @@ KS_deJ  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % NO INV, NO INITV
 % KS_deJ  = Kurz_AndersonMoore_Smoother(   D1, D2, A, Kurz_KF); % uses inv() --> changed to pinv(), needs initial values 
 % --------------------------------------------------------------------------------------------------
 
-%% PLOT THE KF/KS ESTIMATES OF THE STATES 
+%PLOT THE KF/KS ESTIMATES OF THE STATES 
 % STATE vector alpha = [trend(t); g(t); cycle(t); cycle(t-1)]; from Clark estimates
 % --------------------------------------------------------------------------------------------------
 if PLOT_STATES
@@ -106,8 +138,7 @@ if PLOT_STATES
   end
 end
 % --------------------------------------------------------------------------------------------------
-
-%% CORRELATIONS (can also read off directly from the corr_table below ------------------------------
+% CORRELATIONS (can also read off directly from the corr_table below ------------------------------
 % print simple correlations
 corr_table = array2table( corr(Xs(:,ss), KS_deJ.atT(:,ss)), ...
              'RowNames', row_names, 'VariableNames',row_names);
@@ -126,7 +157,6 @@ Xnames_ID2 = {'Etε3(t) (cycle y~)'};
 ID2 = ols( Ete1,  [ Ete3  ], 1, Xnames_ID2);
 % Xnames_ID2 = [];
 % ID2 = ols( delta(ETe1,2),  [ mlag(delta(ETe1),3) mlag(ETe2,2) mlag(ETe3,3) ], 1, Xnames_ID2);
-
 
 %% -------------------------------------------------------------------------------------------------
 % UNCOMMENT TO USE US REAL GDP DATA
@@ -182,36 +212,64 @@ ZZ = DY - a1*lag(DY) -a2*lag(DY,2);
 % Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother (Eq. (4.11) in Kurz (2018))
 KS_deJ_US  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
 
-% PLOT TREND GROWTH ETC FOR US GDP DATA
-ytld = KFS_Clark.KFS.atT(:,3);
-
-% clf;
-% tiledlayout(1,1, TileSpacing = 'loose', Padding = 'compact');
-% nexttile
-% hold on;
-%   % plot(delta(y.gdp))
-%   plot(ytld - a1*lag(ytld) - a2*lag(ytld,2) )
-%   % plot(KFS_Clark.KFS.atT(:,2))
-%   plot(s3*KS_deJ_US.atT(:,3))
-%   hline(0)
-% hold off
-% box on; addgrid;
-% setdateticks(y.Date,25)
-% addlegend({'US Cycle $\tilde{y}$','Trend grwoth g(t) from Clark SSF'},1)
-
-
-%% check filters
-% aLytild = ytld - a1*lag(ytld) - a2*lag(ytld,2);
-% clc
-% plot(aLytild)
-% hold on;
-% plot(KS_deJ_US.atT(:,3))
-% hold off;
+%% PLOT TREND GROWTH ETC FOR US GDP DATA
+% Shock-recovery SSM
+SMOOTHED = 0;
+eps_1=  s1*KS_deJ_US.att(:,1);eps_2=  s2*KS_deJ_US.att(:,2);eps_3=  s3*KS_deJ_US.att(:,3);
+ystr = KFS_Clark.KFS.att(:,1);g    = KFS_Clark.KFS.att(:,2);ytld = KFS_Clark.KFS.att(:,3);
+Ktype = 'Filtered~ ';
+% smoohted comparison
+if SMOOTHED 
+  eps_1=  s1*KS_deJ_US.atT(:,1);eps_2=  s2*KS_deJ_US.atT(:,2);eps_3=  s3*KS_deJ_US.atT(:,3);
+  ystr = KFS_Clark.KFS.atT(:,1);g    = KFS_Clark.KFS.atT(:,2);ytld = KFS_Clark.KFS.atT(:,3);
+  Ktype = 'Smoothed~ ';
+end
+% now compute the shocks from Clark's SSM to be compatible with the shock-recovery SSM's shocks
+eps_ystr  = delta(ystr) - lag(g);
+eps_g     = delta(g);
+eps_ytld  = ytld - a1*lag(ytld) - a2*lag(ytld,2);
 
 
+% plot the different shocks
+figure(2);clf;
+tiledlayout(5,1, Padding="compact");
+nexttile
+plot([eps_ystr  [nan(4,1); eps_1]]); hline(0); 
+addsubtitle(strcat(Ktype, '$\varepsilon_{1}$'),-1.17)
+addgrid(3/4)
+nexttile
+plot([eps_g     [nan(4,1); eps_2]]); hline(0);
+addlegend({'Clark SSM','Shock Recovery SSM'},3)
+addsubtitle(strcat(Ktype, '$\varepsilon_{2}$'),-1.17)
+addgrid(3/4)
+nexttile
+plot([eps_ytld  [nan(4,1); eps_3]]); hline(0);
+addsubtitle(strcat(Ktype, '$\varepsilon_{3}$'),-1.17)
+addgrid(3/4)
 
-
-
+%% plot the states from Clarks model
+figure(3);clf; ST = -1.18;
+tiledlayout(4,1, Padding="compact");
+nexttile
+plot([KFS_Clark.KFS.att(:,1)  KFS_Clark.KFS.atT(:,1)]); % hline(0); 
+setdateticks(HP.Date,20)
+ylim([700 1100])
+addsubtitle('Filtered and Smoothed estimates of $y_t^\ast$',ST)
+addgrid(3/4)
+nexttile
+plot([4*KFS_Clark.KFS.att(:,2)  4*KFS_Clark.KFS.atT(:,2)]); hline(0); 
+setdateticks(HP.Date,20)
+ylim([-2 8])
+addsubtitle('Filtered and Smoohted estimates of $g_t$',ST)
+addlegend({'Filtered','Smoothed'},3)
+addgrid(3/4)
+nexttile
+plot([KFS_Clark.KFS.att(:,3)  KFS_Clark.KFS.atT(:,3)]); hline(0); 
+setdateticks(HP.Date,20)
+ylim([-6 6])
+addsubtitle('Filtered and Smoothed estimates of $\tilde{y}_t$',ST)
+addgrid(3/4)
+print2pdf('Clark_SSM')
 
 
 
