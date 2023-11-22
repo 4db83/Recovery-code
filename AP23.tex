@@ -12,7 +12,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Wednesday, November 22, 2023 20:53:46}
+%TCIDATA{LastRevised=Wednesday, November 22, 2023 21:04:15}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -63,7 +63,7 @@ latent state variable.
 The simple model takes the form:\bsq\label{clark0}%
 \begin{align}
 y_{t}& =g_{t-1}+\varepsilon _{1t} \\
-g_{t}& =g_{t-1}+\varepsilon _{2t}
+\Delta g_{t}& =\varepsilon _{2t}
 \end{align}%
 \esq where the shocks $\left\{ \varepsilon _{it}\right\} _{i=1}^{2}$ are
 assumed to be $i.i.d.$ standard normal and mutually uncorrelated, with unit
@@ -72,11 +72,13 @@ bottom of state vector:%
 \begin{align}
 y_{t}& =%
 \begin{bmatrix}
-0 & 1%
+0 & 1 & 0 & 0%
 \end{bmatrix}%
 \begin{bmatrix}
 g_{t} \\ 
-g_{t-1}%
+g_{t-1} \\ 
+\varepsilon _{1t} \\ 
+\varepsilon _{2t}%
 \end{bmatrix}%
 +%
 \begin{bmatrix}
