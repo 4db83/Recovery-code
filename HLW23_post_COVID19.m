@@ -66,18 +66,18 @@ if ADD_Drstar;  C(end,[3 5]) = [s3 4*c*s5]; end
 % --------------------------------------------------------------------------------------------------
 
 % CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
-[PtT, Ptt] = Kurz_steadystate_P(D1, D2, R, A, C);
+P = Kurz_steadystate_P(D1, D2, R, A, C);
 ss = k+1:dim_X;
 % row_names = {'ε_ytild(t)';'ε_pi(t)';'ε_z(t)';'ε_ystar(t)';'ε_g(t)'}; 
 row_names = make_table_names('ε',1:dim_R,'(t)');              % make display names 
 if ADD_Drstar; row_names = [row_names; {'∆r*(t)'}]; end   % add ∆r* to display names 
 
-Pstar = array2table([ diag(PtT(ss,ss)) diag(Ptt(ss,ss)) ], ...
+Pstar = array2table([ diag(P.tT(ss,ss)) diag(P.tt(ss,ss)) ], ...
         'VariableNames',{'P(t|T)','P(t|t)'}, 'RowNames', row_names);
 sep; print_table(Pstar,4,1,0)
 
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
-[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, dim_Z, dim_X, dim_R, Ts);
+[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, Ts);
 Z = Zs; 
 % --------------------------------------------------------------------------------------------------
 % CALL TO FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH 
@@ -140,7 +140,7 @@ print_table(corr_table,4,1,'Correlation matrix of True and estimated smoothed St
 
 % CALCULATE CORRELATION between ∆r*(t) and ET∆r*(t) [ie., actual vs. estimate)
 if ADD_Drstar 
-  PHI = PtT(end,end);
+  PHI = P.tT(end,end);
   % Theoretical stdev 
   sig_KS_Drstar = std( KS_deJ.atT(:,end) );
   % Theoretical from model

@@ -50,7 +50,7 @@ C = zeros(dim_X,dim_R);
 C(1,2) = 1; C(3,1) = 1; C(4,2) = 1;
 % --------------------------------------------------------------------------------------------------
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
-[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, dim_Z, dim_X, dim_R, Ts); 
+[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, Ts); 
 % --------------------------------------------------------------------------------------------------
 % INITIALIZE FILTER 
 % Note: errors will always be N(0,1), but latent states may need more careful initialization.
@@ -103,7 +103,7 @@ C = zeros(dim_X,dim_R);
 C(1,1) = 1; C(2,2) = 1;
 % --------------------------------------------------------------------------------------------------
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
-[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, dim_Z, dim_X, dim_R, Ts); 
+[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, Ts); 
 % --------------------------------------------------------------------------------------------------
 % INITIALIZE FILTER 
 % Note: errors will always be N(0,1), but latent states may need more careful initialization.

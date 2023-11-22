@@ -50,17 +50,17 @@ C(4,1) = 1; C(8,3) = 1;
 % --------------------------------------------------------------------------------------------------
 
 % CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
-[PtT, Ptt] = Kurz_steadystate_P(D1, D2, R, A, C);
+P = Kurz_steadystate_P(D1, D2, R, A, C);
 ss = k+1:3;
 % row_names = make_table_names('ε',1:dim_R,'(t)');          % make display names 
 row_names = {'ε1(t)','ε2(t)','ε3(t)'} ; 
 
-Pstar = array2table([ diag(PtT(ss,ss)) diag(Ptt(ss,ss)) ], ...
+Pstar = array2table([ diag(P.tT(ss,ss)) diag(P.tt(ss,ss)) ], ...
         'VariableNames',{'P(t|T)','P(t|t)'}, 'RowNames', row_names);
 sep; print_table(Pstar,4,1,0)
 
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
-[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, dim_Z, dim_X, dim_R, Ts);
+[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, Ts);
 Z = Zs; 
 % --------------------------------------------------------------------------------------------------
 % CALL TO FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH 
@@ -243,7 +243,7 @@ setdateticks(HP.Date,20)
 ylim([-6 6])
 addsubtitle('Filtered and Smoothed estimates of $\tilde{y}_t$',ST)
 addgrid(3/4)
-print2pdf('Clark_SSM',0)
+% print2pdf('Clark_SSM',0)
 
 
 

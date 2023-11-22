@@ -23,7 +23,6 @@ dim_Z = 1;       % rows Z(t)
 dim_X = 3;       % rows X(t)
 dim_R = 2;       % rows ε(t)
 % offset for the first k latent state variables before the shocks.
-k = dim_X - dim_R; 
 k = 0;
 % --------------------------------------------------------------------------------------------------    
 % standard deviation sqrt(lambda = 1600)
@@ -46,17 +45,17 @@ C = [eye(dim_R); zeros(1,2); ];
 % --------------------------------------------------------------------------------------------------
 
 % CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
-[PtT, Ptt] = Kurz_steadystate_P(D1, D2, R, A, C);
+P = Kurz_steadystate_P(D1, D2, R, A, C);
 ss = k+1:dim_X;
 % row_names = make_table_names('ε',1:dim_R,'(t)');          % make display names 
 row_names = {'ε1(t)','ε2(t)','ε2(t-1)'} ; 
 
-Pstar = array2table([ diag(PtT(ss,ss)) diag(Ptt(ss,ss)) ], ...
+Pstar = array2table([ diag(P.tT(ss,ss)) diag(P.tt(ss,ss)) ], ...
         'VariableNames',{'P(t|T)','P(t|t)'}, 'RowNames', row_names);
 sep; print_table(Pstar,4,1,0)
 
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
-[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, dim_Z, dim_X, dim_R, Ts);
+[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, Ts);
 Z = Zs; 
 
 % --------------------------------------------------------------------------------------------------
