@@ -12,7 +12,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Tuesday, November 21, 2023 14:08:26}
+%TCIDATA{LastRevised=Wednesday, November 22, 2023 12:55:15}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -134,12 +134,8 @@ The code estimates Clark's 87 model on US GDP\ data from $1947$:Q1 to $2019$%
 \begin{figure}[p!]
 \centering
 \includegraphics[angle=00, width=1\textwidth,trim={0 0 0 0},clip]{Clark_SSM}
-%\vspace{-5mm}
-%\caption{Equity risk premium (excess return) $xRet_t$}
-\label{fig:xRet}
+\label{fig:KFS}
 \end{figure}
-
-\pagebreak
 
 \section{Shock recovery SSM}
 
@@ -161,356 +157,31 @@ To assess recovery, re-write the model in \ref{clark0} in `\emph{shock
 recovery}' State Space Form (SSF). That is, collect all observables in $%
 Z_{t} $ and all shocks (and other state variables)\ in $X_{t}$ to yield:%
 \begin{align}
-\Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}\tilde{y}_{t}  \notag
-\label{Z} \\
+\Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}\tilde{y}_{t}
+\label{2diff} \\
 & =\sigma _{1}\Delta \varepsilon _{1t}+\Delta g_{t-1}+\Delta ^{2}\tilde{y}%
 _{t}  \notag \\
 & =\sigma _{1}\Delta \varepsilon _{1t}+\sigma _{2}\varepsilon
-_{2t-1}+a(L)^{-1}\Delta ^{2}\sigma _{3}\varepsilon _{3t}  \notag \\
+_{2t-1}+a(L)^{-1}\sigma _{3}\Delta ^{2}\varepsilon _{3t}  \label{e2lag} \\
 \Leftrightarrow a(L)\Delta ^{2}y_{t}& =\sigma _{1}a(L)\Delta \varepsilon
 _{1t}+\sigma _{2}a(L)\varepsilon _{2t-1}+\sigma _{3}\Delta ^{2}\varepsilon
-_{3t}  \notag \\
-Z_{t}& =\sigma _{1}\left[ \varepsilon _{1t}-\left( 2+a_{1}\right)
-\varepsilon _{1t-1}+\left( 1+2a_{1}-a_{2}\right) \varepsilon _{1t-2}+\left(
-2a_{2}-a_{1}\right) \varepsilon _{1t-3}-a_{2}\varepsilon _{1t-4}\right]
-\notag \\
-& \hspace{1pt}+\hspace{1pt}\sigma _{2}(\varepsilon _{2t-1}-a_{1}\varepsilon
-_{2t-2}-a_{2}\varepsilon _{2t-3}) \\
-& \hspace{1pt}+\hspace{1pt}\sigma _{3}(\varepsilon _{3t}-2\varepsilon
-_{3t-1}+\varepsilon _{3t-2}),  \notag
+_{3t}  \notag
 \end{align}%
-where I\ have made use of the fact:
-%$Z_{t}=\sigma _{1}[\varepsilon _{1t}-(1+a_{1})\varepsilon
-%_{1t-1}-(a_{1}+a_{2})\varepsilon _{1t-2}+a_{2}\varepsilon _{1t-3}]$
-%\begin{align*}
-%& 1-\left( 2+a_{1}\right) L+\left( 1+2a_{1}-a_{2}\right) L^{2}+\left(
-%-a_{1}+2a_{2}\right) L^{3}-a_{2}L^{4} \\
-%& \sigma _{1}\left[ \varepsilon _{1t}-\left( 2+a_{1}\right) \varepsilon
-%_{1t-1}+\left( 1+2a_{1}-a_{2}\right) \varepsilon _{1t-2}+\left(
-%-a_{1}+2a_{2}\right) \varepsilon _{1t-3}-a_{2}\varepsilon _{1t-4}\right]
-%\end{align*}
-%p == 1 - (2 + a) x + (1 + 2 a - b) x\symbol{94}2 + (-a + 2 b) x\symbol{94}3
-%- b x\symbol{94}4
-\begin{align}
-a(L)\Delta ^{2}& =(1-a_{1}L-a_{2}L^{2})(1-L)^{2}  \notag \\
-& =1-\left( 2+a_{1}\right) L+\left( 1+2a_{1}-a_{2}\right) L^{2}+\left(
-2a_{2}-a_{1}\right) L^{3}-a_{2}L^{4},  \label{expaL}
-\end{align}%
-and $Z_{t}=a(L)\Delta ^{2}y_{t}$ is the only observed variable.
+where $Z_{t}=a(L)\Delta ^{2}y_{t}$ is the only observed variable.
 
-The Measurement and State equations corresponding to \ref{Z} are:\BAW{12}\bsq%
-\label{K0SSM}%
+Re-writing these in more convenient form for the SSF yields:%
 \begin{align}
-\mathsf{Measurement}:\quad Z_{t}& =D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
-\notag \\
-Z_{t}& =\underbrace{%
-\begin{bmatrix}
-\sigma _{1} & 0 & \sigma _{3} & -\sigma _{1}\left( 2+a_{1}\right) & \sigma
-_{1}\left( 1+2a_{1}-a_{2}\right) & \sigma _{1}\left( 2a_{2}-a_{1}\right) & 0
-& 0 & 0%
-\end{bmatrix}%
-}_{D_{1}}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t} \\
-\varepsilon _{2t} \\
-\varepsilon _{3t} \\
-\varepsilon _{1t-1} \\
-\varepsilon _{1t-2} \\
-\varepsilon _{1t-3} \\
-\varepsilon _{2t-1} \\
-\varepsilon _{2t-2} \\
-\varepsilon _{3t-1}%
-\end{bmatrix}%
-}_{X_{t}} \\
-& +\underbrace{%
-\begin{bmatrix}
-0 & \sigma _{2} & -2\sigma _{3} & 0 & 0 & -\sigma _{1}a_{2} & -\sigma
-_{2}a_{1} & -\sigma _{2}a_{2} & \sigma _{3}%
-\end{bmatrix}%
-}_{D_{2}}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t-1} \\
-\varepsilon _{2t-1} \\
-\varepsilon _{3t-1} \\
-\varepsilon _{1t-2} \\
-\varepsilon _{1t-3} \\
-\varepsilon _{1t-4} \\
-\varepsilon _{2t-2} \\
-\varepsilon _{2t-3} \\
-\varepsilon _{3t-2}%
-\end{bmatrix}%
-}_{X_{t-1}}+\underbrace{%
-\begin{bmatrix}
-0 & 0 & 0%
-\end{bmatrix}%
-}_{R}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t} \\
-\varepsilon _{2t} \\
-\varepsilon _{3t}%
-\end{bmatrix}%
-}_{\varepsilon _{t}} \\
-\mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t},  \notag \\[5mm]
-\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t} \\
-\varepsilon _{2t} \\
-\varepsilon _{3t} \\
-\varepsilon _{1t-1} \\
-\varepsilon _{1t-2} \\
-\varepsilon _{1t-3} \\
-\varepsilon _{2t-1} \\
-\varepsilon _{2t-2} \\
-\varepsilon _{3t-1}%
-\end{bmatrix}%
-}_{X_{t}}& =\underbrace{%
-\begin{bmatrix}
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
-0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
-0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0%
-\end{bmatrix}%
-}_{A}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t-1} \\
-\varepsilon _{2t-1} \\
-\varepsilon _{3t-1} \\
-\varepsilon _{1t-2} \\
-\varepsilon _{1t-3} \\
-\varepsilon _{1t-4} \\
-\varepsilon _{2t-2} \\
-\varepsilon _{2t-3} \\
-\varepsilon _{3t-2}%
-\end{bmatrix}%
-}_{X_{t-1}}+\underbrace{%
-\begin{bmatrix}
-1 & 0 & 0 \\
-0 & 1 & 0 \\
-0 & 0 & 1 \\
-0 & 0 & 0 \\
-0 & 0 & 0 \\
-0 & 0 & 0 \\
-0 & 0 & 0 \\
-0 & 0 & 0 \\
-0 & 0 & 0%
-\end{bmatrix}%
-}_{C}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t} \\
-\varepsilon _{2t} \\
-\varepsilon _{3t}%
-\end{bmatrix}%
-}_{\varepsilon _{t}}.
-\end{align}%
-\esq\EAW
-
-\pagebreak
-
-\subsection{Alternative formulation}
-
-Try to reduce the state vector $X_{t}$ by using changes for the error terms
-that are not required to be expanded. Starting again from:%
-\begin{align}
-\Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}\tilde{y}_{t} \\
-\Delta ^{2}y_{t}^{\ast }& =\sigma _{2}\varepsilon _{2t-1}+\sigma _{1}\Delta
-\varepsilon _{1t} \\
-\Delta ^{2}\tilde{y}_{t}& =a(L)^{-1}\sigma _{3}\Delta ^{2}\varepsilon _{3t},
-\end{align}%
-we get (but we do not expand differenced terms of not needed):%
-\begin{align}
-\Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}\tilde{y}_{t}  \notag
-\\
-& =\sigma _{2}\varepsilon _{2t-1}+\sigma _{1}\Delta \varepsilon
-_{1t}+a(L)^{-1}\sigma _{3}\Delta ^{2}\varepsilon _{3t}  \notag \\
-\Leftrightarrow \underbrace{a(L)\Delta ^{2}y_{t}}_{Z_{t}}& =\sigma
-_{2}a(L)\varepsilon _{2t-1}+\sigma _{1}a(L)\Delta \varepsilon _{1t}+\sigma
-_{3}\Delta ^{2}\varepsilon _{3t}  \notag \\
-Z_{t}& =\sigma _{1}a(L)\Delta \varepsilon _{1t}+\sigma _{2}a(L)\varepsilon
-_{2t-1}+\sigma _{3}\Delta ^{2}\varepsilon _{3t}  \notag \\
+\underbrace{a(L)\Delta ^{2}y_{t}}_{Z_{t}}& =a(L)\sigma _{1}\Delta
+\varepsilon _{1t}+a(L)\sigma _{2}\varepsilon _{2t-1}+\sigma _{3}\Delta
+^{2}\varepsilon _{3t}  \label{eqZ} \\[-5mm]
 & =\sigma _{1}\Delta \varepsilon _{1t}-a_{1}\sigma _{1}\Delta \varepsilon
 _{1t-1}-a_{2}\sigma _{1}\Delta \varepsilon _{1t-2}  \notag \\
 & +\sigma _{2}\varepsilon _{2t-1}-a_{1}\sigma _{2}\varepsilon
-_{2t-2}-a_{2}\sigma _{2}\varepsilon _{2t-3} \\
-& +\sigma _{3}\Delta \varepsilon _{3t}-\sigma _{3}\Delta \varepsilon _{3t-1}
+_{2t-2}-a_{2}\sigma _{2}\varepsilon _{2t-3}  \notag \\
+& +\sigma _{3}\Delta \varepsilon _{3t}-\sigma _{3}\Delta \varepsilon _{3t-1},
 \notag
-\end{align}
-
-\begin{align}
-\mathsf{Measurement}:\quad Z_{t}& =D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
-\notag \\
-Z_{t}& =\underbrace{%
-\begin{bmatrix}
-\sigma _{1} & 0 & 0 & -a_{1}\sigma _{2} & -a_{1}\sigma _{1} & \sigma _{3}%
-\end{bmatrix}%
-}_{D_{1}}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t} \\
-\varepsilon _{2t} \\
-\varepsilon _{3t} \\
-\varepsilon _{2t-2} \\
-\Delta \varepsilon _{1t-1} \\
-\Delta \varepsilon _{3t}%
-\end{bmatrix}%
-}_{X_{t}} \\
-& +\underbrace{%
-\begin{bmatrix}
--\sigma _{1} & \sigma _{2} & 0 & -a_{2}\sigma _{2} & -a_{2}\sigma _{1} &
--\sigma _{3}%
-\end{bmatrix}%
-}_{D_{2}}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t-1} \\
-\varepsilon _{2t-1} \\
-\varepsilon _{3t-1} \\
-\varepsilon _{2t-3} \\
-\Delta \varepsilon _{1t-2} \\
-\Delta \varepsilon _{3t-1}%
-\end{bmatrix}%
-}_{X_{t-1}}+\underbrace{%
-\begin{bmatrix}
-0 & 0 & 0%
-\end{bmatrix}%
-}_{R}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t} \\
-\varepsilon _{2t} \\
-\varepsilon _{3t}%
-\end{bmatrix}%
-}_{\varepsilon _{t}} \\
-\mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t} \\
-\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t} \\
-\varepsilon _{2t} \\
-\varepsilon _{3t} \\
-\varepsilon _{2t-2} \\
-\Delta \varepsilon _{1t-1} \\
-\Delta \varepsilon _{3t}%
-\end{bmatrix}%
-}_{X_{t}}& =\underbrace{%
-\begin{bmatrix}
-0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & -1 & 0 & 0 & 0%
-\end{bmatrix}%
-}_{A}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t-1} \\
-\varepsilon _{2t-1} \\
-\varepsilon _{3t-1} \\
-\varepsilon _{2t-3} \\
-\Delta \varepsilon _{1t-2} \\
-\Delta \varepsilon _{3t-1}%
-\end{bmatrix}%
-}_{X_{t-1}}+\underbrace{%
-\begin{bmatrix}
-1 & 0 & 0 \\
-0 & 1 & 0 \\
-0 & 0 & 1 \\
-0 & 0 & 0 \\
-0 & 0 & 0 \\
-0 & 0 & 1%
-\end{bmatrix}%
-}_{C}\underbrace{%
-\begin{bmatrix}
-\varepsilon _{1t} \\
-\varepsilon _{2t} \\
-\varepsilon _{3t}%
-\end{bmatrix}%
-}_{\varepsilon _{t}}.
 \end{align}%
-\bigskip
-
-\bigskip $\varepsilon _{1t-1}-\varepsilon _{1t-2}$
-
-\bigskip $%
-\begin{bmatrix}
-\varepsilon _{1t} \\
-\varepsilon _{2t} \\
-\varepsilon _{3t} \\
-\varepsilon _{2t-2} \\
-\varepsilon _{1t-1} \\
-\varepsilon _{1t-2} \\
-\Delta \varepsilon _{3t}%
-\end{bmatrix}%
-=%
-\begin{bmatrix}
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 1 & 0 & 0 & -1 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & -1 & 0 & 0 & 0 & 0%
-\end{bmatrix}%
-\begin{bmatrix}
-\varepsilon _{1t-1} \\
-\varepsilon _{2t-1} \\
-\varepsilon _{3t-1} \\
-\varepsilon _{2t-3} \\
-\varepsilon _{1t-2} \\
-\varepsilon _{1t-3} \\
-\Delta \varepsilon _{3t-1}%
-\end{bmatrix}%
-+%
-\begin{bmatrix}
-1 & 0 & 0 \\
-0 & 1 & 0 \\
-0 & 0 & 1 \\
-0 & 0 & 0 \\
-0 & 0 & 0 \\
-0 & 0 & 1 \\
-0 & 0 & 1%
-\end{bmatrix}%
-\begin{bmatrix}
-\varepsilon _{1t} \\
-\varepsilon _{2t} \\
-\varepsilon _{3t}%
-\end{bmatrix}%
-\allowbreak $
-
-\bigskip
-
-\bigskip $\varepsilon _{1t-1}-\varepsilon _{1t-2}$
-
-\bigskip $-\varepsilon _{t-2}$
-
-\bigskip \pagebreak
-
-\subsection{Alternative 2: lower number of states}
-
-\begin{align}
-\Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}\tilde{y}_{t} \\
-\Delta ^{2}y_{t}& =\underbrace{\sigma _{2}\varepsilon _{2t-1}+\sigma
-_{1}\Delta \varepsilon _{1t}}_{\Delta ^{2}y_{t}^{\ast }}+\underbrace{%
-a(L)^{-1}\sigma _{3}\Delta ^{2}\varepsilon _{3t}}_{\Delta ^{2}\tilde{y}_{t}}%
-\text{, \ \ since we have} \\[-5mm]
-\Delta g_{t}& =\sigma _{2}\varepsilon _{2t} \\
-\Delta ^{2}y_{t}^{\ast }& =\Delta g_{t-1}+\sigma _{1}\Delta \varepsilon _{1t}
-\\
-& =\sigma _{2}\varepsilon _{2t-1}+\sigma _{1}\Delta \varepsilon _{1t} \\
-\Delta ^{2}\tilde{y}_{t}& =a(L)^{-1}\sigma _{3}\Delta ^{2}\varepsilon _{3t}
-\end{align}
-
-These give then the Observed to shock relations:%
-\begin{align*}
-\underbrace{a(L)\Delta ^{2}y_{t}}_{Z_{t}}& =a(L)\sigma _{1}\Delta
-\varepsilon _{1t}+a(L)\sigma _{2}\varepsilon _{2t-1}+\sigma _{3}\Delta
-^{2}\varepsilon _{3t} \\[-6mm]
-& =\sigma _{1}\Delta \varepsilon _{1t}-a_{1}\sigma _{1}\Delta \varepsilon
-_{1t-1}-a_{2}\sigma _{1}\Delta \varepsilon _{1t-2} \\
-& +\sigma _{2}\varepsilon _{2t-1}-a_{1}\sigma _{2}\varepsilon
-_{2t-2}-a_{2}\sigma _{2}\varepsilon _{2t-3} \\
-& +\sigma _{3}\Delta \varepsilon _{3t}-\sigma _{3}\Delta \varepsilon _{3t-1}
-\end{align*}%
+which can then be written in SSF as:%
 \begin{align}
 \mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t} \\
 \begin{bmatrix}
@@ -561,11 +232,11 @@ _{2t-2}-a_{2}\sigma _{2}\varepsilon _{2t-3} \\
 \varepsilon _{3t}%
 \end{bmatrix}%
 .
-\end{align}
-\BAW{18}$\mathsf{Measurement}:\quad
-Z_{t}=D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}$%
-\begin{equation*}
-Z_{t}=%
+\end{align}%
+\begin{eqnarray*}
+\mathsf{Measurement}:\quad Z_{t} &=&D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
+\\[-15mm]
+Z_{t} &=&%
 \begin{bmatrix}
 0 & 0 & 0 & \sigma _{1} & -a_{1}\sigma _{1} & 0 & 0 & \sigma _{3}%
 \end{bmatrix}%
@@ -578,8 +249,9 @@ Z_{t}=%
 \varepsilon _{2t-1} \\
 \varepsilon _{2t-2} \\
 \Delta \varepsilon _{3t}%
-\end{bmatrix}%
-+%
+\end{bmatrix}
+\\[-15mm]
+&&+%
 \begin{bmatrix}
 0 & \sigma _{2} & 0 & 0 & -a_{2}\sigma _{1} & -a_{1}\sigma _{2} &
 -a_{2}\sigma _{2} & -\sigma _{3}%
@@ -603,7 +275,46 @@ Z_{t}=%
 \varepsilon _{2t} \\
 \varepsilon _{3t}%
 \end{bmatrix}%
-\end{equation*}
-$\allowbreak $\EAW
+\end{eqnarray*}%
+$\allowbreak $
+
+Running the shock recovery code\ $\mathtt{Clark87.m}$ we get the following
+steady-state diagonal entries:%
+\begin{equation*}
+\begin{tabular}{ccc}
+\hline
+Shocks & $P_{t|T}^{\ast }$ & $P_{t|t}^{\ast }$ \\ \hline
+$\varepsilon _{1t}$ & $0.5469$ & $0.5989$ \\
+$\varepsilon _{2t}$ & $0.9870$ & $1.0000$ \\
+$\varepsilon _{3t}$ & $0.4661$ & $0.5153$ \\ \hline
+\end{tabular}%
+\end{equation*}%
+The second shock $\varepsilon _{2t}$ (corresponding to $\varepsilon _{t}^{g}$%
+, ie., trend growth) is not recoverable.
+
+Looking at \ref{e2lag}, we see that $\varepsilon _{2t}$ enters with a lag
+into the measurement equation. Following the same logic that Adrian used, we
+should then get only $\hat{\varepsilon}_{2t-1|t}$ from the Kalman Filter.
+
+Below I plot estimates of the Filtered and Smoothed shocks from the model
+fitted to US\ data, where shocks from the SSM in \ref{clark0} are
+constructed in line with the equations listed there, ie.,  as $\eta
+_{2t|t}=\sigma _{2}\varepsilon _{2t}=\Delta g_{t}$ for the filtered and
+smoothed alternatives.
+
+\begin{figure}[p!]
+\centering
+\includegraphics[angle=00, width=1\textwidth,trim={0 0 0 0},clip]{Clark_SSM_Filtered}
+\label{fig:KF}
+\end{figure}
+
+
+\begin{figure}[p!]
+\centering
+\includegraphics[angle=00, width=1\textwidth,trim={0 0 0 0},clip]{Clark_SSM_Smoothed}
+\label{fig:KS}
+\end{figure}
+
+
 
 \end{document}

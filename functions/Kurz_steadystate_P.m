@@ -1,4 +1,4 @@
-function [PtT_out, Ptt_out] = Kurz_steadystate_P(D1, D2, R, A, C, TT)
+function Pstar = Kurz_steadystate_P(D1, D2, R, A, C, TT)
 % TT = default number of iterations, optional
 dim_X = size(D1,2);  % rows X(t)
 
@@ -55,6 +55,8 @@ fprintf('Covergence of Steady-State N(t):   %d\n', norm(Ntt_conv))
 PtT = Pt - Pt*Nt*Pt; 
 
 % RETURN THE FOLLOWING
-Ptt_out = Pt;
-PtT_out = PtT; 
+% Ptt_out = Pt;
+% PtT_out = PtT; 
+Pstar.tt = Pt;
+Pstar.tT = PtT;
 end

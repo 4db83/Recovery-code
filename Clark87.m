@@ -5,7 +5,7 @@
 % --------------------------------------------------------------------------------------------------
 clear; clc;
 % set plotting defaults
-set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',14)
+set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',15)
 set(groot,'defaultAxesXTickLabelRotationMode','manual')
 set(groot,'defaultAxesFontName','Times New Roman')
 addpath(genpath('./functions'))
@@ -48,37 +48,6 @@ A(4,1) = -1; A(5,4) = 1; A(6,2) = 1; A(7,6) = 1; A(8,3) = -1;
 C = [eye(dim_R); zeros(dim_X-dim_R,dim_R)];
 C(4,1) = 1; C(8,3) = 1;
 % --------------------------------------------------------------------------------------------------
-
-%% DEFINE SSM INPUT MATRICES ------------------------------------------------------------------------
-% dim_Z = 1;       % rows Z(t)
-% dim_X = 9;       % rows X(t)
-% dim_R = 3;       % rows ε(t)
-% % offset for the first k latent state variables before the shocks.
-% k = 0;
-% % --------------------------------------------------------------------------------------------------    
-% % parameters are from the model fitted to US-GDP data from 1947:Q1 to 2019:Q4 (which can be estimated with the code below)
-% a1  =  1.5102;   % a1   
-% a2  = -0.5679;   % a2   
-% % standard deviations                                                                             
-% s1  =  0.5439;   % sigma(ystar)                                                                     
-% s2  =  0.0209;   % sigma(g)                                                                        
-% s3  =  0.5980;   % sigma(ytilde)                                                                         
-% % --------------------------------------------------------------------------------------------------    
-% % Define D1
-% D1 = zeros(dim_Z,dim_X); 
-% D1(1,[1 3:6]) = [s1 s3 -s1*(2+a1) s1*(1+2*a1-a2) s1*(2*a2+a1)];
-% % Define D2
-% D2 = zeros(dim_Z,dim_X); 
-% D2(1,[2:3 6:9]) = [s2 -2*s3 -s1*a2 -s2*a1 -s2*a2 s3];
-% % Define R
-% R  = zeros(dim_Z,dim_R);
-% % --------------------------------------------------------------------------------------------------
-% % Define A
-% A = zeros(dim_X); 
-% A(4,1) = 1; A(5,4) = 1; A(6,5) = 1; A(7,2) = 1; A(8,6) = 1;A(9,3) = 1;
-% % Define C
-% C = [eye(dim_R); zeros(dim_X-dim_R,dim_R)];
-% % --------------------------------------------------------------------------------------------------
 
 % CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
 [PtT, Ptt] = Kurz_steadystate_P(D1, D2, R, A, C);
@@ -229,23 +198,28 @@ eps_ystr  = delta(ystr) - lag(g);
 eps_g     = delta(g);
 eps_ytld  = ytld - a1*lag(ytld) - a2*lag(ytld,2);
 
-
 % plot the different shocks
-figure(2);clf;
-tiledlayout(5,1, Padding="compact");
+figure(2);clf; ST = -1.18;
+tiledlayout(4,1, Padding="compact");
 nexttile
-plot([eps_ystr  [nan(4,1); eps_1]]); hline(0); 
-addsubtitle(strcat(Ktype, '$\varepsilon_{1}$'),-1.17)
+plot([eps_ystr  [nan(4,1); eps_1]]); hline(0); setyticklabels(-2:0.5:2,1)
+setdateticks(HP.Date,20)
+addsubtitle(strcat(Ktype, '$\eta_1 = \sigma_1\varepsilon_{1}$'),ST)
 addgrid(3/4)
 nexttile
-plot([eps_g     [nan(4,1); eps_2]]); hline(0);
+plot([eps_g     [nan(4,1); eps_2]]); hline(0); setyticklabels([-0.5:.1:0.5]/1,1)
+setdateticks(HP.Date,20)
 addlegend({'Clark SSM','Shock Recovery SSM'},3)
-addsubtitle(strcat(Ktype, '$\varepsilon_{2}$'),-1.17)
+addsubtitle(strcat(Ktype, '$\eta_2 = \sigma_2\varepsilon_{2}$'),ST)
 addgrid(3/4)
 nexttile
-plot([eps_ytld  [nan(4,1); eps_3]]); hline(0);
-addsubtitle(strcat(Ktype, '$\varepsilon_{3}$'),-1.17)
+plot([eps_ytld  [nan(4,1); eps_3]]); hline(0); setyticklabels(-2:.5:2,1)
+setdateticks(HP.Date,20)
+addsubtitle(strcat(Ktype, '$\eta_3 = \sigma_3\varepsilon_{3}$'),ST)
 addgrid(3/4)
+% print2pdf('Clark_SSM_Filtered')
+% if SMOOTHED; print2pdf('Clark_SSM_Smoothed',0); else print2pdf('Clark_SSM_Filtered',0); end
+% Smoothed
 
 %% plot the states from Clarks model
 figure(3);clf; ST = -1.18;
@@ -269,7 +243,7 @@ setdateticks(HP.Date,20)
 ylim([-6 6])
 addsubtitle('Filtered and Smoothed estimates of $\tilde{y}_t$',ST)
 addgrid(3/4)
-print2pdf('Clark_SSM')
+print2pdf('Clark_SSM',0)
 
 
 
