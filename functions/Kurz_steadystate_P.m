@@ -14,21 +14,21 @@ CCT = C*C';
 % -----------------------------------------------------------------------------------------
 % FILTERING
 % storage matrix if needed
-Ptt = zeros(dim_X,dim_X,TT); 
+Ptt_t = zeros(dim_X,dim_X,TT); 
 % initialize state vector MSE 
 P00 = eye(dim_X);
-Pt  = P00;  
+Ptt = P00;  
 % FORWARD RECURSIONS
 for t = 1:TT
-  Ft =  G*Pt*G' + Lam*Lam';
-  Kt = (A*Pt*G' + CCT*D1' + C*R') / Ft;
-  Pt =  A*Pt*A' + CCT - Kt*Ft*Kt';
+  Ft =  G*Ptt*G' + Lam*Lam';
+  Kt = (A*Ptt*G' + CCT*D1' + C*R') / Ft;
+  Ptt =  A*Ptt*A' + CCT - Kt*Ft*Kt';
   % STORE SOME PTT FOR CONVERGENCE CHECKING
-  Ptt(:,:,t) = Pt;
+  Ptt_t(:,:,t) = Ptt;
 end
 % CONVERGENCE CHECK: compute the difference between Last entry and Last-T0 entry
-Ptt_conv = Ptt(:,:,end) - Ptt(:,:,end-T0);
-fprintf('Covergence of Steady-State P(t|t): %d\n', norm(Ptt_conv))
+Ptt_conv = Ptt_t(:,:,end) - Ptt_t(:,:,end-T0);
+fprintf('Convergence of Steady-State P(t|t): %d\n', norm(Ptt_conv))
 % -----------------------------------------------------------------------------------------
 % SMOOTHING 
 NT = zeros(dim_X);
@@ -49,14 +49,14 @@ end
 % nt(:,:,j)=nt1+lt'*nt(:,:,j-1)*lt;
 % CONVERGENCE CHECK: compute the difference between first entry and 10th entry
 Ntt_conv = Ntt(:,:,1) - Ntt(:,:,T0);
-fprintf('Covergence of Steady-State N(t):   %d\n', norm(Ntt_conv))
+fprintf('Convergence of Steady-State N(t):   %d\n', norm(Ntt_conv))
 
 % P(t|T) = smoothed steady-state MSE
-PtT = Pt - Pt*Nt*Pt; 
+PtT = Ptt - Ptt*Nt*Ptt; 
 
 % RETURN THE FOLLOWING
 % Ptt_out = Pt;
 % PtT_out = PtT; 
-Pstar.tt = Pt;
+Pstar.tt = Ptt;
 Pstar.tT = PtT;
 end

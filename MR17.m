@@ -16,8 +16,8 @@ addpath(genpath('./utility.Functions'))               % set path to db functions
 % Sample size and seed for random number generator in simulation
 Ts = 1e4; rng(123);
 % set to 1 if wanting to add ∆r*(t) to State vector X(t)
-ADD_Drstar  = 1;
-PLOT_STATES = 1;
+ADD_Drstar  = 0;
+PLOT_STATES = 0;
 
 % DEFINE SSM INPUT MATRICES ------------------------------------------------------------------------
 dim_Z = 3;                % rows Z(t)
@@ -77,6 +77,8 @@ A(5:6,5) = 1; A([1 4],4) = 1; A(7,7) = 1;
 % Define C
 C = zeros(dim_X,dim_R); C(k+1:(dim_X-ADD_Drstar),:) = eye(dim_R);
 C(1,4) = s4; C(4,5) = s5; C(5,[3 5]) = [s3 4*s5]; C(7,6) = s6;
+% TO USE ∆y*(t) = g(t) + sigma_4*ε4(t), add sigma_5*ε5(t) to the baseline ∆y*(t) = g(t-1) + sigma_4*ε4(t)
+% C(1,5) = s5;
 if ADD_Drstar; C(end,[3 5]) = [s3 4*s5]; end
 % --------------------------------------------------------------------------------------------------
 
@@ -121,14 +123,15 @@ if PLOT_STATES
     nexttile
     hold on;
       plot(Xs(:,ii), 'LineWidth',3); 
-      % plot(KS_deJ.att(:,ii),'--','Color',clr(3),'LineWidth',2.5);   % Filtered States
-      plot(KS_deJ.atT(:,ii),'--','Color',clr(3),'LineWidth',2.5);   % Smoothed States
+      plot(KS_deJ.att(:,ii),'--','Color',clr(3),'LineWidth',2.5);   % Filtered States
+      % plot(KS_deJ.atT(:,ii),'--','Color',clr(3),'LineWidth',2.5);   % Smoothed States
     hold off;
     hline(0)
     box on; grid on;
     set(gca,'GridLineStyle',':' ,'GridAlpha',1/3, 'LineWidth',5/5);
     add2yaxislabel;
-    addlegend({'True','Estimate:$\,a_{t|T}$'},1)
+    addlegend({'True','Estimate:$\,a_{t|t}$'},1)
+    % addlegend({'True','Estimate:$\,a_{t|T}$'},1)
     addsubtitle(plot_names(ii-k),-1.10)
   end
 end

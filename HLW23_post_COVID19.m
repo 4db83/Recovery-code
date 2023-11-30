@@ -62,6 +62,8 @@ A(1:2,1) = 1; A(4:5,4) = 1; A([1 3],3) = 1;
 % Define C
 C = zeros(dim_X,dim_R); C(k+1:(dim_X-ADD_Drstar),:) = eye(dim_R);
 C(1,4) = s4; C(3,5) = s5; C(4,[3 5]) = [s3 4*c*s5];
+% TO USE ∆y*(t) = g(t) + sigma_4*ε4(t), add sigma_5*ε5(t) to the baseline ∆y*(t) = g(t-1) + sigma_4*ε4(t)
+% C(1,5) = s5;
 if ADD_Drstar;  C(end,[3 5]) = [s3 4*c*s5]; end
 % --------------------------------------------------------------------------------------------------
 
