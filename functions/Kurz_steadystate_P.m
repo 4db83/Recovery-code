@@ -3,10 +3,10 @@ function Pstar = Kurz_steadystate_P(D1, D2, R, A, C, TT)
 dim_X = size(D1,2);  % rows X(t)
 
 % set default number of iterations if not supplied
-if nargin < 6 || isempty(TT); TT  = 5e3; end  
+if nargin < 6 || isempty(TT); TT  = 5e3; end
 
 % how far back to go to check convergence
-T0  = 1e2;    
+T0  = 1e2;
 % pre-compute some quantitities
 Lam = (D1*C+R);
 G   = (D1*A+D2);
@@ -17,11 +17,11 @@ CCT = C*C';
 Ptt_t = zeros(dim_X,dim_X,TT); 
 % initialize state vector MSE 
 P00 = eye(dim_X);
-Ptt = P00;  
+Ptt = P00;
 % FORWARD RECURSIONS
 for t = 1:TT
-  Ft =  G*Ptt*G' + Lam*Lam';
-  Kt = (A*Ptt*G' + CCT*D1' + C*R') / Ft;
+  Ft  =  G*Ptt*G' + Lam*Lam';
+  Kt  = (A*Ptt*G' + CCT*D1' + C*R') / Ft;
   Ptt =  A*Ptt*A' + CCT - Kt*Ft*Kt';
   % STORE SOME PTT FOR CONVERGENCE CHECKING
   Ptt_t(:,:,t) = Ptt;
@@ -37,7 +37,7 @@ LL = (A-Kt*G);
 FF = Ft;
 GinvFG = G'/FF*G;
 % storage matrix if needed
-Ntt = zeros(dim_X,dim_X,TT); 
+Ntt = zeros(dim_X,dim_X,TT);
 % BACKWARD RECURSIONS
 for t = (TT-1):-1:1
   % THIS USES THE STEADY-STATE Kt AND Ft VALUES FROM ABOVE
@@ -52,11 +52,11 @@ Ntt_conv = Ntt(:,:,1) - Ntt(:,:,T0);
 fprintf('Convergence of Steady-State N(t):   %d\n', norm(Ntt_conv))
 
 % P(t|T) = smoothed steady-state MSE
-PtT = Ptt - Ptt*Nt*Ptt; 
+PtT = Ptt - Ptt*Nt*Ptt;
 
 % RETURN THE FOLLOWING
 % Ptt_out = Pt;
-% PtT_out = PtT; 
+% PtT_out = PtT;
 Pstar.tt = Ptt;
 Pstar.tT = PtT;
 end
