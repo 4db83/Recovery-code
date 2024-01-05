@@ -12,12 +12,11 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Friday, November 03, 2023 16:37:15}
+%TCIDATA{LastRevised=Friday, January 05, 2024 21:36:57}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
 
-\let\oldref\ref
 \AtBeginDocument{
 \let\oldref\ref\renewcommand{\ref}[1]{(\oldref{#1})}
 \newcommand{\bsq}{\begin{subequations}}\newcommand{\esq}{\end{subequations}}
@@ -45,19 +44,20 @@
 
 \section{HP97}
 
-The Filter of Hodrick and Prescott\ (1997, HP-Filter) can be expressed as an
-SSM following a UC\ model structure as:\bsq\label{HP0}%
+The Hodrick and Prescott (1997, HP) Filter can be expressed in State Space
+Form (SSF)\ using the following an Unobserved Component (UC)\ model
+structure:\bsq\label{HP0}%
 \begin{align}
 y_{t}& =y_{t}^{\ast }+y_{t}^{c}  \label{HP0a} \\
 \Delta ^{2}y_{t}^{\ast }& =\varepsilon _{1t}  \label{HP0b} \\
 y_{t}^{c}& =\phi \varepsilon _{2t},  \label{HP0c}
 \end{align}%
-\esq where $y_{t}$ is (generally 100 times) the log of GDP, and $\varepsilon
-_{1t}$ and $\varepsilon _{2t}$ are $N(0,1)$. The standard deviation $\phi $
-is the (square root of the) smoothing parameter, generally set to $40$,
-implying a value of `$\lambda $' of $1600$.
+\esq where $y_{t}$ is (100 times) the log of GDP, and $\varepsilon _{1t}$
+and $\varepsilon _{2t}$ are $N(0,1)$. The standard deviation $\phi $ is the
+(square root of the) smoothing parameter, commonly set to $40$ for quarterly
+macroeconomic data, implying a value of `$\lambda $' of $1600$.
 
-The number shock to named shock mapping is:%
+The `\emph{numbered} \emph{shock}' to `\emph{named shock}' mapping is:%
 \begin{equation}
 \begin{bmatrix}
 \varepsilon _{1t} \\ 
@@ -68,14 +68,17 @@ The number shock to named shock mapping is:%
 \varepsilon _{t}^{\ast } \\ 
 \varepsilon _{t}^{c}%
 \end{bmatrix}%
-.
-\end{equation}
+,
+\end{equation}%
+where $\varepsilon _{t}^{\ast }$ is the trend (or permanent)\ shock, and $%
+\varepsilon _{t}^{c}$ is the cycle (or transitory) shock. 
 
-\section{Shock recovery SSM}
+\section{Shock recovery}
 
-\subsection{SSM with lagged states}
+\subsection{State Space Models with lagged states}
 
-Kurz's (2018) SSM has the following general from:\bsq\label{SSM}%
+Kurz (2018) adopts the following general SSF\ with lagged states in the
+measurement:\bsq\label{SSM}%
 \begin{align}
 \mathsf{Measurement}& :\quad Z_{t}=D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
 \label{ssm1} \\
@@ -85,51 +88,23 @@ Kurz's (2018) SSM has the following general from:\bsq\label{SSM}%
 conformable system matrices, $Z_{t}$ the observed variable and $X_{t}$ the
 latent state variable.
 
-\subsection{HP97 SSM\ for shock recovery}
+\subsection{HP97 in `\emph{shock recovery}' SSF}
 
-To assess recovery, re-write the model in \ref{HP0} in `\emph{shock recovery}%
-' State Space Form (SSF). That is, collect all observables in $Z_{t}$ and
-all shocks (and other state variables)\ in $X_{t}$ to yield:%
+To assess shock recovery, write the model in \ref{HP0} in `\emph{shock
+recovery}' SSF by collecting all observable variables in $Z_{t}$ and all
+shocks (and other latent state variables)\ in $X_{t}$. Differencing $y_{t}$
+and $y_{t}^{c}$ twice, and re-arranging the relations in \ref{HP0} then
+yields:%
 \begin{align}
 \Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}y_{t}^{c}  \notag \\
 & =\varepsilon _{1t}+\phi \Delta ^{2}\varepsilon _{2t}  \notag \\
 & =\varepsilon _{1t}+\phi \varepsilon _{2t}-2\phi \varepsilon _{2t-1}+\phi
 \varepsilon _{2t-2},  \label{Z}
 \end{align}%
-where $\Delta ^{2}y_{t}=Z_{t}$ is the only observed variable.
+where $\Delta ^{2}y_{t}$ is the only observed variable.
 
-Note: The estimates of the shocks from the Kalman Filter $E_{t}X_{t}=E_{t}%
-\begin{bmatrix}
-\varepsilon _{t} & \varepsilon _{2t} & \varepsilon _{2t-1}%
-\end{bmatrix}%
-^{\prime }$ will be linked by the identity:%
-\begin{equation*}
-E_{t}\varepsilon _{2t}=\phi E_{t}\varepsilon _{1t}
-\end{equation*}%
-and from the Kalman Smoother $E_{T}X_{t}=E_{T}%
-\begin{bmatrix}
-\varepsilon _{t} & \varepsilon _{2t} & \varepsilon _{2t-1}%
-\end{bmatrix}%
-^{\prime }$ by the identity: 
-\begin{equation}
-\Delta ^{2}E_{T}\varepsilon _{1t}=\frac{1}{\phi ^{2}}E_{T}\varepsilon
-_{2t-2}.  \label{KS}
-\end{equation}%
-With $\varepsilon _{1t}=\Delta ^{2}y_{t}^{\ast }$ and $\varepsilon _{2t}=%
-\frac{1}{\phi ^{2}}y_{t}^{c}$, this means that the output from the standard
-HP--Filter will give the identity:%
-\begin{align*}
-\Delta ^{4}y_{t}^{\ast }& =\frac{1}{\phi ^{2}}y_{t-2}^{c} \\
-\Delta ^{4}\text{HP--trend}_{t}& =\frac{1}{\phi ^{2}}\text{HP--cycle}_{t-2}.
-\end{align*}%
-Indeed, running a regression of $\Delta ^{4}$HP--trend$_{t}$ on HP--cycle$%
-_{t-2}$ (without an intercept) yields a regression coefficient of $%
-0.000625=1/1600$ when applied to US--GDP data that was HP--Filtered with the
-smoothing parameter set to $\lambda =1600=40^{2}$. The regression fit is
-perfect, with an $R^{2}$ of $1$ and a residual sum of squares of $0.$
-
-The Measurement and State equations corresponding to \ref{Z} are:\bsq\label%
-{K0SSM}%
+The Measurement and State equations of the `\emph{shock recovery}' SSF
+corresponding to the relations in \ref{Z} are then given by:\bsq\label{K0SSM}%
 \begin{align}
 \mathsf{Measurement}:\quad Z_{t}& =D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
 \notag \\
@@ -137,7 +112,7 @@ The Measurement and State equations corresponding to \ref{Z} are:\bsq\label%
 \varepsilon _{2t-2} \\[2mm]
 Z_{t}& =\underbrace{%
 \begin{bmatrix}
-1 & \phi & 0%
+1 & \phi  & 0%
 \end{bmatrix}%
 }_{D_{1}}\underbrace{%
 \begin{bmatrix}
@@ -147,7 +122,7 @@ Z_{t}& =\underbrace{%
 \end{bmatrix}%
 }_{X_{t}}+\underbrace{%
 \begin{bmatrix}
-0 & -2\phi & \phi%
+0 & -2\phi  & \phi 
 \end{bmatrix}%
 }_{D_{2}}\underbrace{%
 \begin{bmatrix}
@@ -198,5 +173,43 @@ Z_{t}& =\underbrace{%
 }_{\varepsilon _{t}}.
 \end{align}%
 \esq
+
+\subsection{Shock Identities}
+
+Kalman Filter estimates of the permanent and transitory shocks $\varepsilon
+_{1t}$ and $\varepsilon _{2t}$ contained in $E_{t}X_{t}=E_{t}%
+\begin{bmatrix}
+\varepsilon _{1t} & \varepsilon _{2t} & \varepsilon _{2t-1}%
+\end{bmatrix}%
+^{\prime }$ are linked by the identity:%
+\begin{equation*}
+E_{t}\varepsilon _{2t}=\phi E_{t}\varepsilon _{1t},
+\end{equation*}%
+and Kalman Smoother estimates $E_{T}X_{t}=E_{T}%
+\begin{bmatrix}
+\varepsilon _{1t} & \varepsilon _{2t} & \varepsilon _{2t-1}%
+\end{bmatrix}%
+^{\prime }$ give the identity: 
+\begin{equation}
+\Delta ^{2}E_{T}\varepsilon _{1t}=\frac{1}{\phi ^{2}}E_{T}\varepsilon
+_{2t-2}.  \label{KS}
+\end{equation}%
+Since $\varepsilon _{1t}=\Delta ^{2}y_{t}^{\ast }$ and $\varepsilon _{2t}=%
+\frac{1}{\phi ^{2}}y_{t}^{c}$, this implies that the output from the
+standard HP--Filter will give the identity:%
+\begin{align*}
+\Delta ^{4}y_{t}^{\ast }& =\frac{1}{\phi ^{2}}y_{t-2}^{c} \\
+\Delta ^{4}\text{HP--trend}_{t}& =\frac{1}{\phi ^{2}}\text{HP--cycle}_{t-2}.
+\end{align*}%
+Indeed, running a regression of $\Delta ^{4}$HP--trend$_{t}$ on HP--cycle$%
+_{t-2}$ (without an intercept) yields a regression coefficient of $%
+0.000625=1/1600$ when applied to US--GDP data that was HP--Filtered with the
+smoothing parameter set to $\lambda =1600=40^{2}$. The regression fit is
+perfect, yielding an $R^{2}$ of $1$ and a residual sum of squares of exactly 
+$0$.
+
+\section{Alternative way to assess shock recovery without Kurz}
+
+TBA
 
 \end{document}
