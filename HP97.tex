@@ -1,9 +1,10 @@
 
-\documentclass[a4paper,12pt]{article}
+\documentclass[a4paper,final,12pt]{article}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage{graphicx,hyperref,mathpple,amsmath,exscale,setspace,xcolor}
 \usepackage[left=20mm,right=20mm,top=20mm,bottom=20mm]{geometry}
 \usepackage{pdflscape,showkeys,changepage}
+\usepackage[TABBOTCAP]{subfigure}
 \usepackage[round]{natbib}
 
 \setcounter{MaxMatrixCols}{10}
@@ -12,7 +13,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Friday, January 05, 2024 21:36:57}
+%TCIDATA{LastRevised=Monday, January 08, 2024 22:22:25}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -45,8 +46,8 @@
 \section{HP97}
 
 The Hodrick and Prescott (1997, HP) Filter can be expressed in State Space
-Form (SSF)\ using the following an Unobserved Component (UC)\ model
-structure:\bsq\label{HP0}%
+Form (SSF)\ using the following Unobserved Component (UC)\ model structure:%
+\bsq\label{HP0}%
 \begin{align}
 y_{t}& =y_{t}^{\ast }+y_{t}^{c}  \label{HP0a} \\
 \Delta ^{2}y_{t}^{\ast }& =\varepsilon _{1t}  \label{HP0b} \\
@@ -71,7 +72,7 @@ The `\emph{numbered} \emph{shock}' to `\emph{named shock}' mapping is:%
 ,
 \end{equation}%
 where $\varepsilon _{t}^{\ast }$ is the trend (or permanent)\ shock, and $%
-\varepsilon _{t}^{c}$ is the cycle (or transitory) shock. 
+\varepsilon _{t}^{c}$ is the cycle (or transitory) shock.
 
 \section{Shock recovery}
 
@@ -108,11 +109,11 @@ corresponding to the relations in \ref{Z} are then given by:\bsq\label{K0SSM}%
 \begin{align}
 \mathsf{Measurement}:\quad Z_{t}& =D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
 \notag \\
-& =\varepsilon _{1t}+\phi \varepsilon _{2t}-2\phi \varepsilon _{2t-1}+\phi
-\varepsilon _{2t-2} \\[2mm]
+\Leftrightarrow \Delta ^{2}y_{t}& =\varepsilon _{1t}+\phi \varepsilon
+_{2t}-2\phi \varepsilon _{2t-1}+\phi \varepsilon _{2t-2} \\[2mm]
 Z_{t}& =\underbrace{%
 \begin{bmatrix}
-1 & \phi  & 0%
+1 & \phi & 0%
 \end{bmatrix}%
 }_{D_{1}}\underbrace{%
 \begin{bmatrix}
@@ -122,7 +123,7 @@ Z_{t}& =\underbrace{%
 \end{bmatrix}%
 }_{X_{t}}+\underbrace{%
 \begin{bmatrix}
-0 & -2\phi  & \phi 
+0 & -2\phi & \phi%
 \end{bmatrix}%
 }_{D_{2}}\underbrace{%
 \begin{bmatrix}
@@ -174,42 +175,151 @@ Z_{t}& =\underbrace{%
 \end{align}%
 \esq
 
+\subsection{Shock recovery}
+
+The diagonal of the steady-state variance/covariance matrix of the smoothed
+and filtered states $X_{t}$ denoted by $P_{t|T}^{\ast }$ and $P_{t|t}^{\ast
+} $, respectively, are:%
+\begin{equation}
+\begin{tabular}{lcccc}
+\hline
+&  & $P_{t|T}^{\ast }$ &  & $P_{t|t}^{\ast }$ \\ \hline
+{$\varepsilon _{1t}$} &  & $0.9439$ &  & $0.9995$ \\ 
+{$\varepsilon _{2t}$} &  & $0.0561$ &  & $0.2006$ \\ \hline
+\end{tabular}
+\label{Pstar}
+\end{equation}%
+indicating that the trend (or permanent) shock $\varepsilon
+_{1t}=\varepsilon _{t}^{\ast }$ cannot be recovered, while it is likely that
+the cycle shock $\varepsilon _{2t}=\varepsilon _{t}^{c}$ can be recovered.
+In \autoref{fig:1}, simulated states and estimated Kalman smoothed states
+are plotted for the two shocks of interest.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\textwidth,trim={0 0 0
+0},clip,angle=00]{HP97_plots.pdf}
+\caption{Comparison of true shocks and Kalman Smoothed estimates $\protect%
+\varepsilon _{t|T}$.}
+\label{fig:1}
+\end{figure}
+The correlation between the true (simulated) and recovered Kalman smoothed
+shocks can be analyzed by simply computing $\mathrm{Corr}(X_{t},X_{t|T})$,
+where $X_{t}=E_{t}%
+\begin{bmatrix}
+\varepsilon _{1t} & \varepsilon _{2t} & \varepsilon _{2t-1}%
+\end{bmatrix}%
+$ and $X_{t|T}=E_{T}X_{t}=E_{T}%
+\begin{bmatrix}
+\varepsilon _{1t} & \varepsilon _{2t} & \varepsilon _{2t-1}%
+\end{bmatrix}%
+^{\prime }$, yielding:%
+\begin{equation}
+\begin{tabular}{lcc}
+\hline
+&  & $\mathrm{Corr}(X_{t},X_{t|T})$ \\ \hline
+$\varepsilon _{1t}$ &  & $0.2368$ \\ 
+$\varepsilon _{2t}$ &  & $0.9713$ \\ \hline
+\end{tabular}%
+~.  \label{Corr}
+\end{equation}%
+The correlation of the estimated permanent shock $\varepsilon _{1t}$ with
+the true (simulated) counterpart is only $0.2368$, while the estimated
+cyclical shock $\varepsilon _{2t}$ is highly correlated at $0.9713$ with the
+true value.\ These facts can also be seen from \autoref{fig:1} below.
+
 \subsection{Shock Identities}
 
 Kalman Filter estimates of the permanent and transitory shocks $\varepsilon
-_{1t}$ and $\varepsilon _{2t}$ contained in $E_{t}X_{t}=E_{t}%
-\begin{bmatrix}
-\varepsilon _{1t} & \varepsilon _{2t} & \varepsilon _{2t-1}%
-\end{bmatrix}%
-^{\prime }$ are linked by the identity:%
-\begin{equation*}
-E_{t}\varepsilon _{2t}=\phi E_{t}\varepsilon _{1t},
-\end{equation*}%
-and Kalman Smoother estimates $E_{T}X_{t}=E_{T}%
-\begin{bmatrix}
-\varepsilon _{1t} & \varepsilon _{2t} & \varepsilon _{2t-1}%
-\end{bmatrix}%
-^{\prime }$ give the identity: 
+_{1t}$ and $\varepsilon _{2t}$ are linked by the identity:%
 \begin{equation}
-\Delta ^{2}E_{T}\varepsilon _{1t}=\frac{1}{\phi ^{2}}E_{T}\varepsilon
-_{2t-2}.  \label{KS}
+E_{t}\varepsilon _{2t}=\phi E_{t}\varepsilon _{1t},  \label{KF}
 \end{equation}%
+and Kalman Smoother estimates are linked by the dynamic identity: 
+\begin{equation}
+\Delta ^{2}E_{T}\varepsilon _{1t}=\frac{1}{\phi }E_{T}\varepsilon _{2t-2}.
+\label{KS}
+\end{equation}%
+The filtered and smoothed estimates of the contemporaneous correlations are,
+respectively: 
+\begin{equation*}
+\begin{tabular}{lrr}
+\multicolumn{3}{c}{$\mathrm{Corr}(X_{t|t},X_{t|t})$} \\ \hline
+& {$\varepsilon _{1t}$} & {$\varepsilon _{2t}$} \\ \hline
+{$\varepsilon _{1t}$} & $\phantom{-.000}1$ & $\phantom{-.000}1$ \\ 
+{$\varepsilon _{2t}$} & $1$ & $1$%
+\end{tabular}%
+\text{ \ \ \ \ \ \ \ and \ \ \ \ \ \ \ }%
+\begin{tabular}{lrr}
+\multicolumn{3}{c}{$\mathrm{Corr}(X_{t|T},X_{t|T})$} \\ \hline
+& {$\varepsilon _{1t}$} & {$\varepsilon _{2t}$} \\ \hline
+{$\varepsilon _{1t}$} & $1$ & $-0.1907$ \\ 
+{$\varepsilon _{2t}$} & $-0.1907$ & $1$%
+\end{tabular}%
+~\text{.}
+\end{equation*}%
+Note that {$\varepsilon _{1t}$ and $\varepsilon _{2t}$ }were generated $%
+i.i.d.N(0,1)$ and contemporaneously uncorrelated.
+
 Since $\varepsilon _{1t}=\Delta ^{2}y_{t}^{\ast }$ and $\varepsilon _{2t}=%
-\frac{1}{\phi ^{2}}y_{t}^{c}$, this implies that the output from the
-standard HP--Filter will give the identity:%
-\begin{align*}
-\Delta ^{4}y_{t}^{\ast }& =\frac{1}{\phi ^{2}}y_{t-2}^{c} \\
-\Delta ^{4}\text{HP--trend}_{t}& =\frac{1}{\phi ^{2}}\text{HP--cycle}_{t-2}.
-\end{align*}%
-Indeed, running a regression of $\Delta ^{4}$HP--trend$_{t}$ on HP--cycle$%
-_{t-2}$ (without an intercept) yields a regression coefficient of $%
-0.000625=1/1600$ when applied to US--GDP data that was HP--Filtered with the
-smoothing parameter set to $\lambda =1600=40^{2}$. The regression fit is
-perfect, yielding an $R^{2}$ of $1$ and a residual sum of squares of exactly 
-$0$.
+\frac{1}{\phi }y_{t}^{c}$, this implies that the output from the standard
+HP--Filter will give the identity:%
+\begin{equation*}
+\Delta ^{4}y_{t}^{\ast }=\frac{1}{\phi }y_{t-2}^{c},\text{ \ \ or\
+alternatively: \ ~}\Delta ^{4}\text{HP--trend}_{t}=\frac{1}{\phi }\text{%
+HP--cycle}_{t-2}.
+\end{equation*}%
+Running regressions corresponding to \ref{KF} and \ref{KS} obtained from the
+simulated data (without an intercept) yields regression coefficient of $40$
+and $0.025=1/40$ when the smoothing parameter was set to $\lambda
+=1600=40^{2}$ in the simulation. The regression fit is perfect, yielding an $%
+R^{2}$ of $1$ and a residual sum of squares of exactly $0$ (see Panels (a)
+and (b) in \autoref{tab:KF}, respectively). The file \texttt{HP97.m}
+replicates the output summarized here.
 
-\section{Alternative way to assess shock recovery without Kurz}
+\begin{table}[h!]
+\subfigure[Kalman Filter]   {\includegraphics[width=\textwidth]{hp_filter}} %
+\subfigure[Kalman Smoother] {\includegraphics[width=\textwidth]{hp_smoother}}
+\vspace{-3mm}
+\caption{Shock identity regressions using Kalman filter and smoother
+estimates.}
+\label{tab:KF}
+\end{table}
 
-TBA
+In summary, the HP-Filter can reasonably accurately recover the transitory
+cyclical shock $\varepsilon _{2t}=\varepsilon _{t}^{c}$, but not the
+permanent shock. Moreover, the HP-Filter will produce negatively correlated
+trend-cycle shocks ($\mathrm{Corr}(\varepsilon _{t|T}^{\ast },\varepsilon
+_{t|T}^{c})=-0.1907$), despite the data being generated from a model that
+has zero shock correlation.\ The HP-Filter shock correlation is thus
+spurious.
+
+\bigskip
+
+\bigskip
+
+\bigskip
+
+\bigskip
+
+\bigskip
+
+\bigskip
+
+\bigskip
+
+\bigskip
+
+\bigskip
+
+\bigskip
+
+\bigskip
+
+\bigskip
+
+\bigskip
+
+\bigskip
 
 \end{document}

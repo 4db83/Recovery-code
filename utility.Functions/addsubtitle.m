@@ -4,6 +4,9 @@ function varargout = addsubtitle(titlename,adjst,FontSize,useLaTex)
 % Usage  subtitle('Name of subplot',ymove_dwon_by_howmuch)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% turn Latex interpreter warnings off --> this is not important
+warning('off', 'MATLAB:handle_graphics:exceptions:SceneNode')
+
 % get title handle 
 title_handle	= title(titlename,'Interpreter','Latex');
 % FNS0 = get(title_handle,'FontSize')
@@ -41,6 +44,8 @@ if nargout > 0
 	varargout{1} = title_handle;
 end
 
+% turn Latex interpreter warnings on again
+warning('on', 'MATLAB:handle_graphics:exceptions:SceneNode')
 
 end
 
