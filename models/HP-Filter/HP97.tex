@@ -31,7 +31,7 @@
 \makeatother
 \allowdisplaybreaks
 \IfFileExists{C:/swp55/TCITeX/TeX/LaTeX/SWmacros/tcilatex.tex}{\input{tcilatex}}{}
-\graphicspath{{../graphics/}{graphics/}}
+\graphicspath{{./graphics/}{../graphics/}{../../graphics/}}
 \newcommand{\dble}{1.77}
 \newcommand{\sngl}{1.23}
 \definecolor{myred}{rgb}{.50,.10,.10}
@@ -62,12 +62,12 @@ commonly set to $40$ for quarterly macroeconomic data, implying a value of `$%
 The `\emph{numbered} \emph{shock}' to `\emph{named shock}' mapping is:%
 \begin{equation}
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
+\varepsilon _{1t} \\
 \varepsilon _{2t}%
 \end{bmatrix}%
 =%
 \begin{bmatrix}
-\varepsilon _{t}^{\ast } \\ 
+\varepsilon _{t}^{\ast } \\
 \varepsilon _{t}^{c}%
 \end{bmatrix}%
 ,
@@ -119,8 +119,8 @@ Z_{t}& =\underbrace{%
 \end{bmatrix}%
 }_{D_{1}}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
 \varepsilon _{2t-1}%
 \end{bmatrix}%
 }_{X_{t}}+\underbrace{%
@@ -129,8 +129,8 @@ Z_{t}& =\underbrace{%
 \end{bmatrix}%
 }_{D_{2}}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t-1} \\ 
-\varepsilon _{2t-1} \\ 
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
 \varepsilon _{2t-2}%
 \end{bmatrix}%
 }_{X_{t-1}}+\underbrace{%
@@ -139,38 +139,38 @@ Z_{t}& =\underbrace{%
 \end{bmatrix}%
 }_{R}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
+\varepsilon _{1t} \\
 \varepsilon _{2t}%
 \end{bmatrix}%
 }_{\varepsilon _{t}} \\
 \mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t},  \notag \\[5mm]
 \underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
-\varepsilon _{2t} \\ 
+\varepsilon _{1t} \\
+\varepsilon _{2t} \\
 \varepsilon _{2t-1}%
 \end{bmatrix}%
 }_{X_{t}}& =\underbrace{%
 \begin{bmatrix}
-0 & 0 & 0 \\ 
-0 & 0 & 0 \\ 
+0 & 0 & 0 \\
+0 & 0 & 0 \\
 0 & 1 & 0%
 \end{bmatrix}%
 }_{A}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t-1} \\ 
-\varepsilon _{2t-1} \\ 
+\varepsilon _{1t-1} \\
+\varepsilon _{2t-1} \\
 \varepsilon _{2t-2}%
 \end{bmatrix}%
 }_{X_{t-1}}+\underbrace{%
 \begin{bmatrix}
-1 & 0 \\ 
-0 & 1 \\ 
+1 & 0 \\
+0 & 1 \\
 0 & 0%
 \end{bmatrix}%
 }_{C}\underbrace{%
 \begin{bmatrix}
-\varepsilon _{1t} \\ 
+\varepsilon _{1t} \\
 \varepsilon _{2t}%
 \end{bmatrix}%
 }_{\varepsilon _{t}}.
@@ -186,7 +186,7 @@ and filtered states $X_{t}$ denoted by $P_{t|T}^{\ast }$ and $P_{t|t}^{\ast
 \begin{tabular}{lcccc}
 \hline
 &  & $P_{t|T}^{\ast }$ &  & $P_{t|t}^{\ast }$ \\ \hline
-{$\varepsilon _{1t}$} &  & $0.9439$ &  & $0.9995$ \\ 
+{$\varepsilon _{1t}$} &  & $0.9439$ &  & $0.9995$ \\
 {$\varepsilon _{2t}$} &  & $0.0561$ &  & $0.2006$ \\ \hline
 \end{tabular}%
 ~,  \label{Pstar}
@@ -220,7 +220,7 @@ _{t|T})$, where $X_{t}=%
 \begin{tabular}{lcc}
 \hline
 &  & $\mathrm{Corr}(X_{t},\hat{X}_{t|T})$ \\ \hline
-$\varepsilon _{1t}$ &  & $0.2368$ \\ 
+$\varepsilon _{1t}$ &  & $0.2368$ \\
 $\varepsilon _{2t}$ &  & $0.9713$ \\ \hline
 \end{tabular}%
 ~.  \label{Corr}
@@ -238,25 +238,25 @@ _{1t}$ and $\varepsilon _{2t}$ are linked by the identity:%
 E_{t}\varepsilon _{2t}=\phi E_{t}\varepsilon _{1t},  \label{KF}
 \end{equation}%
 and the corresponding Kalman Smoother estimates are linked by the \emph{%
-dynamic} identity: 
+dynamic} identity:
 \begin{equation}
 \Delta ^{2}E_{T}\varepsilon _{1t}=\frac{1}{\phi }E_{T}\varepsilon _{2t-2}.
 \label{KS}
 \end{equation}%
 The filtered and smoothed estimates of the contemporaneous correlations are,
-respectively: 
+respectively:
 \begin{equation*}
 \begin{tabular}{lrr}
 \multicolumn{3}{c}{$\mathrm{Corr}(\hat{X}_{t|t},\hat{X}_{t|t})$} \\ \hline
 & {$\varepsilon _{1t}$} & {$\varepsilon _{2t}$} \\ \hline
-{$\varepsilon _{1t}$} & $\phantom{-}1.0000$ & $\phantom{-}1.0000$ \\ 
+{$\varepsilon _{1t}$} & $\phantom{-}1.0000$ & $\phantom{-}1.0000$ \\
 {$\varepsilon _{2t}$} & $1.0000$ & $1.0000$%
 \end{tabular}%
 \text{ \ \ \ \ \ \ \ and \ \ \ \ \ \ \ }%
 \begin{tabular}{lrr}
 \multicolumn{3}{c}{$\mathrm{Corr}(\hat{X}_{t|T},\hat{X}_{t|T})$} \\ \hline
 & {$\varepsilon _{1t}$} & {$\varepsilon _{2t}$} \\ \hline
-{$\varepsilon _{1t}$} & $1.0000$ & $-0.1907$ \\ 
+{$\varepsilon _{1t}$} & $1.0000$ & $-0.1907$ \\
 {$\varepsilon _{2t}$} & $-0.1907$ & $1.0000$%
 \end{tabular}%
 ~\text{.}
