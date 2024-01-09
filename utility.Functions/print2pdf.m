@@ -19,12 +19,17 @@ SetDefaultValue(2 ,'dirname'				, './');
 SetDefaultValue(3 ,'make_eps_figure', 0);
 SetDefaultValue(4 ,'make_emf_figure', 0);
 
-if dirname == 1
+if dirname == 2 % two dirs up
+  if ~exist('../../graphics/','dir') 
+    mkdir('../../graphics/');
+  end
+  dirname = '../../graphics/';
+elseif dirname == 1 % one dirs up
   if ~exist('../graphics/','dir') 
     mkdir('../graphics/');
   end
   dirname = '../graphics/';
-elseif dirname == 0
+elseif dirname == 0 % current dir
   if ~exist('./graphics/','dir') 
     mkdir('./graphics/');
   end

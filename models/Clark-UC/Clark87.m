@@ -1,23 +1,25 @@
-% Clark87 Shock recovery (https://www.newyorkfed.org/research/policy/rstar)
+% Clark87 Shock recovery
 % SSF: ---------------------------------------------------------------------------------------------
 %   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
 %   X(t) = A*X(t-1)            + C*ε(t),      ε(t) ~ MN(0,I)
 % --------------------------------------------------------------------------------------------------
-clear; clc;
+clear; clc; tic;
 % set plotting defaults
-set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',15)
+set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',14)
 set(groot,'defaultAxesXTickLabelRotationMode','manual')
 set(groot,'defaultAxesFontName','Times New Roman')
-addpath(genpath('./functions'))
-addpath(genpath('./utility.Functions'))               % set path to db functions
+addpath(genpath('../../functions'))
+addpath(genpath('../../utility.Functions'))               % set path to db functions
 % addpath(genpath('D:/matlab.tools/db.toolbox/db'))   % set path to db functions
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % Sample size and seed for random number generator in simulation
-Ts = 1e4; rng(123);
-PLOT_STATES = 1;
+Ts = 1e5; rng(123);   % takes about 1 sec for 1e5, 10 secs.for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
+PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
+ESTIMATE_CLARK  = 0;  % set to 1 to estimate the parameters given below from US GDP Data
+
 % --------------------------------------------------------------------------------------------------    
-% parameters are from the model fitted to US-GDP data from 1947:Q1 to 2019:Q4 (which can be estimated with the code below)
+% PARAMETERS: taken from the model fitted to US-GDP data from 1947:Q1 to 2019:Q4 (which can be estimated with the code below)
 a1  =  1.51023433332729;   % a1   
 a2  = -0.56787952465929;   % a2   
 % standard deviations                                                                             
@@ -51,17 +53,18 @@ C(4,1) = 1; C(8,3) = 1;
 
 % CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
 P = Kurz_steadystate_P(D1, D2, R, A, C);
-ss = k+1:3;
-% row_names = make_table_names('ε',1:dim_R,'(t)');          % make display names 
+ss = k+1:dim_R;
+% make display names % row_names = make_table_names('ε',1:dim_R,'(t)');          
 row_names = {'ε1(t)','ε2(t)','ε3(t)'} ; 
 
 Pstar = array2table([ diag(P.tT(ss,ss)) diag(P.tt(ss,ss)) ], ...
         'VariableNames',{'P(t|T)','P(t|t)'}, 'RowNames', row_names);
+% select what to print to screen
 sep; print_table(Pstar,4,1,0)
 
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
 [Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, Ts);
-Z = Zs; 
+
 % --------------------------------------------------------------------------------------------------
 % CALL TO FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH 
 % MY CODE ABOVE AND USE OF PINV IN AM SMOOTHER OTHERWISE NON-SINGULARITY ISSUES.
@@ -70,66 +73,77 @@ Z = Zs;
 % Note: errors will always be N(0,1), but latent states may need more careful initialization.
 a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 % Filter
-[~, Kurz_KF] = Kurz_Filter(Z, D1, D2, R, A, C, a00, P00);
+[~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, A, C, a00, P00);
 % Smoothers 
 % --------------------------------------------------------------------------------------------------
 % Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother (Eq. (4.11) in Kurz (2018))
-KS_deJ  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % NO INV, NO INITVALS FOR STATES
-% KS_deJ  = Kurz_AndersonMoore_Smoother(   D1, D2, A, Kurz_KF); % uses inv() --> changed to pinv(), needs initial values 
+KFS_deJ = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % Contains KF and KS output. NO INV, NO INITVALS FOR STATES
 % --------------------------------------------------------------------------------------------------
 
-%PLOT THE KF/KS ESTIMATES OF THE STATES 
-% STATE vector alpha = [trend(t); g(t); cycle(t); cycle(t-1)]; from Clark estimates
+% PLOT THE KF/KS ESTIMATES OF THE STATES: % STATE vector = [trend(t); g(t); cycle(t); cycle(t-1)]; 
 % --------------------------------------------------------------------------------------------------
+PLOT_KF = 0; % set to 1 to use KF output, otherwise use KS
 if PLOT_STATES
-  clf; tiledlayout(4,2,TileSpacing="compact",Padding="compact");
-  % make plot names
-  plot_names = make_table_names('$\epsilon_{', 1:3, 't}$');
-  % if ADD_Drstar; plot_names = [plot_names; '$\Delta r^{\ast}_{t}$']; end
+  clf; tiledlayout(5,1,TileSpacing = "compact", Padding = "compact");
+  % plot_names = make_table_names('$\epsilon_{', 1:k, 't}$');
   % loop through plots
-  for ii = k+1:3
-    % for ii = 6
+  if PLOT_KF
+    state_t = KFS_deJ.att;
+    state_name = 'Estimate:$\,\hat{X}_{t|t}$'; 
+  else 
+    state_t = KFS_deJ.atT;
+    state_name = 'Estimate:$\,\hat{X}_{t|T}$'; 
+  end
+
+  for ii = k+1:dim_R
     nexttile
     hold on;
-      plot(Xs(:,ii), 'LineWidth',3); 
-      % plot(KS_deJ.att(:,ii),'--','Color',clr(3),'LineWidth',2.5);   % Filtered States
-      plot(KS_deJ.atT(:,ii),'--','Color',clr(3),'LineWidth',2.5);   % Smoothed States
-      if ii == 7
-         plot( delta(KFS_Clark.KFS.atT(:,2) ) )
-      end
+      plot(Xs(:,ii), 'LineWidth',3);                              % 'true' simulated state X
+      plot(state_t(:,ii),'--','Color',clr(3),'LineWidth',2.5);    % Filtered or smoothed estimate of state X
     hold off;
     hline(0)
     box on; grid on;
     set(gca,'GridLineStyle',':' ,'GridAlpha',1/3, 'LineWidth',5/5);
     add2yaxislabel;
-    addlegend({'True','Estimate:$\,a_{t|T}$'},1)
-    addsubtitle(plot_names(ii-k),-1.10)
+    addlegend({'True State',state_name},1)
+    % addsubtitle(row_names(ii),-1.115)
+    addsubtitle(['$\varepsilon_{' num2str(ii) 't}$'],-1.17,16)
   end
+  print2pdf('Clark87_plots_KS',2);
 end
 % --------------------------------------------------------------------------------------------------
-% CORRELATIONS (can also read off directly from the corr_table below ------------------------------
-% print simple correlations
-corr_table = array2table( corr(Xs(:,ss), KS_deJ.atT(:,ss)), ...
-             'RowNames', row_names, 'VariableNames',row_names);
-print_table(corr_table,4,1,'Correlation matrix of True and estimated smoothed States');sep
 
+% CORRELATIONS
+% NOTE: 
+corr_table = array2table( diag(corr(Xs(:,ss), KFS_deJ.atT(:,ss))), ...
+               'RowNames', row_names, 'VariableNames', {'Corr(.)'});
+% print correlations simulated and KS shocks
+print_table(corr_table(1:dim_R,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States X(t|T)');sep
+
+% Correlation matrix from KS estimates, Truth is uncorrelated
+corr_XtT = array2table( corr(KFS_deJ.atT(:,ss)), 'RowNames', row_names, 'VariableNames', row_names);
+print_table(corr_XtT,4,1,'Correlation Matrix of (estimated) Kalman Smoothed States X̂(t|T)');sep
+% Correlation matrix from KF estimates, Truth is uncorrelated
+corr_Xtt = array2table( corr(KFS_deJ.att(:,ss)), 'RowNames', row_names, 'VariableNames', row_names);
+print_table(corr_Xtt,4,1,'Correlation Matrix of (estimated) Kalman Filtered States X̂(t|t)',[],0);sep
+fprintf(' NOTE: trend growth shocks Etε2(t) == 0 for all t, hence we get a NaN in correlations\n')
 % Define/Make eta(i) = eps(i)
 for jj = 1:dim_R
-  eval(['ETe' num2str(jj) ' = KS_deJ.atT(:,k+' num2str(jj) ');']);
-  eval(['Ete' num2str(jj) ' = KS_deJ.att(:,k+' num2str(jj) ');']);
+  eval(['ETe' num2str(jj) 't = KFS_deJ.atT(:,k+' num2str(jj) ');']);
+  eval(['Ete' num2str(jj) 't = KFS_deJ.att(:,k+' num2str(jj) ');']);
 end
 
-% Check some identities by running ols regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
-fprintf('\n');sep('=');fprintf('Smoother Identity same/similar as for HP Filter. Dependent variable: Etε1(t) (trend y*)\n')
+% CHECK SOME IDENTITIES by running (dynamic) OLS regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
+fprintf('\n');sep('=');fprintf('Filter Identity similar to HP Filter. Dependent variable: Etε1(t) (trend y*)\n')
 % sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and not ETε2(t) as stated)\n');sep
 Xnames_ID2 = {'Etε3(t) (cycle y~)'};  
-ID2 = ols( Ete1,  [ Ete3  ], 1, Xnames_ID2);
+ID2 = ols( Ete1t,  [ Ete3t  ], 1, Xnames_ID2);
 % Xnames_ID2 = [];
 % ID2 = ols( delta(ETe1,2),  [ mlag(delta(ETe1),3) mlag(ETe2,2) mlag(ETe3,3) ], 1, Xnames_ID2);
 
 %% -------------------------------------------------------------------------------------------------
-% UNCOMMENT TO USE US REAL GDP DATA
-% NOW ESTIMATE THE DOUBLE DRIFT UNOBSERVED COMPONENT (UC) MODEL OF CLARK
+if ESTIMATE_CLARK
+% NOW ESTIMATE THE DOUBLE DRIFT UNOBSERVED COMPONENT (UC) MODEL OF CLARK US REAL GDP DATA
 % --------------------------------------------------------------------------------------------------
 % STATE vector alpha = [trend(t); g(t); cycle(t); cycle(t-1)];
 % --------------------------------------------------------------------------------------------------
@@ -181,17 +195,17 @@ ZZ = DY - a1*lag(DY) -a2*lag(DY,2);
 % Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother (Eq. (4.11) in Kurz (2018))
 KS_deJ_US  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
 
-%% PLOT TREND GROWTH ETC FOR US GDP DATA
+% PLOT TREND GROWTH ETC FOR US GDP DATA
 % Shock-recovery SSM
-SMOOTHED = 0;
-eps_1=  s1*KS_deJ_US.att(:,1);eps_2=  s2*KS_deJ_US.att(:,2);eps_3=  s3*KS_deJ_US.att(:,3);
-ystr = KFS_Clark.KFS.att(:,1);g    = KFS_Clark.KFS.att(:,2);ytld = KFS_Clark.KFS.att(:,3);
-Ktype = 'Filtered~ ';
-% smoohted comparison
-if SMOOTHED 
-  eps_1=  s1*KS_deJ_US.atT(:,1);eps_2=  s2*KS_deJ_US.atT(:,2);eps_3=  s3*KS_deJ_US.atT(:,3);
-  ystr = KFS_Clark.KFS.atT(:,1);g    = KFS_Clark.KFS.atT(:,2);ytld = KFS_Clark.KFS.atT(:,3);
+FILTERED = 0;
+  eps_1 =  s1*KS_deJ_US.atT(:,1); eps_2 =  s2*KS_deJ_US.atT(:,2); eps_3 =  s3*KS_deJ_US.atT(:,3);
+  ystr  = KFS_Clark.KFS.atT(:,1); g     = KFS_Clark.KFS.atT(:,2); ytld  = KFS_Clark.KFS.atT(:,3);
   Ktype = 'Smoothed~ ';
+% filtered comparison
+if FILTERED
+  eps_1 =  s1*KS_deJ_US.att(:,1); eps_2 =  s2*KS_deJ_US.att(:,2); eps_3 =  s3*KS_deJ_US.att(:,3);
+  ystr  = KFS_Clark.KFS.att(:,1); g     = KFS_Clark.KFS.att(:,2); ytld  = KFS_Clark.KFS.att(:,3);
+  Ktype = 'Filtered~ ';
 end
 % now compute the shocks from Clark's SSM to be compatible with the shock-recovery SSM's shocks
 eps_ystr  = delta(ystr) - lag(g);
@@ -221,7 +235,7 @@ addgrid(3/4)
 % if SMOOTHED; print2pdf('Clark_SSM_Smoothed',0); else print2pdf('Clark_SSM_Filtered',0); end
 % Smoothed
 
-%% plot the states from Clarks model
+% plot the states from Clarks model
 figure(3);clf; ST = -1.18;
 tiledlayout(4,1, Padding="compact");
 nexttile
@@ -246,7 +260,7 @@ addgrid(3/4)
 % print2pdf('Clark_SSM',0)
 
 
-
+end
 
 
 

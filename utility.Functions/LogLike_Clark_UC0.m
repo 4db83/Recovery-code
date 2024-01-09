@@ -31,8 +31,6 @@ sigma_ystar = starting_values(3);
 sigma_g			= starting_values(4); 
 sigma_ytild	= starting_values(5); 
 
-
-
 % OTHER INPUTS
 % prior on states
 a00_in	= other_inputs.a00; 

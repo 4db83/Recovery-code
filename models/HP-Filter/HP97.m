@@ -1,4 +1,4 @@
-% LW03 Shock recovery (https://www.newyorkfed.org/research/policy/rstar)
+% HP97 Shock recovery
 % SSF: ---------------------------------------------------------------------------------------------
 %   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
 %   X(t) = A*X(t-1)            + C*ε(t),      ε(t) ~ MN(0,I)
@@ -8,25 +8,31 @@ clear; clc; tic;
 set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',14)
 set(groot,'defaultAxesXTickLabelRotationMode','manual')
 set(groot,'defaultAxesFontName','Times New Roman')
-addpath(genpath('../functions'))
-addpath(genpath('../utility.Functions'))               % set path to db functions
+addpath(genpath('../../functions'))
+addpath(genpath('../../utility.Functions'))               % set path to db functions
 % addpath(genpath('D:/matlab.tools/db.toolbox/db'))   % set path to db functions
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % Sample size and seed for random number generator in simulation
-Ts = 1e5; rng(123); % takes about 1 sec for 1e5, 10 secs.for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES = 1;
-PLOT_COMPARISON = 0;
+Ts = 1e5; rng(123);   % takes about 1 sec for 1e5, 10 secs.for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
+PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
+PLOT_COMPARISON = 0;  % set to 1 to plot the comparison with HP-filter function
 
+% --------------------------------------------------------------------------------------------------    
+% PARAMETERS: standard deviation sqrt(lambda = 1600)
+phi = 40;
+
+
+
+
+
+% --------------------------------------------------------------------------------------------------    
+% offset for the first k latent state variables before the shocks.
+k = 0;
 % DEFINE SSM INPUT MATRICES ------------------------------------------------------------------------
 dim_Z = 1;       % rows Z(t)
 dim_X = 3;       % rows X(t)
 dim_R = 2;       % rows ε(t)
-% offset for the first k latent state variables before the shocks.
-k = 0;
-% --------------------------------------------------------------------------------------------------    
-% standard deviation sqrt(lambda = 1600)
-phi = 40;
 % --------------------------------------------------------------------------------------------------    
 % Define D1
 D1 = zeros(dim_Z,dim_X); 
@@ -42,13 +48,15 @@ A = zeros(dim_X);
 A(3,2) = 1; 
 % Define C
 C = [eye(dim_R); zeros(1,2); ];
+
 % --------------------------------------------------------------------------------------------------
 
 % CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
 P = Kurz_steadystate_P(D1, D2, R, A, C);
 ss = k+1:dim_X;
-% make display names 
+% make display names % row_names = make_table_names('ε',1:dim_R,'(t)');          
 row_names = {'ε1(t)','ε2(t)','ε2(t-1)'} ; 
+
 Pstar = array2table([ diag(P.tT(ss,ss)) diag(P.tt(ss,ss)) ], ...
         'VariableNames',{'P(t|T)','P(t|t)'}, 'RowNames', row_names);
 % select what to print to screen
@@ -77,7 +85,6 @@ KFS_deJ = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % Contains KF and 
 PLOT_KF = 0; % set to 1 to use KF output, otherwise use KS
 if PLOT_STATES
   clf; tiledlayout(4,1,TileSpacing = "compact", Padding = "compact");
-  % make plot names
   % plot_names = make_table_names('$\epsilon_{', 1:k, 't}$');
   % loop through plots
   if PLOT_KF
@@ -88,7 +95,7 @@ if PLOT_STATES
     state_name = 'Estimate:$\,\hat{X}_{t|T}$'; 
   end
 
-  for ii = k+1:dim_X-1
+  for ii = k+1:dim_R
     nexttile
     hold on;
       plot(Xs(:,ii), 'LineWidth',3);                              % 'true' simulated state X
@@ -102,39 +109,39 @@ if PLOT_STATES
     % addsubtitle(row_names(ii),-1.115)
     addsubtitle(['$\varepsilon_{' num2str(ii) 't}$'],-1.115,16)
   end
-  % print2pdf('HP97_plots_KF',1);
+  % print2pdf('HP97_plots_KF',2);
 end
 % --------------------------------------------------------------------------------------------------
 
-% CORRELATIONS (can also read off directly from the corr_table below -------------------------------
-% NOTE: 𝜙²yᶜ(t) = ε2(t), so the correlation between the true and estimated ε2(t) is equivalent to the correlation between the true and esimated HP output gap. 
+% CORRELATIONS
+% NOTE: 𝜙²yᶜ(t) = ε2(t), so the correlation between the true and estimated ε2(t) is equivalent to the correlation between the true and estimated HP output gap. 
 corr_table = array2table( diag(corr(Xs(:,ss), KFS_deJ.atT(:,ss))), ...
                'RowNames', row_names, 'VariableNames', {'Corr(.)'});
 % print correlations simulated and KS shocks
 print_table(corr_table(1:dim_R,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States X(t|T)');sep
 
-% Correlation matrix from KFS estimates, Truth is uncorrelated
+% Correlation matrix from KS estimates, Truth is uncorrelated
 corr_XtT = array2table( corr(KFS_deJ.atT), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_XtT(1:dim_R,1:dim_R),4,1,'Correlation Matrix of (estimated) Kalman Smoothed States X̂(t|T)');sep
-
+% Correlation matrix from KF estimates, Truth is uncorrelated
 corr_Xtt = array2table( corr(KFS_deJ.att), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_Xtt(1:dim_R,1:dim_R),4,1,'Correlation Matrix of (estimated) Kalman Filtered States X̂(t|t)',[],0);sep
 
 % Define/Make eta(i) = eps(i) 
 for jj = 1:dim_R
-  eval(['e' num2str(jj) '_tT = KFS_deJ.atT(:,k+' num2str(jj) ');']);
-  eval(['e' num2str(jj) '_tt = KFS_deJ.att(:,k+' num2str(jj) ');']);
+  eval(['ETe' num2str(jj) 't = KFS_deJ.atT(:,k+' num2str(jj) ');']);
+  eval(['Ete' num2str(jj) 't = KFS_deJ.att(:,k+' num2str(jj) ');']);
 end
 
-% Check some identities by running ols regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
+% CHECK SOME IDENTITIES by running (dynamic) OLS regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
 fprintf('\n');sep('=');fprintf('Filter Identity on page 17 in EER(2022). Dependent variable: Etε2(t) \n')
 Xnames_ID1 = {'Etε1(t)'};  % Xnames_ID1 = [];
-ID1 = ols(e2_tt, [ e1_tt ], 1, Xnames_ID1);
+ID1 = ols(Ete2t, [ Ete1t ], 1, Xnames_ID1);
 
 fprintf('\n');sep('=');fprintf('Smoother Identity on page 12, eq. 10 in Stars(2023). Dependent variable: Δ²ETε1(t) \n')
 sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and not ETε2(t) as stated)\n');sep
 Xnames_ID2 = {'ETε2(t-2)'};  % Xnames_ID2 = [];
-ID2 = ols( delta(e1_tT, 2) , [ lag(e2_tT, 2)], 1, Xnames_ID2);
+ID2 = ols( delta(ETe1t, 2) , [ lag(ETe2t, 2)], 1, Xnames_ID2);
 
 %% -------------------------------------------------------------------------------------------------
 % %% UNCOMMENT TO USE US REAL GDP DATA
