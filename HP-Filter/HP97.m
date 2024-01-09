@@ -8,14 +8,14 @@ clear; clc; tic;
 set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',14)
 set(groot,'defaultAxesXTickLabelRotationMode','manual')
 set(groot,'defaultAxesFontName','Times New Roman')
-addpath(genpath('./functions'))
-addpath(genpath('./utility.Functions'))               % set path to db functions
+addpath(genpath('../functions'))
+addpath(genpath('../utility.Functions'))               % set path to db functions
 % addpath(genpath('D:/matlab.tools/db.toolbox/db'))   % set path to db functions
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % Sample size and seed for random number generator in simulation
 Ts = 1e5; rng(123); % takes about 1 sec for 1e5, 10 secs.for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES = 0;
+PLOT_STATES = 1;
 PLOT_COMPARISON = 0;
 
 % DEFINE SSM INPUT MATRICES ------------------------------------------------------------------------
@@ -52,7 +52,7 @@ row_names = {'ε1(t)','ε2(t)','ε2(t-1)'} ;
 Pstar = array2table([ diag(P.tT(ss,ss)) diag(P.tt(ss,ss)) ], ...
         'VariableNames',{'P(t|T)','P(t|t)'}, 'RowNames', row_names);
 % select what to print to screen
-sep; print_table(Pstar(1:2,:),4,1,0)
+sep; print_table(Pstar(1:dim_R,:),4,1,0)
 
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
 [Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, Ts);
@@ -82,10 +82,10 @@ if PLOT_STATES
   % loop through plots
   if PLOT_KF
     state_t = KFS_deJ.att;
-    state_name = 'Estimate:$\,X_{t|t}$'; 
+    state_name = 'Estimate:$\,\hat{X}_{t|t}$'; 
   else 
     state_t = KFS_deJ.atT;
-    state_name = 'Estimate:$\,X_{t|T}$'; 
+    state_name = 'Estimate:$\,\hat{X}_{t|T}$'; 
   end
 
   for ii = k+1:dim_X-1
@@ -99,9 +99,10 @@ if PLOT_STATES
     set(gca,'GridLineStyle',':' ,'GridAlpha',1/3, 'LineWidth',5/5);
     add2yaxislabel;
     addlegend({'True State',state_name},1)
-    addsubtitle(row_names(ii),-1.125)
+    % addsubtitle(row_names(ii),-1.115)
+    addsubtitle(['$\varepsilon_{' num2str(ii) 't}$'],-1.115,16)
   end
-  % print2pdf('HP97_plots',0);
+  % print2pdf('HP97_plots_KF',1);
 end
 % --------------------------------------------------------------------------------------------------
 
@@ -110,32 +111,33 @@ end
 corr_table = array2table( diag(corr(Xs(:,ss), KFS_deJ.atT(:,ss))), ...
                'RowNames', row_names, 'VariableNames', {'Corr(.)'});
 % print correlations simulated and KS shocks
-print_table(corr_table(1:2,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States X(t|T)');sep
+print_table(corr_table(1:dim_R,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States X(t|T)');sep
 
 % Correlation matrix from KFS estimates, Truth is uncorrelated
 corr_XtT = array2table( corr(KFS_deJ.atT), 'RowNames', row_names, 'VariableNames', row_names);
-print_table(corr_XtT(1:2,1:2),4,1,'Correlation Matrix of (estimated) Kalman Smoothed States X(t|T)');sep
+print_table(corr_XtT(1:dim_R,1:dim_R),4,1,'Correlation Matrix of (estimated) Kalman Smoothed States X̂(t|T)');sep
+
+corr_Xtt = array2table( corr(KFS_deJ.att), 'RowNames', row_names, 'VariableNames', row_names);
+print_table(corr_Xtt(1:dim_R,1:dim_R),4,1,'Correlation Matrix of (estimated) Kalman Filtered States X̂(t|t)',[],0);sep
 
 % Define/Make eta(i) = eps(i) 
 for jj = 1:dim_R
-  eval(['etT_' num2str(jj) ' = KFS_deJ.atT(:,k+' num2str(jj) ');']);
-  eval(['ett_' num2str(jj) ' = KFS_deJ.att(:,k+' num2str(jj) ');']);
+  eval(['e' num2str(jj) '_tT = KFS_deJ.atT(:,k+' num2str(jj) ');']);
+  eval(['e' num2str(jj) '_tt = KFS_deJ.att(:,k+' num2str(jj) ');']);
 end
 
 % Check some identities by running ols regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
 fprintf('\n');sep('=');fprintf('Filter Identity on page 17 in EER(2022). Dependent variable: Etε2(t) \n')
 Xnames_ID1 = {'Etε1(t)'};  % Xnames_ID1 = [];
-ID1 = ols(ett_2, [ ett_1 ], 1, Xnames_ID1);
+ID1 = ols(e2_tt, [ e1_tt ], 1, Xnames_ID1);
 
 fprintf('\n');sep('=');fprintf('Smoother Identity on page 12, eq. 10 in Stars(2023). Dependent variable: Δ²ETε1(t) \n')
 sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and not ETε2(t) as stated)\n');sep
 Xnames_ID2 = {'ETε2(t-2)'};  % Xnames_ID2 = [];
-ID2 = ols( delta(etT_1, 2) , [ lag(etT_2, 2)], 1, Xnames_ID2);
-
-
+ID2 = ols( delta(e1_tT, 2) , [ lag(e2_tT, 2)], 1, Xnames_ID2);
 
 %% -------------------------------------------------------------------------------------------------
-%%% UNCOMMENT TO USE US REAL GDP DATA
+% %% UNCOMMENT TO USE US REAL GDP DATA
 % % USE HP Filter routine to back out trend and cycle shocks and compare
 % % --------------------------------------------------------------------------------------------------
 % load('US-GDP.mat')
@@ -154,13 +156,15 @@ ID2 = ols( delta(etT_1, 2) , [ lag(etT_2, 2)], 1, Xnames_ID2);
 % % cumsum([HP.trend(1); cumsum([ΔHP.trend(1); ETε1(t)])])
 % SSM.trend = cumsum([HP.trend(1); cumsum([dHP_trend(1); KS_deJ_US.atT(:,1)])]);
 % % head2tail([SSM.trend HP.trend])
+% Xnames_ID3 = [];
+% ID3 = ols( delta(SSM.trend, 4) , [ lag(SSM.cycle, 2)/phi], 1, Xnames_ID3);
 % 
 % % PLOT HP ON US REAL GDP DATA
 % % --------------------------------------------------------------------------------------------------
 % if PLOT_COMPARISON
 %   figure(2); clf;
 %   % tiledlayout(3,1)
-%   tiledlayout(3,1, TileSpacing = 'loose', Padding = 'compact');
+%   tiledlayout(4,1, TileSpacing = 'loose', Padding = 'compact');
 %   nexttile
 %   hold on;
 %     plot(HP.trend)
@@ -172,7 +176,7 @@ ID2 = ols( delta(etT_1, 2) , [ lag(etT_2, 2)], 1, Xnames_ID2);
 %   setyticklabels(7:.5:10.5,1)
 %   setdateticks(HP.Date,25)
 %   addlegend({'HP-Filter','Shock-Recovery SSM'},1)
-%   addsubtitle('Trend in US-GDP data')
+%   addsubtitle('Trend in US-GDP data', -1.16)
 %   % PLOT cycles 
 %   nexttile
 %   hold on;
@@ -184,7 +188,7 @@ ID2 = ols( delta(etT_1, 2) , [ lag(etT_2, 2)], 1, Xnames_ID2);
 %   setyticklabels(-.10:.02:.06)
 %   setdateticks(HP.Date,25)
 %   addlegend({'HP-Filter','Shock-Recovery SSM'})
-%   addsubtitle('Cycle in US-GDP data')
+%   addsubtitle('Cycle in US-GDP data', -1.16)
 % end
 
 

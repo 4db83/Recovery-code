@@ -13,6 +13,7 @@ function [] = print2pdf(filename, dirname, make_eps_figure, make_emf_figure)
 % MAKE IT A STRING
 % GSversion = '9.56.1';          % set to the GSversion that is install in C:\Program Files\
 GSversion = '10.00.0';           % set to the GSversion that is install in C:\Program Files\
+% DO NOT UPDATE TO GSversion = '10.02.1';           % set to the GSversion that is install in C:\Program Files\
 
 SetDefaultValue(2 ,'dirname'				, './');
 SetDefaultValue(3 ,'make_eps_figure', 0);
@@ -23,10 +24,6 @@ if dirname == 1
     mkdir('../graphics/');
   end
   dirname = '../graphics/';
-  % elseif dirname == 0 
-  % 
-  %   dirname = '../graphics/';
-  % end
 elseif dirname == 0
   if ~exist('./graphics/','dir') 
     mkdir('./graphics/');

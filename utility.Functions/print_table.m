@@ -1,4 +1,4 @@
-function [] = print_table(y_in, FMT, no_index, table_header, xlsout )
+function [] = print_table(y_in, FMT, no_index, table_header, xlsout, counter_exists )
 % FUNCTION: print table or timetable to screen / or excel
 % 
 % USAGE:      print_table(y_in, FMT, no_index, table_header, xlsout )
@@ -14,6 +14,7 @@ SetDefaultValue(2, 'FMT', 4)
 SetDefaultValue(3, 'no_index', 0)
 SetDefaultValue(4, 'table_header', [])
 SetDefaultValue(5, 'xlsout', 0)
+SetDefaultValue(6, 'counter_exists', []) % set ot zero to force not using the counter check in column 1
 % --------------------------------------------------------------------------------------------------
 
 % PRINT TO SCREEN
@@ -69,8 +70,14 @@ tmp1 = strcat('%', num2str(frmat_dble'), '.', num2str(FMT), 'f');
 [Nr, Nc] = size(y);
 % add an index to the table
 nn = (1:Nr)';
-% check if counter exists already
-counter_exists = any(mod(y(:,1),1)) == 0;
+
+% Force counter_exits to 0
+if isempty(counter_exists)
+  % check if counter exists already
+  counter_exists = any(mod(y(:,1),1)) == 0;
+else
+  counter_exists = counter_exists;
+end
 
 if counter_exists
   X = [y];
