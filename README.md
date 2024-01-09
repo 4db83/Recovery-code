@@ -1,6 +1,6 @@
 ## Recovering Macroeconomic Stars
 This repo contains replication code for the various examples given in the paper: 
-"[Recovering Macroeconomic Stars]"(https://cama.crawford.anu.edu.au/publication/cama-working-paper-series/21468/recovering-stars-macroeconomics), by Daniel Buncic, Adrian Pagan and Tim Robinson.
+['Recovering Macroeconomic Stars'](https://cama.crawford.anu.edu.au/publication/cama-working-paper-series/21468/recovering-stars-macroeconomics), by Daniel Buncic, Adrian Pagan and Tim Robinson.
 
 The repo contains the following models:
 
