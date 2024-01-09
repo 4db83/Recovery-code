@@ -7,7 +7,8 @@ The repo contains the following models:
 |No.  | Model                         | Documentation                             | Matlab Code                               |
 | :-: | ----------------------------- |------------------------------------------ | ------------------------------------------|
 | 1.  | [HP-Filter](./HP-Filter/)     | [HP97.pdf](./HP-Filter/HP97.pdf)          | [HP97.m](./HP-Filter/HP97.m)              |
-| 2.  | [Clark=UC](./Clark-UC/)       | [Clark87.pdf](./Clark-UC/Clark87.pdf)     | [Clark87.m](./Clark-UC/Clark87.m)         |
+| 2.  | [Clark-UC](./Clark-UC/)       | [Clark87.pdf](./Clark-UC/Clark87.pdf)     | [Clark87.m](./Clark-UC/Clark87.m)         |
+| 3.  | [LW](./LW/)                   | [LW03.pdf](./LW/LW03.pdf)                 | [LW03.m](./LW/LW03.m)                     |
 
 <!-- 1. [HP-Filter](./HP-Filter/)
     - [Documentation HP97.pdf](./HP-Filter/HP97.pdf)
