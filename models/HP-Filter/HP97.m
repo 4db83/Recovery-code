@@ -113,7 +113,7 @@ if PLOT_STATES
 end
 % --------------------------------------------------------------------------------------------------
 
-% CORRELATIONS
+% CORRELATIONS:
 % NOTE: 𝜙²yᶜ(t) = ε2(t), so the correlation between the true and estimated ε2(t) is equivalent to the correlation between the true and estimated HP output gap. 
 corr_table = array2table( diag(corr(Xs(:,ss), KFS_deJ.atT(:,ss))), ...
                'RowNames', row_names, 'VariableNames', {'Corr(.)'});
@@ -133,7 +133,7 @@ for jj = 1:dim_R
   eval(['Ete' num2str(jj) 't = KFS_deJ.att(:,k+' num2str(jj) ');']);
 end
 
-% CHECK SOME IDENTITIES by running (dynamic) OLS regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
+% IDENTITIES: Run (dynamic) OLS regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t and the like
 fprintf('\n');sep('=');fprintf('Filter Identity on page 17 in EER(2022). Dependent variable: Etε2(t) \n')
 Xnames_ID1 = {'Etε1(t)'};  % Xnames_ID1 = [];
 ID1 = ols(Ete2t, [ Ete1t ], 1, Xnames_ID1);

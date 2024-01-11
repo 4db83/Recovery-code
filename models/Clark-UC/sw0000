@@ -13,7 +13,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Thursday, January 11, 2024 16:43:47}
+%TCIDATA{LastRevised=Thursday, January 11, 2024 16:32:38}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -262,26 +262,34 @@ _{t}^{g}$ cannot be recovered ($P^{\ast }\approx 1$), while the cycle shock $%
 \varepsilon _{1t}=\varepsilon _{t}^{y^{\ast }}$ have $P^{\ast }\approx 0.5$,
 suggesting that there are recovery difficulties. Note that $P_{t|t}^{\ast }=1
 $, which implies that Kalman filtered estimates of $\varepsilon _{2t}$ are
-exactly zero for all $t$. This can be seen from the entries on the left hand
-side in \ref{KFS} (smoothed estimates are shown on the right).
+exactly zero for all $t$. The entries in \ref{KFS} show the filtered and
+smoothed estimates of the shocks for the first 10 entries.
 
 \begin{equation}
-\begin{tabular}{rcrcrrr}
+\begin{tabular}{lcccccc}
 \hline
-$E_{t}\varepsilon _{1t}\ \ $ & $E_{t}\varepsilon _{2t}$ & $E_{t}\varepsilon
-_{3t}\ \ $ & ~~ & $E_{T}\varepsilon _{1t}\ \ $ & $E_{T}\varepsilon _{2t}\ \ $
-& $E_{T}\varepsilon _{3t}\ \ $ \\ \hline
-$-0.7088$ & $0$ & $-0.7792$ &  & $0.3098$ & $-0.0160$ & $0.0344$ \\ 
-$-0.8039$ & $0$ & $-0.8837$ &  & $-0.5269$ & $0.0043$ & $-0.5442$ \\ 
-$-0.2554$ & $0$ & $-0.2808$ &  & $-0.1336$ & $0.0094$ & $0.1118$ \\ 
-$0.0179$ & $0$ & $0.0196$ &  & $0.6757$ & $-0.0166$ & $0.4942$ \\ 
-$-0.5488$ & $0$ & $-0.6032$ &  & $-0.2535$ & $-0.0068$ & $-0.4492$ \\ 
-$-0.3244$ & $0$ & $-0.3566$ &  & $-0.3713$ & $0.0075$ & $-0.2660$ \\ 
-$0.1304$ & $0$ & $0.1434$ &  & $0.2703$ & $-0.0029$ & $0.3115$ \\ 
-$-0.2821$ & $0$ & $-0.3101$ &  & $-0.6689$ & $0.0228$ & $0.0549$ \\ \hline
+$E_{t}\varepsilon _{1t}$ & $E_{t}\varepsilon _{2t}$ & $E_{t}\varepsilon _{3t}
+$ &  & $E_{T}\varepsilon _{1t}$ & $E_{T}\varepsilon _{2t}$ & $%
+E_{T}\varepsilon _{3t}$ \\ \hline
+&  &  &  &  &  &  \\ 
+&  &  &  &  &  &  \\ 
+&  &  &  &  &  &  \\ 
+&  &  &  &  &  &  \\ 
+&  &  &  &  &  &  \\ 
+&  &  &  &  &  &  \\ 
+&  &  &  &  &  &  \\ 
+&  &  &  &  &  &  \\ 
+&  &  &  &  &  &  \\ 
+&  &  &  &  &  &  \\ 
+&  &  &  &  &  &  \\ 
+&  &  &  &  &  &  \\ 
+&  &  &  &  &  &  \\ \hline
 \end{tabular}%
 ~.  \label{KFS}
-\end{equation}%
+\end{equation}
+
+\bigskip 
+
 In \autoref{fig:1}, simulated states and estimated Kalman smoothed states
 are plotted for the two shocks of interest.
 
@@ -322,11 +330,10 @@ below.
 
 \subsection{Shock Identities}
 
-Similar to the HP-Filter, the Kalman filtered estimates of the trend and
-cycle shocks $\varepsilon _{1t}$ and $\varepsilon _{3t}$ are linked by the
-identity:%
+Kalman Filter estimates of the permanent and transitory shocks $\varepsilon
+_{1t}$ and $\varepsilon _{2t}$ are linked by the identity:%
 \begin{equation}
-E_{t}\varepsilon _{1t}=0.909694E_{t}\varepsilon _{3t},  \label{KF}
+E_{t}\varepsilon _{2t}=\phi E_{t}\varepsilon _{1t},  \label{KF}
 \end{equation}%
 and the corresponding Kalman Smoother estimates are linked by the \emph{%
 dynamic} identity: 

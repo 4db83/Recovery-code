@@ -44,14 +44,14 @@ D2(1,[2 5:8]) = [s2 -a2*s1 -a1*s2 -a2*s2 -s3];
 R  = zeros(dim_Z,dim_R);
 % --------------------------------------------------------------------------------------------------
 % Define A
-A = zeros(dim_X); 
+A = zeros(dim_X);   
 A(4,1) = -1; A(5,4) = 1; A(6,2) = 1; A(7,6) = 1; A(8,3) = -1;
 % Define C
 C = [eye(dim_R); zeros(dim_X-dim_R,dim_R)];
 C(4,1) = 1; C(8,3) = 1;
 % --------------------------------------------------------------------------------------------------
 
-% CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
+%% CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
 P = Kurz_steadystate_P(D1, D2, R, A, C);
 ss = k+1:dim_R;
 % make display names % row_names = make_table_names('ε',1:dim_R,'(t)');          
@@ -109,12 +109,11 @@ if PLOT_STATES
     % addsubtitle(row_names(ii),-1.115)
     addsubtitle(['$\varepsilon_{' num2str(ii) 't}$'],-1.17,16)
   end
-  print2pdf('Clark87_plots_KS',2);
+  % print2pdf('Clark87_plots_KS',2);
 end
 % --------------------------------------------------------------------------------------------------
 
-% CORRELATIONS
-% NOTE: 
+% CORRELATIONS: 
 corr_table = array2table( diag(corr(Xs(:,ss), KFS_deJ.atT(:,ss))), ...
                'RowNames', row_names, 'VariableNames', {'Corr(.)'});
 % print correlations simulated and KS shocks
@@ -126,20 +125,35 @@ print_table(corr_XtT,4,1,'Correlation Matrix of (estimated) Kalman Smoothed Stat
 % Correlation matrix from KF estimates, Truth is uncorrelated
 corr_Xtt = array2table( corr(KFS_deJ.att(:,ss)), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_Xtt,4,1,'Correlation Matrix of (estimated) Kalman Filtered States X̂(t|t)',[],0);sep
-fprintf(' NOTE: trend growth shocks Etε2(t) == 0 for all t, hence we get a NaN in correlations\n')
+fprintf('NOTE: Filtered trend growth shocks Etε2(t) == 0 for all t, hence we get a NaN in correlations\n')
 % Define/Make eta(i) = eps(i)
 for jj = 1:dim_R
-  eval(['ETe' num2str(jj) 't = KFS_deJ.atT(:,k+' num2str(jj) ');']);
-  eval(['Ete' num2str(jj) 't = KFS_deJ.att(:,k+' num2str(jj) ');']);
+  eval(['ETe' num2str(jj) ' = KFS_deJ.atT(:,k+' num2str(jj) ');']);
+  eval(['Ete' num2str(jj) ' = KFS_deJ.att(:,k+' num2str(jj) ');']);
 end
 
-% CHECK SOME IDENTITIES by running (dynamic) OLS regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t 
-fprintf('\n');sep('=');fprintf('Filter Identity similar to HP Filter. Dependent variable: Etε1(t) (trend y*)\n')
+%% IDENTITIES: Run (dynamic) OLS regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t and the like
+clc
+fprintf('\n');sep(133,'=');
+fprintf('Filter Identity similar to HP Filter. Dependent variable: Etε1(t)\n')
 % sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and not ETε2(t) as stated)\n');sep
-Xnames_ID2 = {'Etε3(t) (cycle y~)'};  
-ID2 = ols( Ete1t,  [ Ete3t  ], 1, Xnames_ID2);
-% Xnames_ID2 = [];
-% ID2 = ols( delta(ETe1,2),  [ mlag(delta(ETe1),3) mlag(ETe2,2) mlag(ETe3,3) ], 1, Xnames_ID2);
+Xnames_ID1 = {'Etε3(t)'};  
+ID1 = ols( Ete1,  [ Ete3  ], 1, Xnames_ID1);
+
+sep(133,'=',1); fprintf('Filter Identity similar to HP Filter. Dependent variable: ∆ETε3(t)\n')
+Xnames_ID2 = {'∆ETε1(t-1)','ETε3(t-1)','ETε3(t-2)'};
+ID2 = ols( delta(ETe3,1),  [ mlag(delta(ETe1),1)  mlag(ETe3,2) ], 1, Xnames_ID2);
+
+sep(133,'=',1); fprintf('Filter Identity similar to HP Filter. Dependent variable: ∆ETε3(t)\n')
+Xnames_ID3 = {'∆ETε2(t-1)','∆ETε2(t-1)','ETε3(t-1)','ETε3(t-2)'};
+ID3 = ols( delta(ETe3,1),  [ mlag(delta(ETe2),2) mlag(ETe3,2)], 1, Xnames_ID3);
+
+%
+% sep(133,'=',1); fprintf('Filter Identity similar to HP Filter. Dependent variable: ∆Etε3(t)\n')
+% Xnames_ID4 = {'∆Etε1(t-1)','Etε3(t-1)','Etε3(t-2)'};
+% Xnames_ID4 = []
+% ID4 = ols( delta(ETe1,1),  [ mlag(ETe3,3) mlag(ETe2,3) ], 1, Xnames_ID4);
+
 
 %% -------------------------------------------------------------------------------------------------
 if ESTIMATE_CLARK
@@ -261,6 +275,12 @@ addgrid(3/4)
 
 
 end
+
+
+
+
+
+
 
 
 

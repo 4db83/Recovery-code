@@ -55,6 +55,8 @@ y             = table2array(y_in);
 mmy = max(max(abs(y)));
 Nc  = ceil(log10(mmy));
 
+% das ist kcakck
+
 % --------------------------------------------------------------------------------------------------
 % MAKE HERE THE TAILORED FORMATTING ON THE LEFT OF THE DECIMAL FOR THE INDIVIDUAL COMLUMNS
 kk = 1.4; % scaling factor
