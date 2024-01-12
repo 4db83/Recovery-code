@@ -20,7 +20,7 @@ end
 xtt = isa(x,"timetable"); 
 if xtt
   if isempty(Xnames) 
-  Xnames  = x.Properties.VariableNames;
+    Xnames  = x.Properties.VariableNames;
   else 
     Xnames = Xnames;
   end

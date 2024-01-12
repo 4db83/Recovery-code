@@ -15,7 +15,7 @@ addpath(genpath('../../utility.Functions'))               % set path to db funct
 
 % Sample size and seed for random number generator in simulation
 Ts = 1e5; rng(123);   % takes about 1 sec for 1e5, 10 secs.for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
+PLOT_STATES     = 0;  % set to 1 to plot ε(t) states
 ESTIMATE_CLARK  = 0;  % set to 1 to estimate the parameters given below from US GDP Data
 
 % --------------------------------------------------------------------------------------------------    
@@ -132,8 +132,7 @@ for jj = 1:dim_R
   eval(['Ete' num2str(jj) ' = KFS_deJ.att(:,k+' num2str(jj) ');']);
 end
 
-%% IDENTITIES: Run (dynamic) OLS regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t and the like
-clc
+% IDENTITIES: Run (dynamic) OLS regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t and the like
 fprintf('\n');sep(133,'=');
 fprintf('Filter Identity similar to HP Filter. Dependent variable: Etε1(t)\n')
 % sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and not ETε2(t) as stated)\n');sep
@@ -145,14 +144,12 @@ Xnames_ID2 = {'∆ETε1(t-1)','ETε3(t-1)','ETε3(t-2)'};
 ID2 = ols( delta(ETe3,1),  [ mlag(delta(ETe1),1)  mlag(ETe3,2) ], 1, Xnames_ID2);
 
 sep(133,'=',1); fprintf('Filter Identity similar to HP Filter. Dependent variable: ∆ETε3(t)\n')
-Xnames_ID3 = {'∆ETε2(t-1)','∆ETε2(t-1)','ETε3(t-1)','ETε3(t-2)'};
-ID3 = ols( delta(ETe3,1),  [ mlag(delta(ETe2),2) mlag(ETe3,2)], 1, Xnames_ID3);
+Xnames_ID3 = {'Δ²ETε2(t-1)','ETε3(t-1)','ETε3(t-2)'};
+ID3 = ols( delta(ETe3,1),  [ lag(delta(ETe2,2),1) mlag(ETe3,2)], 1, Xnames_ID3);
 
-%
-% sep(133,'=',1); fprintf('Filter Identity similar to HP Filter. Dependent variable: ∆Etε3(t)\n')
-% Xnames_ID4 = {'∆Etε1(t-1)','Etε3(t-1)','Etε3(t-2)'};
-% Xnames_ID4 = []
-% ID4 = ols( delta(ETe1,1),  [ mlag(ETe3,3) mlag(ETe2,3) ], 1, Xnames_ID4);
+sep(133,'=',1); fprintf('Filter Identity similar to HP Filter. Dependent variable: Δ²ETε2(t)\n')
+Xnames_ID4 = {'∆ETε1'};
+ID4 = ols( delta(ETe2,2),  [ delta(ETe1) ], 1, Xnames_ID4);
 
 
 %% -------------------------------------------------------------------------------------------------
@@ -197,31 +194,31 @@ par_names	  = {'AR(1)'; 'AR(2)'; 'sigma_y*'; 'sigma_g'; 'sigma_y~'; 'Log-Like'};
 par_est	    = [ [theta_Clark sqrt(diag(inv(H_Clark)))  Clark_initVals ];
                 [-LL_Clark    nan                      -LL_Clark_initVals ] ];
 % print to screen
-print2screen( par_est, par_names, model_names, '%17.4f'); %, '/_output/Table5.Clarks.UC.xls');
+print2screen( par_est, par_names, model_names, '%17.8f'); %, '/_output/Table5.Clarks.UC.xls');
 sep
 
-% make Z(t) variable for 'shock recovery' SSM form: ie. Z(t)=a(L)Δ²y(t)
+% MAKE Z(t) VARIABLE FOR 'shock recovery' SSF: ie. Z(t)=a(L)Δ²y(t) for actual US data
 DY = delta(y.gdp,2);
 ZZ = DY - a1*lag(DY) -a2*lag(DY,2);
 [~, Kurz_KF_US] = Kurz_Filter(removenans(ZZ), D1, D2, R, A, C, a00, P00);
-% Smoothers 
-% --------------------------------------------------------------------------------------------------
-% Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother (Eq. (4.11) in Kurz (2018))
+% Smoother
 KS_deJ_US  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
 
 % PLOT TREND GROWTH ETC FOR US GDP DATA
 % Shock-recovery SSM
 FILTERED = 0;
-  eps_1 =  s1*KS_deJ_US.atT(:,1); eps_2 =  s2*KS_deJ_US.atT(:,2); eps_3 =  s3*KS_deJ_US.atT(:,3);
+  eta_1 =  s1*KS_deJ_US.atT(:,1); eta_2 =  s2*KS_deJ_US.atT(:,2); eps_3 =  s3*KS_deJ_US.atT(:,3);
   ystr  = KFS_Clark.KFS.atT(:,1); g     = KFS_Clark.KFS.atT(:,2); ytld  = KFS_Clark.KFS.atT(:,3);
   Ktype = 'Smoothed~ ';
 % filtered comparison
 if FILTERED
-  eps_1 =  s1*KS_deJ_US.att(:,1); eps_2 =  s2*KS_deJ_US.att(:,2); eps_3 =  s3*KS_deJ_US.att(:,3);
+  eta_1 =  s1*KS_deJ_US.att(:,1); eta_2 =  s2*KS_deJ_US.att(:,2); eps_3 =  s3*KS_deJ_US.att(:,3);
   ystr  = KFS_Clark.KFS.att(:,1); g     = KFS_Clark.KFS.att(:,2); ytld  = KFS_Clark.KFS.att(:,3);
   Ktype = 'Filtered~ ';
 end
-% now compute the shocks from Clark's SSM to be compatible with the shock-recovery SSM's shocks
+% Compute the shocks from Clark's SSM to be compatible with the shock-recovery SSM's shocks
+% this is incorrect for filtered version because we g(t|t) - g(t-1|t) and not  g(t|t) - g(t-1|t-1)
+% but that is all I can do here with this set-up. Alternatively, add the shocks to the Clark SSF.
 eps_ystr  = delta(ystr) - lag(g);
 eps_g     = delta(g);
 eps_ytld  = ytld - a1*lag(ytld) - a2*lag(ytld,2);
@@ -230,12 +227,12 @@ eps_ytld  = ytld - a1*lag(ytld) - a2*lag(ytld,2);
 figure(2);clf; ST = -1.18;
 tiledlayout(4,1, Padding="compact");
 nexttile
-plot([eps_ystr  [nan(4,1); eps_1]]); hline(0); setyticklabels(-2:0.5:2,1)
+plot([eps_ystr  [nan(4,1); eta_1]]); hline(0); setyticklabels(-2:0.5:2,1)
 setdateticks(HP.Date,20)
 addsubtitle(strcat(Ktype, '$\eta_1 = \sigma_1\varepsilon_{1}$'),ST)
 addgrid(3/4)
 nexttile
-plot([eps_g     [nan(4,1); eps_2]]); hline(0); setyticklabels([-0.5:.1:0.5]/1,1)
+plot([eps_g     [nan(4,1); eta_2]]); hline(0); setyticklabels([-0.5:.1:0.5]/1,1)
 setdateticks(HP.Date,20)
 addlegend({'Clark SSM','Shock Recovery SSM'},3)
 addsubtitle(strcat(Ktype, '$\eta_2 = \sigma_2\varepsilon_{2}$'),ST)
@@ -245,9 +242,7 @@ plot([eps_ytld  [nan(4,1); eps_3]]); hline(0); setyticklabels(-2:.5:2,1)
 setdateticks(HP.Date,20)
 addsubtitle(strcat(Ktype, '$\eta_3 = \sigma_3\varepsilon_{3}$'),ST)
 addgrid(3/4)
-% print2pdf('Clark_SSM_Filtered')
-% if SMOOTHED; print2pdf('Clark_SSM_Smoothed',0); else print2pdf('Clark_SSM_Filtered',0); end
-% Smoothed
+% print2pdf(['Clark_SSM_' Ktype(1:end-2)],2)
 
 % plot the states from Clarks model
 figure(3);clf; ST = -1.18;
@@ -271,8 +266,7 @@ setdateticks(HP.Date,20)
 ylim([-6 6])
 addsubtitle('Filtered and Smoothed estimates of $\tilde{y}_t$',ST)
 addgrid(3/4)
-% print2pdf('Clark_SSM',0)
-
+% print2pdf('Clark_SSM',2)
 
 end
 

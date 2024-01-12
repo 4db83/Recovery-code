@@ -33,6 +33,10 @@ if Nvn > 1
 	variable_names = variable_names';
 end
 
+if length(variable_names) ~= KK
+  variable_names = default_var_names;
+end
+
 if prnt_hac == 1
 	in.cnames = {'Estimate'; 'stderr(HAC)'; 't-stat(HAC)'; 'p-value'};
 else
