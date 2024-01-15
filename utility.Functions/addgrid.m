@@ -1,6 +1,7 @@
 function varargout = addgrid(LineWidth,Alpha,LineStyle)
 % return only grid axis handle
 
+box on;
 grid on;
 LW0 = 1.11;
 % set(hg,'LineWidth') = 4/3;

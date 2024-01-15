@@ -13,7 +13,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Friday, January 12, 2024 16:30:04}
+%TCIDATA{LastRevised=Monday, January 15, 2024 21:40:43}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -261,8 +261,8 @@ _{t}^{g}$ cannot be recovered ($P^{\ast }\approx 1$), while the cycle shock $%
 suggesting that there are recovery difficulties. Note that $P_{t|t}^{\ast
 }=1 $ implies that Kalman filtered estimates of $\varepsilon _{2t}$ are 
 \emph{exactly} zero for all $t$. This can be seen from the entries on the
-left hand side of \ref{KFS} which shows filtered estimates of shocks,
-(smoothed estimates are shown on the right).%
+left hand side of \ref{KFS} which shows filtered estimates of shocks
+(smoothed estimates are shown on the right hand side).%
 \begin{equation}
 \begin{tabular}{rcrcrrr}
 \hline
@@ -284,14 +284,6 @@ $-0.2821$ & $0$ & $-0.3101$ &  & $-0.6689$ & $0.0228$ & $0.0549$ \\ \hline
 In \autoref{fig:1}, simulated states and corresponding Kalman smoothed
 estimates are plotted for the shocks of interest.
 
-\begin{figure}[h!]
-\centering
-\includegraphics[width=1\textwidth,trim={0 0 0
-0},clip,angle=00]{Clark87_plots_KS.pdf}
-\caption{Comparison of true shocks and Kalman Smoothed estimates $\protect%
-\varepsilon _{t|T}$.}
-\label{fig:1}
-\end{figure}
 The correlation between the true (simulated) and estimated Kalman smoothed
 shocks can be analyzed by simply computing $\mathrm{Corr}(X_{t},\hat{X}%
 _{t|T})$, where $X_{t}=%
@@ -304,7 +296,7 @@ _{t|T})$, where $X_{t}=%
 \end{bmatrix}%
 ^{\prime }$, which yields:%
 \begin{equation}
-\begin{tabular}{lcc}
+\begin{tabular}{ccc}
 \hline
 Shocks &  & $\mathrm{Corr}(X_{t},\hat{X}_{t|T})$ \\ \hline
 $\varepsilon _{1t}$ &  & $0.6736$ \\ 
@@ -314,10 +306,19 @@ $\varepsilon _{3t}$ &  & $0.7304$ \\ \hline
 ~.  \label{Corr}
 \end{equation}%
 From \ref{Corr} one can see that the estimated $\varepsilon _{1t}$ and $%
-\varepsilon _{3t}$ shocks are rather weakly correlated with the true values, 
-$0.6736$ and $0.7304$, respectively, while the estimated $\varepsilon _{2t}$
-shock is nearly uncorrelated ($0.1184$).\ These facts can also be seen from %
-\autoref{fig:1} below.
+\varepsilon _{3t}$ shocks are rather `\emph{weakly}' correlated with the
+true values, $0.6736$ and $0.7304$, respectively. The estimated $\varepsilon
+_{2t}$ shock is nearly uncorrelated ($0.1184$) with the true value.\ These
+facts can also be seen from \autoref{fig:1} below.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=1\textwidth,trim={0 0 0
+  0},clip,angle=00]{Clark87_plots_KS.pdf}
+  \caption{Comparison of true shocks and Kalman Smoothed estimates $\protect%
+  \varepsilon _{t|T}$.}
+  \label{fig:1}
+\end{figure}
 
 \subsection{Shock Identities}
 
@@ -427,21 +428,26 @@ Below are estimates and plots of Clark's 87 model fitted to U.S. GDP\ data
 from $1947$:Q2 to $2019$:Q4. 
 \begin{table}[h!]
 \centering
-\includegraphics[width=.75\textwidth,trim={0 0 0 25},clip]{Clark_MLE.pdf} \vspace*{-2.5mm}
-\caption{Clark (1987) model MLE parameter estimates for the U.S. from $1947$:Q2 to $2019$:Q4.}
+\includegraphics[width=.75\textwidth,trim={0 0 0 25},clip]{Clark_MLE.pdf} 
+\vspace*{-2.5mm}
+\caption{Clark (1987) model MLE parameter estimates for the U.S. from $1947$%
+:Q2 to $2019$:Q4.}
 \label{tab:MLE}
 \end{table}
 
 \begin{figure}[p!]
 \centering
-\includegraphics[angle=00, width=1\textwidth,trim={0 0 0 0},clip]{Clark_SSM_Smoothed.pdf} \vspace*{-2.5mm}
-\caption{Smoother estimates of scaled shocks $\eta_{it} = \sigma_i\varepsilon_{it}, \forall i=1,2,3$.}
+\includegraphics[angle=00, width=1\textwidth,trim={0 0 0
+0},clip]{Clark_SSM_Smoothed.pdf} \vspace*{-2.5mm}
+\caption{Smoother estimates of scaled shocks $\protect\eta_{it} = \protect%
+\sigma_i\protect\varepsilon_{it}, \forall i=1,2,3$.}
 \label{fig:KS}
 \end{figure}
 
 \begin{figure}[p!]
 \centering
-\includegraphics[angle=00, width=1\textwidth,trim={0 0 0 0},clip]{Clark_SSM} \vspace*{-2.5mm}
+\includegraphics[angle=00, width=1\textwidth,trim={0 0 0 0},clip]{Clark_SSM} 
+\vspace*{-2.5mm}
 \caption{Filtered and Smoothed estimates trend, trend growth and cycle.}
 \label{fig:KFS}
 \end{figure}

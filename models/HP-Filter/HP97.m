@@ -16,7 +16,7 @@ addpath(genpath('../../utility.Functions'))               % set path to db funct
 % Sample size and seed for random number generator in simulation
 Ts = 1e5; rng(123);   % takes about 1 sec for 1e5, 10 secs.for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
 PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
-PLOT_COMPARISON = 0;  % set to 1 to plot the comparison with HP-filter function
+ESTIMATE_HP_US  = 0;  % set to 1 to plot the comparison with HP-filter function
 
 % --------------------------------------------------------------------------------------------------    
 % PARAMETERS: standard deviation sqrt(lambda = 1600)
@@ -80,11 +80,11 @@ a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 KFS_deJ = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % Contains KF and KS output. NO INV, NO INITVALS FOR STATES
 % --------------------------------------------------------------------------------------------------
 
-% PLOT THE KF/KS ESTIMATES OF THE STATES 
+%% PLOT THE KF/KS ESTIMATES OF THE STATES 
 % --------------------------------------------------------------------------------------------------
 PLOT_KF = 0; % set to 1 to use KF output, otherwise use KS
 if PLOT_STATES
-  clf; tiledlayout(4,1,TileSpacing = "compact", Padding = "compact");
+  clf; tiledlayout(4,2,TileSpacing = "compact", Padding = "compact");
   % plot_names = make_table_names('$\epsilon_{', 1:k, 't}$');
   % loop through plots
   if PLOT_KF
@@ -96,7 +96,7 @@ if PLOT_STATES
   end
 
   for ii = k+1:dim_R
-    nexttile
+    nexttile([1 2])
     hold on;
       plot(Xs(:,ii), 'LineWidth',3);                              % 'true' simulated state X
       plot(state_t(:,ii),'--','Color',clr(3),'LineWidth',2.5);    % Filtered or smoothed estimate of state X
@@ -109,9 +109,24 @@ if PLOT_STATES
     % addsubtitle(row_names(ii),-1.115)
     addsubtitle(['$\varepsilon_{' num2str(ii) 't}$'],-1.115,16)
   end
-  % print2pdf('HP97_plots_KF',2);
+  nexttile; % scatter(true, estimate)
+  dims = [-5 5]; i = 1; 
+  scatter(Xs(:,i),state_t(:,i),'x');
+    ylim(dims); setxticklabels([dims(1):1:dims(2)]);
+    line(dims, dims, 'Color', 'k', 'LineWidth', 1); hline(0)
+    addsubtitle(['$\varepsilon_{' num2str(i) 't}$ (true)'],-1.115,16)
+    ylabel(['$E_T\varepsilon_{' num2str(i) 't}$'],'Interpreter','latex')
+    addgrid(4/5)
+  nexttile; i = 2; 
+  scatter(Xs(:,i),state_t(:,i),'x');
+    ylim(dims); setxticklabels([dims(1):1:dims(2)]); 
+    line(dims, dims, 'Color', 'k', 'LineWidth', 1); hline(0)
+    addsubtitle(['$\varepsilon_{' num2str(i) 't}$ (true)'],-1.115,16)
+    ylabel(['$E_T\varepsilon_{' num2str(i) 't}$'],'Interpreter','latex')
+    addgrid(4/5)
+  % print2pdf('HP97_plots_KS',2);
 end
-% --------------------------------------------------------------------------------------------------
+%% --------------------------------------------------------------------------------------------------
 
 % CORRELATIONS:
 % NOTE: 𝜙²yᶜ(t) = ε2(t), so the correlation between the true and estimated ε2(t) is equivalent to the correlation between the true and estimated HP output gap. 
@@ -134,69 +149,69 @@ for jj = 1:dim_R
 end
 
 % IDENTITIES: Run (dynamic) OLS regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t and the like
-fprintf('\n');sep('=');fprintf('Filter Identity on page 17 in EER(2022). Dependent variable: Etε2(t) \n')
+sep(133,'=',1); fprintf('Filter Identity on page 17 in EER(2022). Dependent variable: Etε2(t) \n')
 Xnames_ID1 = {'Etε1(t)'};  % Xnames_ID1 = [];
 ID1 = ols(Ete2t, [ Ete1t ], 1, Xnames_ID1);
 
-fprintf('\n');sep('=');fprintf('Smoother Identity on page 12, eq. 10 in Stars(2023). Dependent variable: Δ²ETε1(t) \n')
+sep(133,'=',1); fprintf('Smoother Identity on page 12, eq. 10 in Stars(2023). Dependent variable: Δ²ETε1(t) \n')
 sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and not ETε2(t) as stated)\n');sep
 Xnames_ID2 = {'ETε2(t-2)'};  % Xnames_ID2 = [];
 ID2 = ols( delta(ETe1t, 2) , [ lag(ETe2t, 2)], 1, Xnames_ID2);
 
-%% -------------------------------------------------------------------------------------------------
-% %% UNCOMMENT TO USE US REAL GDP DATA
-% % USE HP Filter routine to back out trend and cycle shocks and compare
-% % --------------------------------------------------------------------------------------------------
-% load('US-GDP.mat')
-% y   = log(usGDP);
-% D2y = delta(y, 2);    % don't use diff due to y being a TimeTable, --> use delta instead
-% % make Z(t) variable for 'shock recovery' SSM form: ie. Z(t)=Δ²y(t)
-% ZZ  = D2y.("Δ²gdp");
-% HP  = hp_filter(y, phi^2); % call to 'standard' HP filter code (see 
-% dHP_trend = delta(HP.trend,1,1); 
-% [~, Kurz_KF_US] = Kurz_Filter(removenans(ZZ), D1, D2, R, A, C, a00, P00);
-% % construct the cycle from the shock recovery SSM
-% KS_deJ_US = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
-% SSM.cycle = phi*addnans(KS_deJ_US.atT(:,2),2,0);
-% 
-% % Reconstruct HP.trend from KS_deJ_US.atT(:,1) using initVals from HP.trend (∆2y*(t) = ε1(t))
-% % cumsum([HP.trend(1); cumsum([ΔHP.trend(1); ETε1(t)])])
-% SSM.trend = cumsum([HP.trend(1); cumsum([dHP_trend(1); KS_deJ_US.atT(:,1)])]);
-% % head2tail([SSM.trend HP.trend])
-% Xnames_ID3 = [];
-% ID3 = ols( delta(SSM.trend, 4) , [ lag(SSM.cycle, 2)/phi], 1, Xnames_ID3);
-% 
-% % PLOT HP ON US REAL GDP DATA
-% % --------------------------------------------------------------------------------------------------
-% if PLOT_COMPARISON
-%   figure(2); clf;
-%   % tiledlayout(3,1)
-%   tiledlayout(4,1, TileSpacing = 'loose', Padding = 'compact');
-%   nexttile
-%   hold on;
-%     plot(HP.trend)
-%     plot(SSM.trend,'--')
-%     hline(0)
-%   hold off; 
-%   box on; addgrid;
-%   % ylim([7 11])
-%   setyticklabels(7:.5:10.5,1)
-%   setdateticks(HP.Date,25)
-%   addlegend({'HP-Filter','Shock-Recovery SSM'},1)
-%   addsubtitle('Trend in US-GDP data', -1.16)
-%   % PLOT cycles 
-%   nexttile
-%   hold on;
-%     plot(HP.cycle)
-%     plot(SSM.cycle,'--')
-%     hline(0)
-%   hold off; 
-%   box on; addgrid;
-%   setyticklabels(-.10:.02:.06)
-%   setdateticks(HP.Date,25)
-%   addlegend({'HP-Filter','Shock-Recovery SSM'})
-%   addsubtitle('Cycle in US-GDP data', -1.16)
-% end
+%%
+if ESTIMATE_HP_US
+% -------------------------------------------------------------------------------------------------
+% USE HP Filter routine to back out trend and cycle shocks and compare from US REAL GDP DATA
+% --------------------------------------------------------------------------------------------------
+load('US-GDP.mat')
+y   = log(usGDP);
+D2y = delta(y, 2);    % don't use diff due to y being a TimeTable, --> use delta instead
+% make Z(t) variable for 'shock recovery' SSM form: ie. Z(t)=Δ²y(t)
+ZZ  = D2y.("Δ²gdp");
+HP  = hp_filter(y, phi^2); % call to 'standard' HP filter code (see 
+dHP_trend = delta(HP.trend,1,1); 
+[~, Kurz_KF_US] = Kurz_Filter(removenans(ZZ), D1, D2, R, A, C, a00, P00);
+% construct the cycle from the shock recovery SSM
+KS_deJ_US = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
+SSM.cycle = phi*addnans(KS_deJ_US.atT(:,2),2,0);
+
+% Reconstruct HP.trend from KS_deJ_US.atT(:,1) using initVals from HP.trend (∆2y*(t) = ε1(t))
+% cumsum([HP.trend(1); cumsum([ΔHP.trend(1); ETε1(t)])])
+SSM.trend = cumsum([HP.trend(1); cumsum([dHP_trend(1); KS_deJ_US.atT(:,1)])]);
+% Δ⁴HP-trend(t) =  1/φ² HP-cycle(t-2) 
+sep(133,'=',1); fprintf('Filter Identity on page 17 in EER(2022) for US data from HP-Filter . Dependent variable: Δ⁴HP-trend(t) \n')
+Xnames_ID3 = {'HP-Cycle(t-2)'};
+ID3 = ols( delta(SSM.trend, 4) , [ lag(SSM.cycle, 2)], 1, Xnames_ID3);
+
+% PLOT HP ON US REAL GDP DATA
+  figure(2); clf;
+  % tiledlayout(3,1)
+  tiledlayout(4,1, TileSpacing = 'loose', Padding = 'compact');
+  nexttile
+  hold on;
+    plot(HP.trend)
+    plot(SSM.trend,'--')
+    hline(0)
+  hold off; 
+  box on; addgrid;
+  % ylim([7 11])
+  setyticklabels(7:.5:10.5,1)
+  setdateticks(HP.Date,25)
+  addlegend({'HP-Filter','Shock-Recovery SSM'},1)
+  addsubtitle('Trend in US-GDP data', -1.16)
+  % PLOT cycles 
+  nexttile
+  hold on;
+    plot(HP.cycle)
+    plot(SSM.cycle,'--')
+    hline(0)
+  hold off; 
+  box on; addgrid;
+  setyticklabels(-.10:.02:.06)
+  setdateticks(HP.Date,25)
+  addlegend({'HP-Filter','Shock-Recovery SSM'})
+  addsubtitle('Cycle in US-GDP data', -1.16)
+end
 
 
 

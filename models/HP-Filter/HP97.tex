@@ -13,7 +13,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Wednesday, January 10, 2024 14:41:25}
+%TCIDATA{LastRevised=Monday, January 15, 2024 21:20:01}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -116,7 +116,7 @@ corresponding to the relations in \ref{Z} are then given by:\bsq\label{K0SSM}%
 _{2t}-2\phi \varepsilon _{2t-1}+\phi \varepsilon _{2t-2} \\[2mm]
 Z_{t}& =\underbrace{%
 \begin{bmatrix}
-1 & \phi  & 0%
+1 & \phi & 0%
 \end{bmatrix}%
 }_{D_{1}}\underbrace{%
 \begin{bmatrix}
@@ -126,7 +126,7 @@ Z_{t}& =\underbrace{%
 \end{bmatrix}%
 }_{X_{t}}+\underbrace{%
 \begin{bmatrix}
-0 & -2\phi  & \phi 
+0 & -2\phi & \phi%
 \end{bmatrix}%
 }_{D_{2}}\underbrace{%
 \begin{bmatrix}
@@ -181,10 +181,10 @@ Z_{t}& =\underbrace{%
 \subsection{Shock recovery}
 
 The diagonal of the steady-state variance/covariance matrix of the smoothed
-and filtered states $X_{t}$ denoted by $P_{t|T}^{\ast }$ and $P_{t|t}^{\ast }
-$, respectively, are:%
+and filtered states $X_{t}$ denoted by $P_{t|T}^{\ast }$ and $P_{t|t}^{\ast
+} $, respectively, are:%
 \begin{equation}
-\begin{tabular}{lcccc}
+\begin{tabular}{ccccc}
 \hline
 Shocks &  & $P_{t|T}^{\ast }$ &  & $P_{t|t}^{\ast }$ \\ \hline
 {$\varepsilon _{1t}$} &  & $0.9439$ &  & $0.9995$ \\ 
@@ -198,10 +198,10 @@ while the cycle shock $\varepsilon _{2t}=\varepsilon _{t}^{c}$ appears to be
 recoverable ($P^{\ast }\approx 0$). In \autoref{fig:1}, simulated states and
 estimated Kalman smoothed states are plotted for the two shocks of interest.
 
-\begin{figure}[h]
+\begin{figure}[h!]
 \centering
 \includegraphics[width=1\textwidth,trim={0 0 0
-0},clip,angle=00]{HP97_plots.pdf}
+0},clip,angle=00]{HP97_plots_KS.pdf}
 \caption{Comparison of true shocks and Kalman Smoothed estimates $\protect%
 \varepsilon _{t|T}$.}
 \label{fig:1}
@@ -218,7 +218,7 @@ _{t|T})$, where $X_{t}=%
 \end{bmatrix}%
 ^{\prime }$, yielding (for the first two elements of $X_{t}$):%
 \begin{equation}
-\begin{tabular}{lcc}
+\begin{tabular}{ccc}
 \hline
 Shocks &  & $\mathrm{Corr}(X_{t},\hat{X}_{t|T})$ \\ \hline
 $\varepsilon _{1t}$ &  & $0.2368$ \\ 
@@ -227,9 +227,10 @@ $\varepsilon _{2t}$ &  & $0.9713$ \\ \hline
 ~.  \label{Corr}
 \end{equation}%
 As can be seen from \ref{Corr}, the estimated permanent shock $\varepsilon
-_{1t}$ is only weakly correlated ($0.2368$) with the true value, while the
-estimated cyclical shock $\varepsilon _{2t}$ is highly correlated ($0.9713$%
-).\ These facts can also be seen from \autoref{fig:1} below.
+_{1t}$ is only weakly correlated ($0.2368$) with the true value. The
+estimated cyclical shock $\varepsilon _{2t}$, on the other hand, is highly
+correlated ($0.9713$) with the true value.\ These facts can also be seen
+from \autoref{fig:1} below.
 
 \subsection{Shock Identities}
 
@@ -247,18 +248,22 @@ dynamic} identity:
 The filtered and smoothed estimates of the contemporaneous correlations are,
 respectively: 
 \begin{equation*}
-\begin{tabular}{lrr}
+\begin{tabular}{ccc}
 \multicolumn{3}{c}{$\mathrm{Corr}(\hat{X}_{t|t},\hat{X}_{t|t})$} \\ \hline
 Shocks & {$\varepsilon _{1t}$} & {$\varepsilon _{2t}$} \\ \hline
-{$\varepsilon _{1t}$} & $\phantom{-}1.0000$ & $\phantom{-}1.0000$ \\ 
-{$\varepsilon _{2t}$} & $1.0000$ & $1.0000$%
+{$\varepsilon _{1t}$} & \multicolumn{1}{r}{$\phantom{-}1.0000$} & 
+\multicolumn{1}{r}{$\phantom{-}1.0000$} \\ 
+{$\varepsilon _{2t}$} & \multicolumn{1}{r}{$1.0000$} & \multicolumn{1}{r}{$%
+1.0000$} \\ \hline
 \end{tabular}%
 \text{ \ \ \ \ \ \ \ and \ \ \ \ \ \ \ }%
-\begin{tabular}{lrr}
+\begin{tabular}{ccc}
 \multicolumn{3}{c}{$\mathrm{Corr}(\hat{X}_{t|T},\hat{X}_{t|T})$} \\ \hline
 Shocks & {$\varepsilon _{1t}$} & {$\varepsilon _{2t}$} \\ \hline
-{$\varepsilon _{1t}$} & $1.0000$ & $-0.1907$ \\ 
-{$\varepsilon _{2t}$} & $-0.1907$ & $1.0000$%
+{$\varepsilon _{1t}$} & \multicolumn{1}{r}{$1.0000$} & \multicolumn{1}{r}{$%
+-0.1907$} \\ 
+{$\varepsilon _{2t}$} & \multicolumn{1}{r}{$-0.1907$} & \multicolumn{1}{r}{$%
+1.0000$} \\ \hline
 \end{tabular}%
 ~\text{.}
 \end{equation*}%

@@ -15,7 +15,7 @@ addpath(genpath('../../utility.Functions'))               % set path to db funct
 
 % Sample size and seed for random number generator in simulation
 Ts = 1e5; rng(123);   % takes about 1 sec for 1e5, 10 secs.for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES     = 0;  % set to 1 to plot ε(t) states
+PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
 ESTIMATE_CLARK  = 0;  % set to 1 to estimate the parameters given below from US GDP Data
 
 % --------------------------------------------------------------------------------------------------    
@@ -80,11 +80,11 @@ a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 KFS_deJ = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % Contains KF and KS output. NO INV, NO INITVALS FOR STATES
 % --------------------------------------------------------------------------------------------------
 
-% PLOT THE KF/KS ESTIMATES OF THE STATES: % STATE vector = [trend(t); g(t); cycle(t); cycle(t-1)]; 
+%% PLOT THE KF/KS ESTIMATES OF THE STATES: % STATE vector = [trend(t); g(t); cycle(t); cycle(t-1)]; 
 % --------------------------------------------------------------------------------------------------
 PLOT_KF = 0; % set to 1 to use KF output, otherwise use KS
 if PLOT_STATES
-  clf; tiledlayout(5,1,TileSpacing = "compact", Padding = "compact");
+  clf; tiledlayout(5,3,TileSpacing = "compact", Padding = "compact");
   % plot_names = make_table_names('$\epsilon_{', 1:k, 't}$');
   % loop through plots
   if PLOT_KF
@@ -96,7 +96,7 @@ if PLOT_STATES
   end
 
   for ii = k+1:dim_R
-    nexttile
+    nexttile([1 3])
     hold on;
       plot(Xs(:,ii), 'LineWidth',3);                              % 'true' simulated state X
       plot(state_t(:,ii),'--','Color',clr(3),'LineWidth',2.5);    % Filtered or smoothed estimate of state X
@@ -109,6 +109,31 @@ if PLOT_STATES
     % addsubtitle(row_names(ii),-1.115)
     addsubtitle(['$\varepsilon_{' num2str(ii) 't}$'],-1.17,16)
   end
+  nexttile; % scatter(true, estimate)
+  dims = [-5 5]; i = 1; 
+  scatter(Xs(:,i),state_t(:,i),'x');
+    xlim(dims); setxticklabels([dims(1):1:dims(2)]); 
+    ylim(dims); setyticklabels([dims(1):1:dims(2)],0); 
+    line(dims, dims, 'Color', 'k', 'LineWidth', 1); hline(0)
+    addsubtitle(['$\varepsilon_{' num2str(i) 't}$ (true)'],-1.155,16)
+    ylabel(['$E_T\varepsilon_{' num2str(i) 't}$'],'Interpreter','latex')
+    addgrid(4/5)
+  nexttile; i = 2; 
+  scatter(Xs(:,i),state_t(:,i),'x');
+    xlim(dims); setxticklabels([dims(1):1:dims(2)]); 
+    ylim(dims); setyticklabels([dims(1):1:dims(2)],0); 
+    line(dims, dims, 'Color', 'k', 'LineWidth', 1); hline(0)
+    addsubtitle(['$\varepsilon_{' num2str(i) 't}$ (true)'],-1.155,16)
+    ylabel(['$E_T\varepsilon_{' num2str(i) 't}$'],'Interpreter','latex')
+    addgrid(4/5)  
+  nexttile; i = 3; 
+  scatter(Xs(:,i),state_t(:,i),'x');
+    xlim(dims); setxticklabels([dims(1):1:dims(2)]); 
+    ylim(dims); setyticklabels([dims(1):1:dims(2)],0); 
+    line(dims, dims, 'Color', 'k', 'LineWidth', 1); hline(0)
+    addsubtitle(['$\varepsilon_{' num2str(i) 't}$ (true)'],-1.155,16)
+    ylabel(['$E_T\varepsilon_{' num2str(i) 't}$'],'Interpreter','latex')
+    addgrid(4/5)  
   % print2pdf('Clark87_plots_KS',2);
 end
 % --------------------------------------------------------------------------------------------------
