@@ -91,7 +91,6 @@ if ~isempty(Recession_indicator)
 end
 
 olsout.bhat 	= beta;     	% fitted regression parameters.
-olsout.Bhat   = [];         % store all three different BETA estaimtes on based on QR,SVD/PINV,INV
 olsout.uhat 	= u;        	% fitted residuals
 olsout.sse  	= SSE;				% Sum of Squared errors
 olsout.se   	= se;       	% NON-HAC standard error of beta_hat

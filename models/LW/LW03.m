@@ -14,9 +14,9 @@ addpath(genpath('./utility.Functions'))               % set path to db functions
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % Sample size and seed for random number generator in simulation
-Ts = 1e4; rng(123);
+Ts = 1e3; rng(123);
 % set to 1 if wanting to add ∆r*(t) to State vector X(t)
-ADD_Drstar  = 1;
+ADD_Drstar  = 0;
 PLOT_STATES = 1;
 
 % DEFINE SSM INPUT MATRICES ------------------------------------------------------------------------
@@ -94,7 +94,7 @@ KS_deJ  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % NO INV, NO INITV
 % PLOT THE KF/KS ESTIMATES OF THE STATES 
 % --------------------------------------------------------------------------------------------------
 if PLOT_STATES
-  clf; tiledlayout(4,2,TileSpacing="compact",Padding="compact");
+  clf; tiledlayout(7,2,TileSpacing="compact",Padding="compact");
   % make plot names
   plot_names = make_table_names('$\epsilon_{', 1:k, 't}$');
   if ADD_Drstar; plot_names = [plot_names; '$\Delta r^{\ast}_{t}$']; end
@@ -107,7 +107,7 @@ if PLOT_STATES
       % plot(KS_deJ.atT(:,ii),'--','Color',clr(3),'LineWidth',2.5);   % Smoothed States
     hold off;
     hline(0)
-    box on; grid on;
+    box on; grid on; 
     set(gca,'GridLineStyle',':' ,'GridAlpha',1/3, 'LineWidth',5/5);
     add2yaxislabel;
     addlegend({'True','Estimate:$\,a_{t|t}$'},1)

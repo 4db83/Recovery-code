@@ -13,7 +13,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Monday, January 15, 2024 21:20:01}
+%TCIDATA{LastRevised=Monday, February 05, 2024 08:05:55}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -52,11 +52,11 @@ Form (SSF)\ using the following Unobserved Component (UC)\ model structure:%
 \begin{align}
 y_{t}& =y_{t}^{\ast }+y_{t}^{c}  \label{HP0a} \\
 \Delta ^{2}y_{t}^{\ast }& =\varepsilon _{1t}  \label{HP0b} \\
-y_{t}^{c}& =\phi \varepsilon _{2t},  \label{HP0c}
+y_{t}^{c}& =\psi \varepsilon _{2t},  \label{HP0c}
 \end{align}%
 \esq where $y_{t}$ is (100 times) the log of GDP, and the shocks $\left\{
 \varepsilon _{it}\right\} _{i=1}^{2}$ are mutually uncorrelated $i.i.d.$ $%
-N(0,1)$. The standard deviation $\phi $ is the (square root of the)
+N(0,1)$. The standard deviation $\psi $ is the (square root of the)
 smoothing parameter, commonly set to $40$ for quarterly macroeconomic data,
 implying a value of `$\lambda $' of $1600$.
 
@@ -101,8 +101,8 @@ and $y_{t}^{c}$ twice, and re-arranging the relations in \ref{HP0} then
 yields:%
 \begin{align}
 \Delta ^{2}y_{t}& =\Delta ^{2}y_{t}^{\ast }+\Delta ^{2}y_{t}^{c}  \notag \\
-& =\varepsilon _{1t}+\phi \Delta ^{2}\varepsilon _{2t}  \notag \\
-& =\varepsilon _{1t}+\phi \varepsilon _{2t}-2\phi \varepsilon _{2t-1}+\phi
+& =\varepsilon _{1t}+\psi \Delta ^{2}\varepsilon _{2t}  \notag \\
+& =\varepsilon _{1t}+\psi \varepsilon _{2t}-2\psi \varepsilon _{2t-1}+\psi
 \varepsilon _{2t-2},  \label{Z}
 \end{align}%
 where $\Delta ^{2}y_{t}$ is the only observed variable.
@@ -112,11 +112,11 @@ corresponding to the relations in \ref{Z} are then given by:\bsq\label{K0SSM}%
 \begin{align}
 \mathsf{Measurement}:\quad Z_{t}& =D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
 \notag \\
-\Leftrightarrow \Delta ^{2}y_{t}& =\varepsilon _{1t}+\phi \varepsilon
-_{2t}-2\phi \varepsilon _{2t-1}+\phi \varepsilon _{2t-2} \\[2mm]
+\Leftrightarrow \Delta ^{2}y_{t}& =\varepsilon _{1t}+\psi \varepsilon
+_{2t}-2\psi \varepsilon _{2t-1}+\psi \varepsilon _{2t-2} \\[2mm]
 Z_{t}& =\underbrace{%
 \begin{bmatrix}
-1 & \phi & 0%
+1 & \psi & 0%
 \end{bmatrix}%
 }_{D_{1}}\underbrace{%
 \begin{bmatrix}
@@ -126,7 +126,7 @@ Z_{t}& =\underbrace{%
 \end{bmatrix}%
 }_{X_{t}}+\underbrace{%
 \begin{bmatrix}
-0 & -2\phi & \phi%
+0 & -2\psi & \psi%
 \end{bmatrix}%
 }_{D_{2}}\underbrace{%
 \begin{bmatrix}
@@ -180,13 +180,14 @@ Z_{t}& =\underbrace{%
 
 \subsection{Shock recovery}
 
-The diagonal of the steady-state variance/covariance matrix of the smoothed
-and filtered states $X_{t}$ denoted by $P_{t|T}^{\ast }$ and $P_{t|t}^{\ast
-} $, respectively, are:%
+The diagonal entries of the steady-state variance/covariance matrix of the
+smoothed and filtered states $X_{t}$ denoted by $P_{t|T}^{\ast }$ and $%
+P_{t|t}^{\ast }$, respectively, are:%
 \begin{equation}
 \begin{tabular}{ccccc}
 \hline
-Shocks &  & $P_{t|T}^{\ast }$ &  & $P_{t|t}^{\ast }$ \\ \hline
+Shocks &  & $\mathrm{diag}(P_{t|T}^{\ast })$ &  & $\mathrm{diag}%
+(P_{t|t}^{\ast })$ \\ \hline
 {$\varepsilon _{1t}$} &  & $0.9439$ &  & $0.9995$ \\ 
 {$\varepsilon _{2t}$} &  & $0.0561$ &  & $0.2006$ \\ \hline
 \end{tabular}%
@@ -237,12 +238,12 @@ from \autoref{fig:1} below.
 Kalman Filter estimates of the permanent and transitory shocks $\varepsilon
 _{1t}$ and $\varepsilon _{2t}$ are linked by the identity:%
 \begin{equation}
-E_{t}\varepsilon _{2t}=\phi E_{t}\varepsilon _{1t},  \label{KF}
+E_{t}\varepsilon _{2t}=\psi E_{t}\varepsilon _{1t},  \label{KF}
 \end{equation}%
 and the corresponding Kalman Smoother estimates are linked by the \emph{%
 dynamic} identity: 
 \begin{equation}
-\Delta ^{2}E_{T}\varepsilon _{1t}=\frac{1}{\phi }E_{T}\varepsilon _{2t-2}.
+\Delta ^{2}E_{T}\varepsilon _{1t}=\frac{1}{\psi }E_{T}\varepsilon _{2t-2}.
 \label{KS}
 \end{equation}%
 The filtered and smoothed estimates of the contemporaneous correlations are,
@@ -288,15 +289,15 @@ estimates.}
 \end{table}
 
 Since $\varepsilon _{1t}=\Delta ^{2}y_{t}^{\ast }$ and $\varepsilon _{2t}=%
-\frac{1}{\phi }y_{t}^{c}$, this implies that the output from the standard
+\frac{1}{\psi }y_{t}^{c}$, this implies that the output from the standard
 HP--Filter will give the corresponding idenity to \ref{KS} as:%
 \begin{alignat}{2}
 & & \Delta ^{2}\underbrace{E_{T}\varepsilon _{1t}}_{\Delta ^{2}y_{t}^{\ast
-}}& =\frac{1}{\phi }\underbrace{E_{T}\varepsilon _{2t-2}}_{\frac{1}{\phi }%
+}}& =\frac{1}{\psi }\underbrace{E_{T}\varepsilon _{2t-2}}_{\frac{1}{\psi }%
 y_{t-2}^{c}}  \notag \\
-& \Leftrightarrow & \Delta ^{4}y_{t}^{\ast }& =\frac{1}{\phi ^{2}}%
+& \Leftrightarrow & \Delta ^{4}y_{t}^{\ast }& =\frac{1}{\psi ^{2}}%
 y_{t-2}^{c},  \notag \\
-& \Leftrightarrow ~~~ & \Delta ^{4}\text{HP--trend}_{t}& =\frac{1}{\phi ^{2}}%
+& \Leftrightarrow ~~~ & \Delta ^{4}\text{HP--trend}_{t}& =\frac{1}{\psi ^{2}}%
 \text{HP--cycle}_{t-2},  \notag
 \end{alignat}%
 so that a regression of the fourth differenced HP--trend on a twice lagged

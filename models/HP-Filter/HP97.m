@@ -53,11 +53,11 @@ C = [eye(dim_R); zeros(1,2); ];
 
 % CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
 P = Kurz_steadystate_P(D1, D2, R, A, C);
-ss = k+1:dim_X;
+% ss = k+1:dim_X;
 % make display names % row_names = make_table_names('ε',1:dim_R,'(t)');          
 row_names = {'ε1(t)','ε2(t)','ε2(t-1)'} ; 
 
-Pstar = array2table([ diag(P.tT(ss,ss)) diag(P.tt(ss,ss)) ], ...
+Pstar = array2table([ diag(P.tT(k+1:dim_X,k+1:dim_X)) diag(P.tt(k+1:dim_X,k+1:dim_X)) ], ...
         'VariableNames',{'P(t|T)','P(t|t)'}, 'RowNames', row_names);
 % select what to print to screen
 sep; print_table(Pstar(1:dim_R,:),4,1,0)
@@ -80,57 +80,11 @@ a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 KFS_deJ = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % Contains KF and KS output. NO INV, NO INITVALS FOR STATES
 % --------------------------------------------------------------------------------------------------
 
-%% PLOT THE KF/KS ESTIMATES OF THE STATES 
 % --------------------------------------------------------------------------------------------------
-PLOT_KF = 0; % set to 1 to use KF output, otherwise use KS
-if PLOT_STATES
-  clf; tiledlayout(4,2,TileSpacing = "compact", Padding = "compact");
-  % plot_names = make_table_names('$\epsilon_{', 1:k, 't}$');
-  % loop through plots
-  if PLOT_KF
-    state_t = KFS_deJ.att;
-    state_name = 'Estimate:$\,\hat{X}_{t|t}$'; 
-  else 
-    state_t = KFS_deJ.atT;
-    state_name = 'Estimate:$\,\hat{X}_{t|T}$'; 
-  end
-
-  for ii = k+1:dim_R
-    nexttile([1 2])
-    hold on;
-      plot(Xs(:,ii), 'LineWidth',3);                              % 'true' simulated state X
-      plot(state_t(:,ii),'--','Color',clr(3),'LineWidth',2.5);    % Filtered or smoothed estimate of state X
-    hold off;
-    hline(0)
-    box on; grid on;
-    set(gca,'GridLineStyle',':' ,'GridAlpha',1/3, 'LineWidth',5/5);
-    add2yaxislabel;
-    addlegend({'True State',state_name},1)
-    % addsubtitle(row_names(ii),-1.115)
-    addsubtitle(['$\varepsilon_{' num2str(ii) 't}$'],-1.115,16)
-  end
-  nexttile; % scatter(true, estimate)
-  dims = [-5 5]; i = 1; 
-  scatter(Xs(:,i),state_t(:,i),'x');
-    ylim(dims); setxticklabels([dims(1):1:dims(2)]);
-    line(dims, dims, 'Color', 'k', 'LineWidth', 1); hline(0)
-    addsubtitle(['$\varepsilon_{' num2str(i) 't}$ (true)'],-1.115,16)
-    ylabel(['$E_T\varepsilon_{' num2str(i) 't}$'],'Interpreter','latex')
-    addgrid(4/5)
-  nexttile; i = 2; 
-  scatter(Xs(:,i),state_t(:,i),'x');
-    ylim(dims); setxticklabels([dims(1):1:dims(2)]); 
-    line(dims, dims, 'Color', 'k', 'LineWidth', 1); hline(0)
-    addsubtitle(['$\varepsilon_{' num2str(i) 't}$ (true)'],-1.115,16)
-    ylabel(['$E_T\varepsilon_{' num2str(i) 't}$'],'Interpreter','latex')
-    addgrid(4/5)
-  % print2pdf('HP97_plots_KS',2);
-end
-%% --------------------------------------------------------------------------------------------------
-
 % CORRELATIONS:
-% NOTE: 𝜙²yᶜ(t) = ε2(t), so the correlation between the true and estimated ε2(t) is equivalent to the correlation between the true and estimated HP output gap. 
-corr_table = array2table( diag(corr(Xs(:,ss), KFS_deJ.atT(:,ss))), ...
+% --------------------------------------------------------------------------------------------------
+% NOTE: ψ²yᶜ(t) = ε2(t), so the correlation between the true and estimated ε2(t) is equivalent to the correlation between the true and estimated HP output gap. 
+corr_table = array2table( diag(corr(Xs(:,k+1:dim_X), KFS_deJ.atT(:,k+1:dim_X))), ...
                'RowNames', row_names, 'VariableNames', {'Corr(.)'});
 % print correlations simulated and KS shocks
 print_table(corr_table(1:dim_R,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States X(t|T)');sep
@@ -158,17 +112,68 @@ sep;fprintf('NOTE:    Identity should be: Δ²ETε1(t) = 1/40 ETε2(t-2) (and no
 Xnames_ID2 = {'ETε2(t-2)'};  % Xnames_ID2 = [];
 ID2 = ols( delta(ETe1t, 2) , [ lag(ETe2t, 2)], 1, Xnames_ID2);
 
+STATE_TYPE  = 0; % set to 1 to use KF output, otherwise use KS
+state_t     = KFS_deJ.atT;
+if STATE_TYPE; state_t = KFS_deJ.att; end
+
+% Plagborg-Møller and Wolf (2022) R2
+for jj = 1:2
+  pwR2.( ['e' num2str(jj)]) = ols(state_t(:,jj),Xs(:,jj),1);
+end
+% make xgrd for plotting
+xgrd = linspace(-5,5,100)';
+
+%% PLOT THE KF/KS ESTIMATES OF THE STATES 
+% --------------------------------------------------------------------------------------------------
+PLOT_KF = 0;    % set to 1 to use KF output, otherwise use KS
+STL = -1.215;   % subtitle location
+dims = [-5 5]; FNS = 13; XOS = 11;
+if PLOT_STATES
+  clf; TL = tiledlayout(6,2); TL.TileSpacing = "loose"; TL.Padding = "loose";
+  % loop through plots
+  for ii = k+1:dim_R
+    nexttile
+    hold on;
+      plot(Xs(:,ii), 'LineWidth',3);                              % 'true' simulated state X
+      plot(state_t(:,ii),'--','Color',clr(3),'LineWidth',2.5);    % Filtered or smoothed estimate of state X
+    hold off; 
+    xlim([-XOS length(Xs(:,ii))+XOS]); setyticklabels(-5:1:5,0);
+    addgrid(5/5); hline(0); 
+    addlegend({'True','Estimate'},1,FNS)
+    addsubtitle(['$\varepsilon_{' num2str(ii) 't}$'],STL,FNS)
+    add2yaxislabel(1)
+
+    nexttile
+    hold on; 
+      scatter(Xs(:,ii),state_t(:,ii),'x');
+      plot(xgrd, xgrd*pwR2.( ['e' num2str(ii)]).bhat)
+    hold off; 
+    xlim(dims); setxticklabels([dims(1):1:dims(2)]);
+    ylim(dims); setyticklabels(-5:1:5,0);
+    addgrid(5/5); hline(0); 
+    line(dims, dims, 'Color', 'k', 'LineWidth', 1); 
+    ylabel(['$E_T\varepsilon_{' num2str(ii) 't}$ (Estimate)'],'Interpreter','latex','FontSize',FNS)
+    addsubtitle(['$\varepsilon_{' num2str(ii) 't}$ (True)'],STL,FNS)
+    addlegend({['$R^2=' num2str(pwR2.( ['e' num2str(ii)]).R2,'%2.4f') '$']},1,FNS)
+    add2yaxislabel(1)
+  end
+  % UNCOMMENT TO PRINT TO PDF
+  % print2pdf('HP97_plots_KS',2);
+end
+% --------------------------------------------------------------------------------------------------
+
 %%
 if ESTIMATE_HP_US
 % -------------------------------------------------------------------------------------------------
 % USE HP Filter routine to back out trend and cycle shocks and compare from US REAL GDP DATA
 % --------------------------------------------------------------------------------------------------
 load('US-GDP.mat')
-y   = log(usGDP);
+y = usGDP;
+y.gdp = log(usGDP.gdp);
 D2y = delta(y, 2);    % don't use diff due to y being a TimeTable, --> use delta instead
 % make Z(t) variable for 'shock recovery' SSM form: ie. Z(t)=Δ²y(t)
 ZZ  = D2y.("Δ²gdp");
-HP  = hp_filter(y, phi^2); % call to 'standard' HP filter code (see 
+HP  = hp_filter(y, phi^2); % call to 'standard' HP filter code
 dHP_trend = delta(HP.trend,1,1); 
 [~, Kurz_KF_US] = Kurz_Filter(removenans(ZZ), D1, D2, R, A, C, a00, P00);
 % construct the cycle from the shock recovery SSM
