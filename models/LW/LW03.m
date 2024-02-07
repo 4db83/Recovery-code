@@ -15,10 +15,10 @@ addpath(genpath('../../utility.Functions'))               % set path to db funct
 
 % Sample size and seed for random number generator in simulation
 Ts = 1e5; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
-ADD_Drstr       = 0;  % set to 1 if wanting to add ∆r*(t) to State vector X(t)
+PLOT_STATES     = 0;  % set to 1 to plot ε(t) states
+ADD_Drstr       = 1;  % set to 1 if wanting to add ∆r*(t) to State vector X(t)
 
-% -------------------------------------------------------------------------------------------------- % this is what you get when running their LW code                                          
+% ----------------------------------------------------------------------------- % THIS IS WHAT YOU GET WHEN RUNNING THEIR LW CODE                                          
 % PARAMETERS: (from the published paper, 'Baseline' in Table 1 on page 1065.    % D:\_research\_current\stars\recovery-code\_notes\LW_replication\kalman.standard.errors.R 
 a1  =  1.517;      % ay1   paper only gives the sum as 0.945                    %  [1,] "1.56495477703249"    "a_1"                                                        
 a2  =  -.572;      % ay2                                                        %  [2,] "-0.614537663213145"  "a_2"                                                        
@@ -92,12 +92,19 @@ KFS_deJ = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % Contains KF and 
 % CORRELATIONS:
 % --------------------------------------------------------------------------------------------------
 % Correlation between the true and estimated states. 
+% R2 of Plagborg-Møller and Wolf (2022) 
+R2 = [];
+for jj = Neps
+  pwR2.( ['e' num2str(jj)]) = ols(KFS_deJ.atT(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
+  R2(jj-k,:) = eval((['pwR2.e' num2str(jj) '.R2']));
+end
+
 % compute the theoretical correlations implied by formula (10)
 STDs  = [ones(dim_R,1)]; if ADD_Drstr; STDs  = [ones(dim_R,1); sDr]; end    % theoretical/model stdevs.
 rho_theory = corr_theory(STDs, std(KFS_deJ.atT(:,Neps))', Pstar.('P*(t|T)'));
 
-corr_table = array2table( [ diag(corr(Xs(:,Neps),KFS_deJ.atT(:,Neps))) rho_theory], ...
-  'RowNames', row_names, 'VariableNames', {'ρ(Sims)','ρ(Theory)'});
+corr_table = array2table( [ diag(corr(Xs(:,Neps),KFS_deJ.atT(:,Neps))) rho_theory R2], ...
+  'RowNames', row_names, 'VariableNames', {'ρ(Sim)','ρ(Theory)','R²(Sim)'});
 % print correlations simulated and KS shocks
 print_table(corr_table(1:dim_R+ADD_Drstr,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States ETX(t)');sep
 
@@ -108,23 +115,20 @@ print_table(corr_XtT(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matri
 corr_Xtt = array2table( corr(KFS_deJ.att(Neps,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_Xtt(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Filtered States EtX(t)',[],0);sep
 
-% MAKE SOME PLOTTING VARIABLES
-STATE_TYPE  = 0; % set to 1 to use KF output, otherwise use KS
-state_t     = KFS_deJ.atT;
-if STATE_TYPE; state_t = KFS_deJ.att; end
+% DISPLAY RECOVEY DIAGNOSTICS ALL IN ONE MATRIX TO PRINT TO LATEX
+% mat2latex([Pstar.("P*(t|T)")';corr_table.("ρ(Sims)")';R2']);
 
-% Plagborg-Møller and Wolf (2022) R2
-for jj = Neps
-  pwR2.( ['e' num2str(jj)]) = ols(state_t(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
-end
-% make xgrd for plotting
-xgrd = linspace(-5,5,100)';
 
 % PLOT THE KF/KS ESTIMATES OF THE STATES 
 % --------------------------------------------------------------------------------------------------
-PLOT_KF = 0;    % set to 1 to use KF output, otherwise use KS
-STL = -1.26;    % subtitle location
+% make some plotting variables
+WHICH_STATE_2_PLOT  = 0;      % set to 1 to use KF output, otherwise use KS
+state_t = KFS_deJ.atT;
+if WHICH_STATE_2_PLOT; state_t = KFS_deJ.att; end
+xgrd = linspace(-5,5,100)';   % make xgrd for plotting
+STL = -1.26;                  % subtitle location
 dims = [-6:2:6]; FNS = 11; XOS = 11;
+
 if PLOT_STATES
   clf; TL = tiledlayout(9,2); TL.TileSpacing = 'compact'; TL.Padding = 'loose';
   % loop through plots
@@ -173,8 +177,8 @@ for jj = 1:dim_R
 end
 Drstar = KFS_deJ.atT(:,4) - KFS_deJ.atT(:,5);
 
-sep(133,'=',1); fprintf('Identity (20). Dependent variable: ETη5(t) \n')
-Xnames_ID1 = {'Etε1(t)'};
+sep(133,'=',1); fprintf('Identity (20). Dependent variable: ∆ETη5(t) \n')
+Xnames_ID1 = {'∆ETη3(t)','ETη4(t)'};
 ID1 = ols( delta(ETn5t), [ delta(ETn3t) ETn4t], 1, Xnames_ID1);
 
 sep(133,'=',1); fprintf('Identity (21). Dependent variable: ET∆r*(t) \n')
@@ -182,7 +186,7 @@ Xnames_ID2 = {'4*c*ETη5(t)','ETη3(t)'};
 ID2 = ols(Drstar, [4*c*ETn5t ETn3t], 1, Xnames_ID2);
 
 sep(133,'=',1); fprintf('Identity (22). Dependent variable: ET∆r*(t) \n')
-Xnames_ID3 = {'ET∆r*(t-1)','ETη1(t)','ETη2(t)','ETη4(t)','ETη1(t-1)','ETη2(t-4)'};
+Xnames_ID3 = {'ET∆r*(t-1)','ETη1(t)','ETη2(t)','ETη4(t)','ETη1(t-1)','ETη4(t-1)'};
 ID3 = ols(Drstar, [lag(Drstar) ETn1t ETn2t ETn4t lag(ETn1t) lag(ETn4t)], 1, Xnames_ID3 );
 
 
