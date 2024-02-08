@@ -15,7 +15,7 @@ addpath(genpath('../../utility.Functions'))               % set path to db funct
 
 % Sample size and seed for random number generator in simulation
 Ts = 1e5; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES     = 0;  % set to 1 to plot ε(t) states
+PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
 ADD_Drstr       = 1;  % set to 1 if wanting to add ∆r*(t) to State vector X(t)
 
 % ----------------------------------------------------------------------------- % THIS IS WHAT YOU GET WHEN RUNNING THEIR LW CODE                                          
@@ -25,6 +25,7 @@ a2  =  -.572;      % ay2                                                        
 a3  =  -.098;      % ar                                                         %  [3,] "-0.0614762410516162" "a_3"                                                        
 b3  =   .043;      % by                                                         %  [4,] "0.560395442735451"   "b_1"                                                        
 c   =  1.068;      % c                                                          %  [5,] "0.377932050558007"   "b_2"                                                        
+
 % standard deviations                                                           %  [6,] "0.0440540347304658"  "b_3"                                                        
 s1  =   .387;      % s(ytild)                                                   %  [7,] "0.00228697742079232" "b_4"                                                        
 s2  =   .731;      % s(pi)                                                      %  [8,] "0.0379650747803849"  "b_5"                                                        
@@ -57,7 +58,7 @@ A(1:2,1) = 1; A(4:5,4) = 1; A([1 3],3) = 1;
 % Define C
 C = zeros(dim_X,dim_R); C(k+1:(dim_X-ADD_Drstr),:) = eye(dim_R);
 C(1,4) = s4; C(3,5) = s5; C(4,[3 5]) = [s3 4*c*s5];
-% TO USE ∆y*(t) = g(t) + sigma_4*ε4(t), add sigma_5*ε5(t) to the baseline ∆y*(t) = g(t-1) + sigma_4*ε4(t)
+% USE g(t) instead of g(t-1), ie., ∆y*(t) = g(t) + sigma_4*ε4(t), add sigma_5*ε5(t) to the baseline ∆y*(t) = g(t-1) + sigma_4*ε4(t)
 % C(1,5) = s5;
 if ADD_Drstr;  C(end,[3 5]) = [s3 4*c*s5]; end
 % --------------------------------------------------------------------------------------------------
@@ -66,7 +67,7 @@ if ADD_Drstr;  C(end,[3 5]) = [s3 4*c*s5]; end
 Pstar = Kurz_steadystate_P(D1, D2, R, A, C);
 Neps  = k+1:dim_X;    % shock index in States X(t)
 row_names = make_table_names('ε',1:dim_R,'(t)');              % make display names 
-if ADD_Drstr; row_names = [row_names; {'∆r*(t)'}]; end       % add ∆r* to display names 
+if ADD_Drstr; row_names = [row_names; {'∆r*(t)'}]; end        % add ∆r* to display names 
 
 Pstar = array2table([ diag(Pstar.tT(Neps,Neps)) diag(Pstar.tt(Neps,Neps)) ], 'VariableNames',{'P*(t|T)','P*(t|t)'}, 'RowNames', row_names);
 % select what to print to screen
@@ -116,7 +117,7 @@ corr_Xtt = array2table( corr(KFS_deJ.att(Neps,Neps)), 'RowNames', row_names, 'Va
 print_table(corr_Xtt(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Filtered States EtX(t)',[],0);sep
 
 % DISPLAY RECOVEY DIAGNOSTICS ALL IN ONE MATRIX TO PRINT TO LATEX
-% mat2latex([Pstar.("P*(t|T)")';corr_table.("ρ(Sims)")';R2']);
+% mat2latex([Pstar.("P*(t|T)")'; corr_table.("ρ(Sim)")'; corr_table.("R²(Sim)")']);
 
 
 % PLOT THE KF/KS ESTIMATES OF THE STATES 
@@ -159,9 +160,41 @@ if PLOT_STATES
     addlegend({['$R^2=' num2str(pwR2.( ['e' num2str(ii)]).R2,'%2.4f') '$']},1,FNS-1)
     add2yaxislabel(1)
   end
+  if ADD_Drstr
+    dims = [-3:1:3];
+    nexttile
+    hold on;
+      plot(Xs(:,end), 'LineWidth',3);                              % 'true' simulated state X
+      plot(state_t(:,end),'--','Color',clr(3),'LineWidth',2.5);    % Filtered or smoothed estimate of state X
+    hold off; 
+    xlim([-XOS length(Xs(:,ii))+XOS]); 
+    setyticklabels(dims,0,FNS);
+    addgrid(5/5); hline(0); 
+    addlegend({'True','Estimate'},1,FNS-1)
+    addsubtitle(['$\Delta r^{\ast}_{t}$'],STL,FNS)
+    add2yaxislabel(1)
+
+    nexttile
+    hold on; 
+      scatter(Xs(:,end),state_t(:,end),'x');
+      plot(xgrd, xgrd*pwR2.( ['e' num2str(ii+1)]).bhat)
+    hold off; 
+    setxticklabels([dims(1):1:dims(end)]);
+    setyticklabels(dims,0,FNS);
+    addgrid(5/5); hline(0); 
+    line(dims, dims, 'Color', 'k', 'LineWidth', 1); 
+    ylabel(['$E_T\Delta r^{\ast}_{t}$ (Estimate)'],'Interpreter','latex','FontSize',FNS)
+    addsubtitle(['$\Delta r^{\ast}_{t}$ (True)'],STL,FNS)
+    addlegend({['$R^2=' num2str(pwR2.( ['e' num2str(ii+1)]).R2,'%2.4f') '$']},1,FNS-1)
+    add2yaxislabel(1)
+    % print the normalized steady-state P(t|T) for ∆r*, as it has a much smaller variance than the
+    % unit variance of the shocks ε(t).
+    fprintf('     Normalized P*(t|T)(∆r*) = %2.4f \n', Pstar.('P*(t|T)')(end)/var(Xs(:,end)))
+  end    
+  
   % UNCOMMENT TO PRINT TO PDF
   % print2pdf('LW03_plots_KS',2); % super slow here
-  % exportgraphics(gcf,'LW03_plots_KS.pdf','ContentType','vector')
+  % exportgraphics(gcf,'LW03_plots_KS2.pdf','ContentType','vector')
 end
 % --------------------------------------------------------------------------------------------------
 
@@ -188,9 +221,6 @@ ID2 = ols(Drstar, [4*c*ETn5t ETn3t], 1, Xnames_ID2);
 sep(133,'=',1); fprintf('Identity (22). Dependent variable: ET∆r*(t) \n')
 Xnames_ID3 = {'ET∆r*(t-1)','ETη1(t)','ETη2(t)','ETη4(t)','ETη1(t-1)','ETη4(t-1)'};
 ID3 = ols(Drstar, [lag(Drstar) ETn1t ETn2t ETn4t lag(ETn1t) lag(ETn4t)], 1, Xnames_ID3 );
-
-
-
 
 
 toc
