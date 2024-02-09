@@ -1,4 +1,4 @@
-% MR17_with_MP_rule Shock recovery (https://www.newyorkfed.org/research/policy/rstar)
+% MR17_with_MP_rule Shock recovery McCririck R and D Rees (2017),  The Neutral Interest Rate’, RBA Bulletin, September, pp 9–18.
 % SSF: ---------------------------------------------------------------------------------------------
 %   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
 %   X(t) = A*X(t-1)            + C*ε(t),      ε(t) ~ MN(0,I)

@@ -4,6 +4,7 @@ function varargout = addgrid(LineWidth,Alpha,LineStyle,GridLayer)
 box on;
 grid on;
 LW0 = 1.11;
+LW0 = 4/5;
 % set(hg,'LineWidth') = 4/3;
 Alpha0 = 1/3;
 LS0 = ':';
@@ -28,3 +29,4 @@ for k = 1:nargout
   varargout{k} = hg;
 end
 
+tickshrink(.5)

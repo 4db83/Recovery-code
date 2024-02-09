@@ -179,12 +179,12 @@ HP  = hp_filter(y, psi^2); % call to 'standard' HP filter code
 dHP_trend = delta(HP.trend,1,1); 
 [~, Kurz_KF_US] = Kurz_Filter(removenans(ZZ), D1, D2, R, A, C, a00, P00);
 % construct the cycle from the shock recovery SSM
-KS_deJ_US = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
-SSM.cycle = psi*addnans(KS_deJ_US.atT(:,2),2,0);
+KFS_deJ_US = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
+SSM.cycle  = psi*addnans(KFS_deJ_US.atT(:,2),2,0);
 
 % Reconstruct HP.trend from KS_deJ_US.atT(:,1) using initVals from HP.trend (∆2y*(t) = ε1(t))
 % cumsum([HP.trend(1); cumsum([ΔHP.trend(1); ETε1(t)])])
-SSM.trend = cumsum([HP.trend(1); cumsum([dHP_trend(1); KS_deJ_US.atT(:,1)])]);
+SSM.trend = cumsum([HP.trend(1); cumsum([dHP_trend(1); KFS_deJ_US.atT(:,1)])]);
 % Δ⁴HP-trend(t) =  1/φ² HP-cycle(t-2) 
 sep(133,'=',1); fprintf('Filter Identity on page 17 in EER(2022) for US data from HP-Filter . Dependent variable: Δ⁴HP-trend(t) \n')
 Xnames_ID3 = {'HP-Cycle(t-2)'};
