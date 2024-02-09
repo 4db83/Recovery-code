@@ -129,8 +129,8 @@ xgrd = linspace(-5,5,100)';   % make xgrd for plotting
 STL = -1.26;                  % subtitle location
 dims = [-6:2:6]; FNS = 11; XOS = 11;
 
-if PLOT_STATES
-  clf; TL = tiledlayout(9,2); TL.TileSpacing = 'compact'; TL.Padding = 'loose';
+if PLOT_STATES 
+  clf; TL = tiledlayout(9,2); if ~verLessThan('matlab','9.9');TL.TileSpacing='compact';TL.Padding='loose'; end
   % loop through plots
   for ii = Neps(1:end-ADD_Drstr)
     nexttile
@@ -160,7 +160,7 @@ if PLOT_STATES
     add2yaxislabel(1)
   end
   if ADD_Drstr
-    dims = [-3:1:3];
+    dims = [-3:1:3]; xgrd = linspace(-2,2,100)';                   % adjust xgrd for plotting 
     nexttile
     hold on;
       plot(Xs(:,end), 'LineWidth',3);                              % 'true' simulated state X

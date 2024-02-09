@@ -16,22 +16,11 @@ addpath(genpath('../../utility.Functions'))               % set path to db funct
 % Sample size and seed for random number generator in simulation
 Ts = 1e5; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
 PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
-ESTIMATE_HP_US  = 0;  % set to 1 to plot the comparison with HP-filter function
+ESTIMATE_HP_US  = 1;  % set to 1 to plot the comparison with HP-filter function
 
 % --------------------------------------------------------------------------------------------------    
 % PARAMETERS: standard deviation sqrt(lambda = 1600)
 psi = 40;
-
-
-
-
-
-
-
-
-
-
-
 
 % DEFINE SSF INPUT MATRICES ------------------------------------------------------------------------
 dim_Z = 1;                  % rows Z(t)
@@ -56,10 +45,6 @@ A = zeros(dim_X);
 A(3,2) = 1; 
 % Define C
 C = [eye(dim_R); zeros(1,2); ];
-
-
-
-
 % --------------------------------------------------------------------------------------------------
 
 % CALL TO THE KURZ_SSF FUNCTION --------------------------------------------------------------------
@@ -125,8 +110,8 @@ xgrd = linspace(-5,5,100)';
 PLOT_KF = 0;    % set to 1 to use KF output, otherwise use KS
 STL = -1.215;   % subtitle location
 dims = [-6:2:6]; FNS = 13; XOS = 11;
-if PLOT_STATES
-  clf; TL = tiledlayout(6,2); TL.TileSpacing = 'compact'; TL.Padding = 'loose';
+if PLOT_STATES 
+  clf; TL = tiledlayout(6,2); if ~verLessThan('matlab','9.9');TL.TileSpacing='compact';TL.Padding='loose'; end
   % loop through plots
   for ii = k+1:dim_R
     nexttile
@@ -207,7 +192,7 @@ ID3 = ols( delta(SSM.trend, 4) , [ lag(SSM.cycle, 2)], 1, Xnames_ID3);
 
 % PLOT HP ON US REAL GDP DATA
   figure(2); clf;
-  TL = tiledlayout(4,1); TL.TileSpacing = 'loose'; TL.Padding = 'compact';
+  TL = tiledlayout(4,1); if ~verLessThan('matlab','9.9');TL.TileSpacing='loose';TL.Padding='loose'; end
   nexttile
   hold on;
     plot(HP.trend)
