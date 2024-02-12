@@ -1,1 +1,4 @@
+MTW Uses a mix of Matlab and EViews.
 
+1) mtw_sim.m produces the data. The data is mtwsim.txt
+2) mtw_est_corr.prg is an EViews program that does the analysis.
