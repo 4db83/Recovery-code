@@ -1,1 +1,5 @@
 The SGU file uses Matlab, but is a separate program not using the utilities etc. like other programs.
+
+In addition to the recovery file, in the folder mod run, there are Dynare mod files. These were used to calculate moments that are reported in the paper for varying values of delta.
+
+Each folder in mod run provides the log file with the moments for that value of delta.
