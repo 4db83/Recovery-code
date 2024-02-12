@@ -1,0 +1,91 @@
+Starting Dynare (version 4.5.1).
+Starting preprocessing of the model file ...
+Found 12 equation(s).
+Evaluating expressions...done
+Computing static model derivatives:
+ - order 1
+Computing dynamic model derivatives:
+ - order 1
+ - order 2
+Processing outputs ...
+done
+Preprocessing completed.
+[Warning: Some of the parameters have no value (sy, spi, si) when using
+stoch_simul. If these parameters are not initialized in a steadystate file or a
+steady_state_model-block, Dynare may not be able to solve the model...] 
+
+MODEL SUMMARY
+
+  Number of variables:         12
+  Number of stochastic shocks: 8
+  Number of state variables:   8
+  Number of jumpers:           0
+  Number of static variables:  4
+
+
+MATRIX OF COVARIANCE OF EXOGENOUS SHOCKS
+Variables        eps1      eps2      eps3      eps4      eps5      eps6      eps7      eps8
+eps1         1.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+eps2         0.000000  1.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+eps3         0.000000  0.000000  1.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+eps4         0.000000  0.000000  0.000000  1.000000  0.000000  0.000000  0.000000  0.000000
+eps5         0.000000  0.000000  0.000000  0.000000  1.000000  0.000000  0.000000  0.000000
+eps6         0.000000  0.000000  0.000000  0.000000  0.000000  1.000000  0.000000  0.000000
+eps7         0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  1.000000  0.000000
+eps8         0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000  1.000000
+
+POLICY AND TRANSITION FUNCTIONS
+                                  dy           ddcpi              di          drstar
+dxm(-1)                    -0.023193        0.123920        0.338767               0
+zm(-1)                             0               0        0.329800               0
+dx(-1)                      0.193727        0.147502       -0.008093               0
+dxr(-1)                     2.588795        0.113546        0.243078        0.311000
+ytil(-1)                   -0.737300        0.312900        0.226800               0
+pitil(-1)                   0.018700       -0.670800       -0.097700               0
+itil(-1)                   -0.503100       -0.117000       -0.495200               0
+z(-1)                       0.425400        0.371247        0.109711               0
+eps1                       -0.046117        0.246410        0.673623               0
+eps2                               0               0        0.625000               0
+eps3                        1.007767        0.767304       -0.042098               0
+eps4                        1.091300        0.952378        0.281446               0
+eps5                        3.931472        0.172437        0.369150        0.472300
+eps6                        1.109234               0               0               0
+eps7                               0        0.697280               0               0
+eps8                               0               0        0.566392               0
+
+
+THEORETICAL MOMENTS
+VARIABLE         MEAN  STD. DEV.   VARIANCE
+dy             0.0000     4.6725    21.8323
+ddcpi          0.0000     1.6334     2.6681
+di             0.0000     1.3248     1.7550
+drstar         0.0000     0.4969     0.2470
+
+
+
+VARIANCE DECOMPOSITION (in percent)
+            eps1    eps2    eps3    eps4    eps5    eps6    eps7    eps8
+dy          0.66    0.61    6.49    7.55   79.05    5.64    0.00    0.00
+ddcpi       3.44    1.01   30.41   45.60    1.32    0.00   18.22    0.00
+di         33.42   28.54    1.88    8.27    9.61    0.00    0.00   18.28
+drstar      0.00    0.00    0.00    0.00  100.00    0.00    0.00    0.00
+
+
+
+MATRIX OF CORRELATIONS
+Variables        dy   ddcpi      di  drstar
+dy           1.0000  0.3039  0.3053  0.8890
+ddcpi        0.3039  1.0000  0.2938  0.0885
+di           0.3053  0.2938  1.0000  0.3052
+drstar       0.8890  0.0885  0.3052  1.0000
+
+
+
+COEFFICIENTS OF AUTOCORRELATION
+Order          1       2       3       4       5
+dy        0.2833  0.0705  0.0091 -0.0035 -0.0035
+ddcpi     0.0338 -0.1487 -0.1205 -0.0613 -0.0236
+di        0.0890 -0.1491 -0.1310 -0.0631 -0.0192
+drstar    0.3110  0.0967  0.0301  0.0094  0.0029
+Total computing time : 0h00m08s
+Note: warning(s) encountered in MATLAB/Octave code
