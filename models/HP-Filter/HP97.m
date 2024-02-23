@@ -14,9 +14,9 @@ addpath(genpath('../../utility.Functions'))               % set path to db funct
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % Sample size and seed for random number generator in simulation
-Ts = 1e5; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
-ESTIMATE_HP_US  = 1;  % set to 1 to plot the comparison with HP-filter function
+Ts = 1e6; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
+PLOT_STATES     = 0;  % set to 1 to plot ε(t) states
+ESTIMATE_HP_US  = 0;  % set to 1 to plot the comparison with HP-filter function
 
 % --------------------------------------------------------------------------------------------------    
 % PARAMETERS: standard deviation sqrt(lambda = 1600)
@@ -48,7 +48,7 @@ C = [eye(dim_R); zeros(1,2); ];
 % --------------------------------------------------------------------------------------------------
 
 % CALL TO THE KURZ_SSF FUNCTION --------------------------------------------------------------------
-Pstar = Kurz_steadystate_P(D1, D2, R, A, C);
+Pstar = Kurz_Pstar(D1, D2, R, A, C);
 Neps  = k+1:dim_X;    % shock index in States X(t)
 % make display names  % row_names = make_table_names('ε',1:dim_R,'(t)');          
 row_names = {'ε1(t)','ε2(t)','ε2(t-1)'};
