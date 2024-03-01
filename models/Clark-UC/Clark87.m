@@ -1,7 +1,7 @@
 % Clark87 Shock recovery
 % SSF: ---------------------------------------------------------------------------------------------
 %   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
-%   X(t) = A*X(t-1)            + C*ε(t),      ε(t) ~ MN(0,I)
+%   X(t) = Phi*X(t-1)          + Q*ε(t),      ε(t) ~ MN(0,I)
 % --------------------------------------------------------------------------------------------------
 clear; clc; tic;
 % set plotting defaults
@@ -43,16 +43,16 @@ D2(1,[2 5:8]) = [s2 -a2*s1 -a1*s2 -a2*s2 -s3];
 % Define R
 R  = zeros(dim_Z,dim_R);
 % --------------------------------------------------------------------------------------------------
-% Define A
-A = zeros(dim_X);   
-A(4,1) = -1; A(5,4) = 1; A(6,2) = 1; A(7,6) = 1; A(8,3) = -1;
-% Define C
-C = [eye(dim_R); zeros(dim_X-dim_R,dim_R)];
-C(4,1) = 1; C(8,3) = 1;
+% Define Phi
+Phi = zeros(dim_X);   
+Phi(4,1) = -1; Phi(5,4) = 1; Phi(6,2) = 1; Phi(7,6) = 1; Phi(8,3) = -1;
+% Define Q
+Q = [eye(dim_R); zeros(dim_X-dim_R,dim_R)];
+Q(4,1) = 1; Q(8,3) = 1;
 % --------------------------------------------------------------------------------------------------
 
 %% CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
-P = Kurz_steadystate_P(D1, D2, R, A, C);
+P = Kurz_Pstar(D1, D2, R, Phi, Q);
 ss = k+1:dim_R;
 % make display names % row_names = make_table_names('ε',1:dim_R,'(t)');          
 row_names = {'ε1(t)','ε2(t)','ε3(t)'} ; 
@@ -63,7 +63,7 @@ Pstar = array2table([ diag(P.tT(ss,ss)) diag(P.tt(ss,ss)) ], ...
 sep; print_table(Pstar,4,1,0)
 
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
-[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, Ts);
+[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, Phi, Q, Ts);
 
 % --------------------------------------------------------------------------------------------------
 % CALL TO FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH 
@@ -73,11 +73,9 @@ sep; print_table(Pstar,4,1,0)
 % Note: errors will always be N(0,1), but latent states may need more careful initialization.
 a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 % Filter
-[~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, A, C, a00, P00);
-% Smoothers 
-% --------------------------------------------------------------------------------------------------
-% Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother (Eq. (4.11) in Kurz (2018))
-KFS_deJ = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % Contains KF and KS output. NO INV, NO INITVALS FOR STATES
+[~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, Phi, Q, a00, P00);
+% Smoother 
+KFS = Kurz_Smoother(D1, D2, Phi, Kurz_KF); % Contains KF and KS output. 
 % --------------------------------------------------------------------------------------------------
 
 %% PLOT THE KF/KS ESTIMATES OF THE STATES: % STATE vector = [trend(t); g(t); cycle(t); cycle(t-1)]; 
@@ -88,10 +86,10 @@ if PLOT_STATES
   % plot_names = make_table_names('$\epsilon_{', 1:k, 't}$');
   % loop through plots
   if PLOT_KF
-    state_t = KFS_deJ.att;
+    state_t = KFS.att;
     state_name = 'Estimate:$\,\hat{X}_{t|t}$'; 
   else 
-    state_t = KFS_deJ.atT;
+    state_t = KFS.atT;
     state_name = 'Estimate:$\,\hat{X}_{t|T}$'; 
   end
 
@@ -139,22 +137,22 @@ end
 % --------------------------------------------------------------------------------------------------
 
 % CORRELATIONS: 
-corr_table = array2table( diag(corr(Xs(:,ss), KFS_deJ.atT(:,ss))), ...
+corr_table = array2table( diag(corr(Xs(:,ss), KFS.atT(:,ss))), ...
                'RowNames', row_names, 'VariableNames', {'Corr(.)'});
 % print correlations simulated and KS shocks
 print_table(corr_table(1:dim_R,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States X(t|T)');sep
 
 % Correlation matrix from KS estimates, Truth is uncorrelated
-corr_XtT = array2table( corr(KFS_deJ.atT(:,ss)), 'RowNames', row_names, 'VariableNames', row_names);
+corr_XtT = array2table( corr(KFS.atT(:,ss)), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_XtT,4,1,'Correlation Matrix of (estimated) Kalman Smoothed States X̂(t|T)');sep
 % Correlation matrix from KF estimates, Truth is uncorrelated
-corr_Xtt = array2table( corr(KFS_deJ.att(:,ss)), 'RowNames', row_names, 'VariableNames', row_names);
+corr_Xtt = array2table( corr(KFS.att(:,ss)), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_Xtt,4,1,'Correlation Matrix of (estimated) Kalman Filtered States X̂(t|t)',[],0);sep
 fprintf('NOTE: Filtered trend growth shocks Etε2(t) == 0 for all t, hence we get a NaN in correlations\n')
 % Define/Make eta(i) = eps(i)
 for jj = 1:dim_R
-  eval(['ETe' num2str(jj) ' = KFS_deJ.atT(:,k+' num2str(jj) ');']);
-  eval(['Ete' num2str(jj) ' = KFS_deJ.att(:,k+' num2str(jj) ');']);
+  eval(['ETe' num2str(jj) ' = KFS.atT(:,k+' num2str(jj) ');']);
+  eval(['Ete' num2str(jj) ' = KFS.att(:,k+' num2str(jj) ');']);
 end
 
 % IDENTITIES: Run (dynamic) OLS regressions: ie., ∆ETη5t = 0.107∆ETη3t − 0.028ETη4t and the like
@@ -225,9 +223,9 @@ sep
 % MAKE Z(t) VARIABLE FOR 'shock recovery' SSF: ie. Z(t)=a(L)Δ²y(t) for actual US data
 DY = delta(y.gdp,2);
 ZZ = DY - a1*lag(DY) -a2*lag(DY,2);
-[~, Kurz_KF_US] = Kurz_Filter(removenans(ZZ), D1, D2, R, A, C, a00, P00);
+[~, Kurz_KF_US] = Kurz_Filter(removenans(ZZ), D1, D2, R, Phi, Q, a00, P00);
 % Smoother
-KS_deJ_US  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
+KS_deJ_US  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, Phi, Kurz_KF_US);
 
 % PLOT TREND GROWTH ETC FOR US GDP DATA
 % Shock-recovery SSM

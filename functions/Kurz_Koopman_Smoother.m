@@ -1,4 +1,10 @@
-function resStruct = Kurz_Koopman_Smoother(D1, D2, A, C, R, Kurz_KF)
+function resStruct = Kurz_Koopman_Smoother(D1, D2, R, Phi, Q, Kurz_KF)
+% --------------------------------------------------------------------------------------------------
+% Kurz State-Space Form (SSF):
+% --------------------------------------------------------------------------------------------------
+%   Observed: Z(t) = D1*X(t)  + D2*X(t-1) + Rε(t)
+%   State:    X(t) = A*X(t-1)             + Cε(t), where   Var(ε(t)) = I.
+% --------------------------------------------------------------------------------------------------
 % function resStruct = Kurz_Koopman_Smoother(D1, D2, A, C, R, Z_tilde, Finv, K)
 %MODIFIEDKOOPMANSMOOTHER Modified Koopman (1993) smoother for SSMwLS 
 % Purpose
@@ -54,17 +60,17 @@ att     = Kurz_KF.att;
 Ptt     = Kurz_KF.Ptt;
 
 % check and extract dimensions
-[dimObs, dimState, dimDisturbance] = Kurz_checkDims_SSM(D1, D2, A, C, R);
+[dimObs, dimState, dimDisturbance] = Kurz_checkDims_SSM(D1, D2, Phi, Q, R);
 assert(size(Z_tilde,2) == dimObs)
 nObs = size(Z_tilde,1);
 
 
-D_tilde = (D1*A +D2);
-D1CR    = (D1 * C + R);
+D_tilde = (D1*Phi +D2);
+D1CR    = (D1 * Q + R);
 
 % intialize struct for the results
 resStruct = struct();
-resStruct.a_t_T = nan(nObs, dimState);
+resStruct.atT = nan(nObs, dimState);
 
 % smooth disturbances
 u_t_T = nan(nObs, dimDisturbance);
@@ -78,13 +84,13 @@ for iObs = nObs:-1:1
     Z_tilde_t  = Z_tilde(iObs,:)';
     K_t        = K(:,:, iObs);
     
-    M = C - K_t *D1CR;
+    M = Q - K_t *D1CR;
     u_t_T(iObs, :) = D1CR' * Finv_t * Z_tilde_t + M' * r;
     
     if iObs == nObs
         L = 0;
     else
-        L = A - K_t * D_tilde;
+        L = Phi - K_t * D_tilde;
     end
     r = D_tilde' * Finv_t * Z_tilde_t + L' * r;
     
@@ -101,11 +107,12 @@ atT = a00 + P00 * r;
 
 % state smoother (forward recursion)
 for iObs = 1:nObs
-    atT = A * atT + C * u_t_T(iObs, :)';
+    atT = Phi * atT + Q * u_t_T(iObs, :)';
     resStruct.atT(iObs, :) = atT;
 end
 
-
+resStruct.att = att;
+resStruct.Ptt = Ptt;
 
 end
 

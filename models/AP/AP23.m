@@ -61,7 +61,7 @@ a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 KS_deJ0  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % NO INV, NO INITVALS FOR STATES
 % --------------------------------------------------------------------------------------------------
 % CALL TO THE KURZ_SSM FUNCTION 
-P0 = Kurz_steadystate_P(D1, D2, R, A, C);
+P0 = Kurz_Pstar(D1, D2, R, A, C);
 ss = k+1:4;
 % make display names 
 row_names = make_table_names('ε',1:dim_R,'(t)');          
@@ -114,7 +114,7 @@ a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 KS_deJ  = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % NO INV, NO INITVALS FOR STATES
 % --------------------------------------------------------------------------------------------------
 % CALL TO THE KURZ_SSM FUNCTION 
-P = Kurz_steadystate_P(D1, D2, R, A, C);
+P = Kurz_Pstar(D1, D2, R, A, C);
 ss = k+1:2;
 % make display names 
 row_names = make_table_names('ε',1:dim_R,'(t)');          % make display names 

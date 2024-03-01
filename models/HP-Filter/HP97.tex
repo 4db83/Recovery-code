@@ -13,7 +13,7 @@
 %TCIDATA{<META NAME="SaveForMode" CONTENT="2">}
 %TCIDATA{BibliographyScheme=BibTeX}
 %TCIDATA{Created=Wednesday, May 03, 2023 13:45:06}
-%TCIDATA{LastRevised=Monday, February 05, 2024 08:05:55}
+%TCIDATA{LastRevised=Thursday, February 29, 2024 14:04:57}
 %TCIDATA{<META NAME="GraphicsSave" CONTENT="32">}
 %TCIDATA{<META NAME="DocumentShell" CONTENT="Standard LaTeX\Blank - Standard LaTeX Article">}
 %TCIDATA{CSTFile=40 LaTeX article.cst}
@@ -85,11 +85,11 @@ measurement:\bsq\label{SSM}%
 \begin{align}
 \mathsf{Measurement}& :\quad Z_{t}=D_{1}X_{t}+D_{2}X_{t-1}+R\varepsilon _{t}
 \label{ssm1} \\
-\mathsf{State}& :\quad X_{t}=AX_{t-1}+C\varepsilon _{t},  \label{ssm2}
+\mathsf{State}& :\quad X_{t}=\Phi X_{t-1}+Q\varepsilon _{t},  \label{ssm2}
 \end{align}%
-\esq where $\varepsilon _{t}\sim MN(0_{m},I_{m})$, $D_{1},D_{2},A,R$ are $C$
-are conformable system matrices, $Z_{t}$ the observed variable and $X_{t}$
-the latent state variable, and $m$ is the number of shocks $\left\{
+\esq where $\varepsilon _{t}\sim MN(0_{m},I_{m})$, $D_{1},D_{2},\Phi ,R$ are 
+$Q$ are conformable system matrices, $Z_{t}$ the observed variable and $X_{t}
+$ the latent state variable, and $m$ is the number of shocks $\left\{
 \varepsilon _{it}\right\} _{i=1}^{2}$.
 
 \subsection{HP97 in `\emph{shock recovery}' SSF}
@@ -116,7 +116,7 @@ corresponding to the relations in \ref{Z} are then given by:\bsq\label{K0SSM}%
 _{2t}-2\psi \varepsilon _{2t-1}+\psi \varepsilon _{2t-2} \\[2mm]
 Z_{t}& =\underbrace{%
 \begin{bmatrix}
-1 & \psi & 0%
+1 & \psi  & 0%
 \end{bmatrix}%
 }_{D_{1}}\underbrace{%
 \begin{bmatrix}
@@ -126,7 +126,7 @@ Z_{t}& =\underbrace{%
 \end{bmatrix}%
 }_{X_{t}}+\underbrace{%
 \begin{bmatrix}
-0 & -2\psi & \psi%
+0 & -2\psi  & \psi 
 \end{bmatrix}%
 }_{D_{2}}\underbrace{%
 \begin{bmatrix}
@@ -144,7 +144,7 @@ Z_{t}& =\underbrace{%
 \varepsilon _{2t}%
 \end{bmatrix}%
 }_{\varepsilon _{t}} \\
-\mathsf{State}:\quad X_{t}& =AX_{t-1}+C\varepsilon _{t},  \notag \\[5mm]
+\mathsf{State}:\quad X_{t}& =\Phi X_{t-1}+Q\varepsilon _{t},  \notag \\[5mm]
 \underbrace{%
 \begin{bmatrix}
 \varepsilon _{1t} \\ 
@@ -157,7 +157,7 @@ Z_{t}& =\underbrace{%
 0 & 0 & 0 \\ 
 0 & 1 & 0%
 \end{bmatrix}%
-}_{A}\underbrace{%
+}_{\Phi }\underbrace{%
 \begin{bmatrix}
 \varepsilon _{1t-1} \\ 
 \varepsilon _{2t-1} \\ 
@@ -169,7 +169,7 @@ Z_{t}& =\underbrace{%
 0 & 1 \\ 
 0 & 0%
 \end{bmatrix}%
-}_{C}\underbrace{%
+}_{Q}\underbrace{%
 \begin{bmatrix}
 \varepsilon _{1t} \\ 
 \varepsilon _{2t}%

@@ -1,7 +1,7 @@
 % LW03 Shock recovery (https://www.newyorkfed.org/research/policy/rstar)
 % SSF: ---------------------------------------------------------------------------------------------
 %   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
-%   X(t) = A*X(t-1)            + C*ε(t),      ε(t) ~ MN(0,I)
+%   X(t) = Phi*X(t-1)          + Q*ε(t),      ε(t) ~ MN(0,I)
 % --------------------------------------------------------------------------------------------------
 clear; clc; tic;
 % set plotting defaults
@@ -15,7 +15,7 @@ addpath(genpath('../../utility.Functions'))               % set path to db funct
 
 % Sample size and seed for random number generator in simulation
 Ts = 1e5; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
+PLOT_STATES     = 0;  % set to 1 to plot ε(t) states
 ADD_Drstr       = 1;  % set to 1 if wanting to add ∆r*(t) to State vector X(t)
 
 % ----------------------------------------------------------------------------- % THIS IS WHAT YOU GET WHEN RUNNING THEIR LW CODE                                          
@@ -52,19 +52,19 @@ D2(1,1:2) = [-a1 -a2]; D2(1,4:5) = -a3/2;
 % Define R
 R  = zeros(dim_Z,dim_R);
 % --------------------------------------------------------------------------------------------------
-% Define A
-A = zeros(dim_X); 
-A(1:2,1) = 1; A(4:5,4) = 1; A([1 3],3) = 1;
-% Define C
-C = zeros(dim_X,dim_R); C(k+1:(dim_X-ADD_Drstr),:) = eye(dim_R);
-C(1,4) = s4; C(3,5) = s5; C(4,[3 5]) = [s3 4*c*s5];
+% Define Phi
+Phi = zeros(dim_X); 
+Phi(1:2,1) = 1; Phi(4:5,4) = 1; Phi([1 3],3) = 1;
+% Define Q
+Q = zeros(dim_X,dim_R); Q(k+1:(dim_X-ADD_Drstr),:) = eye(dim_R);
+Q(1,4) = s4; Q(3,5) = s5; Q(4,[3 5]) = [s3 4*c*s5];
 % USE g(t) instead of g(t-1), ie., ∆y*(t) = g(t) + sigma_4*ε4(t), add sigma_5*ε5(t) to the baseline ∆y*(t) = g(t-1) + sigma_4*ε4(t)
 % C(1,5) = s5;
-if ADD_Drstr;  C(end,[3 5]) = [s3 4*c*s5]; end
+if ADD_Drstr;  Q(end,[3 5]) = [s3 4*c*s5]; end
 % --------------------------------------------------------------------------------------------------
 
 % CALL TO THE KURZ_SSF FUNCTION --------------------------------------------------------------------
-Pstar = Kurz_steadystate_P(D1, D2, R, A, C);
+Pstar = Kurz_Pstar(D1, D2, R, Phi, Q);
 Neps  = k+1:dim_X;    % shock index in States X(t)
 row_names = make_table_names('ε',1:dim_R,'(t)');              % make display names 
 if ADD_Drstr; row_names = [row_names; {'∆r*(t)'}]; end        % add ∆r* to display names 
@@ -74,7 +74,7 @@ Pstar = array2table([ diag(Pstar.tT(Neps,Neps)) diag(Pstar.tt(Neps,Neps)) ], 'Va
 sep; print_table(Pstar,4,1,0)
 
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
-[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, C, Ts);
+[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, Phi, Q, Ts);
 % --------------------------------------------------------------------------------------------------
 % CALL TO FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH 
 % MY CODE ABOVE AND USE OF PINV IN AM SMOOTHER OTHERWISE NON-SINGULARITY ISSUES.
@@ -83,11 +83,9 @@ sep; print_table(Pstar,4,1,0)
 % Note: errors will always be N(0,1), but latent states may need more careful initialization.
 a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 % Filter
-[~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, A, C, a00, P00);
+[~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, Phi, Q, a00, P00);
 % Smoother 
-% --------------------------------------------------------------------------------------------------
-% Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother (Eq. (4.11) in Kurz (2018))
-KFS_deJ = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % Contains KF and KS output. NO INV, NO INITVALS FOR STATES
+KFS = Kurz_Smoother(D1, D2, Phi, Kurz_KF); % Contains KF and KS output. 
 % --------------------------------------------------------------------------------------------------
 
 % CORRELATIONS:
@@ -96,24 +94,24 @@ KFS_deJ = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF); % Contains KF and 
 % R2 of Plagborg-Møller and Wolf (2022) 
 R2 = [];
 for jj = Neps
-  pwR2.( ['e' num2str(jj)]) = ols(KFS_deJ.atT(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
+  pwR2.( ['e' num2str(jj)]) = ols(KFS.atT(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
   R2(jj-k,:) = eval((['pwR2.e' num2str(jj) '.R2']));
 end
 
 % compute the theoretical correlations implied by formula (10)
 STDs  = [ones(dim_R,1)]; if ADD_Drstr; STDs  = [ones(dim_R,1); sDr]; end    % theoretical/model stdevs.
-rho_theory = corr_theory(STDs, std(KFS_deJ.atT(:,Neps))', Pstar.('P*(t|T)'));
+rho_theory = corr_theory(STDs, std(KFS.atT(:,Neps))', Pstar.('P*(t|T)'));
 
-corr_table = array2table( [ diag(corr(Xs(:,Neps),KFS_deJ.atT(:,Neps))) rho_theory R2], ...
+corr_table = array2table( [ diag(corr(Xs(:,Neps),KFS.atT(:,Neps))) rho_theory R2], ...
   'RowNames', row_names, 'VariableNames', {'ρ(Sim)','ρ(Theory)','R²(Sim)'});
 % print correlations simulated and KS shocks
 print_table(corr_table(1:dim_R+ADD_Drstr,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States ETX(t)');sep
 
 % Correlation matrix from KS estimates, Truth is uncorrelated
-corr_XtT = array2table( corr(KFS_deJ.atT(Neps,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
+corr_XtT = array2table( corr(KFS.atT(Neps,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_XtT(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Smoothed States ETX(t)');sep
 % Correlation matrix from KF estimates, Truth is uncorrelated
-corr_Xtt = array2table( corr(KFS_deJ.att(Neps,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
+corr_Xtt = array2table( corr(KFS.att(Neps,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_Xtt(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Filtered States EtX(t)',[],0);sep
 
 % DISPLAY RECOVEY DIAGNOSTICS ALL IN ONE MATRIX TO PRINT TO LATEX
@@ -124,8 +122,8 @@ print_table(corr_Xtt(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matri
 % --------------------------------------------------------------------------------------------------
 % make some plotting variables
 WHICH_STATE_2_PLOT  = 0;      % set to 1 to use KF output, otherwise use KS
-state_t = KFS_deJ.atT;
-if WHICH_STATE_2_PLOT; state_t = KFS_deJ.att; end
+state_t = KFS.atT;
+if WHICH_STATE_2_PLOT; state_t = KFS.att; end
 xgrd = linspace(-5,5,100)';   % make xgrd for plotting
 STL = -1.26;                  % subtitle location
 dims = [-6:2:6]; FNS = 11; XOS = 11;
@@ -205,10 +203,10 @@ end
 % --------------------------------------------------------------------------------------------------
 % define/make: ETεi(t) or ETηi(t) as needed
 for jj = 1:dim_R
-  eval(['ETn' num2str(jj) 't = KFS_deJ.atT(:,k+' num2str(jj) ')*s' num2str(jj) ';']);
-  eval(['Etn' num2str(jj) 't = KFS_deJ.att(:,k+' num2str(jj) ')*s' num2str(jj) ';']);
+  eval(['ETn' num2str(jj) 't = KFS.atT(:,k+' num2str(jj) ')*s' num2str(jj) ';']);
+  eval(['Etn' num2str(jj) 't = KFS.att(:,k+' num2str(jj) ')*s' num2str(jj) ';']);
 end
-Drstar = KFS_deJ.atT(:,4) - KFS_deJ.atT(:,5);
+Drstar = KFS.atT(:,4) - KFS.atT(:,5);
 
 sep(133,'=',1); fprintf('Identity (20). Dependent variable: ∆ETη5(t) \n')
 Xnames_ID1 = {'∆ETη3(t)','ETη4(t)'};

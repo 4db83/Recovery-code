@@ -1,4 +1,11 @@
-function resStruct = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF)
+function resStruct = Kurz_DeJongKohnAnsley_Smoother(D1, D2, Phi, Kurz_KF)
+% function resStruct = Kurz_DeJongKohnAnsley_Smoother(D1, D2, Phi, Kurz_KF)
+% --------------------------------------------------------------------------------------------------
+% My Notation for Kurz State-Space Form (SSF): (Kurz notation: Phi --> A, Q --> Q).
+% --------------------------------------------------------------------------------------------------
+%   Observed: Z(t) = D1*X(t)  + D2*X(t-1) + Rε(t)
+%   State:    X(t) =  ϕ*X(t-1)            + Qε(t), where   Var(ε(t)) = I. 
+% --------------------------------------------------------------------------------------------------
 % function resStruct = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Z_tilde, Finv, K, att, Ptt)
 % MODIFIEDDEJONGKOHNANSLEYSMOOTHER Modified de Jong (1988, 1989) and Kohn and Ansley (1989) smoother for SSMwLS 
 % Purpose
@@ -52,12 +59,12 @@ att     = Kurz_KF.att;
 Ptt     = Kurz_KF.Ptt;
 
 % check and extract dimensions
-[dimObs, dimState] = Kurz_checkDims_SSM(D1, D2, A);
+[dimObs, dimState] = Kurz_checkDims_SSM(D1, D2, Phi);
 assert(size(Z_tilde,2) == dimObs)
 nObs = size(Z_tilde,1);
 
 
-D_tilde = (D1*A +D2);
+D_tilde = (D1*Phi + D2);
 
 % intialize struct for the results
 resStruct = struct();
@@ -82,7 +89,7 @@ for iObs = nObs:-1:1
     if iObs == nObs
         L = 0;
     else
-        L = A - K_t * D_tilde;
+        L = Phi - K_t * D_tilde;
     end
     r = D_tilde' * Finv_t * Z_tilde_t + L' * r;
     N = D_tilde' * Finv_t * D_tilde + L' * N * L;
