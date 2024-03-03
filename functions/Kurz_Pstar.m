@@ -14,7 +14,7 @@ dim_X = size(D1,2);  % rows X(t)
 
 % set default number of iterations if not supplied
 if nargin < 6 || isempty(P00);  P00   = eye(dim_X); end
-if nargin < 7 || isempty(eps0); eps0  = 1e-14;      end
+if nargin < 7 || isempty(eps0); eps0  = 1e-12;      end
 
 % pre-compute some quantities
 Lam = (D1*Q + R);
@@ -60,7 +60,7 @@ GinvFG = G'/FF*G;
 norm_dNt = 1; 
 while norm_dNt > eps0
   % THIS USES THE STEADY-STATE Kt AND Ft VALUES FROM ABOVE
-  % Nt = G'/Ft*G + (A-Kt*G)'*Nt*(A-Kt*G);
+  % Nt = Gt'/Ft*Gt + (A-Kt*Gt)'*Nt*(A-Kt*Gt);
   Nt1 = GinvFG + LL'*Nt*LL;
   % CONVERGENCE CHECKING
   norm_dNt = norm(Nt1 - Nt);

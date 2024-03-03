@@ -1,11 +1,11 @@
 function resStruct = Kurz_Koopman_Smoother(D1, D2, R, Phi, Q, Kurz_KF)
+% function resStruct = Kurz_Koopman_Smoother(D1, D2, R, Phi, Q, Kurz_KF)
 % --------------------------------------------------------------------------------------------------
-% Kurz State-Space Form (SSF):
+% My Notation for Kurz State-Space Form (SSF): (Kurz notation: Phi --> A, Q --> Q).
 % --------------------------------------------------------------------------------------------------
 %   Observed: Z(t) = D1*X(t)  + D2*X(t-1) + Rε(t)
-%   State:    X(t) = A*X(t-1)             + Cε(t), where   Var(ε(t)) = I.
+%   State:    X(t) =  ϕ*X(t-1)            + Qε(t), where   Var(ε(t)) = I. 
 % --------------------------------------------------------------------------------------------------
-% function resStruct = Kurz_Koopman_Smoother(D1, D2, A, C, R, Z_tilde, Finv, K)
 %MODIFIEDKOOPMANSMOOTHER Modified Koopman (1993) smoother for SSMwLS 
 % Purpose
 %        The function computes the modifed Koopman (1993) smoother for 
