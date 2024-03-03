@@ -1,7 +1,7 @@
 % LW03 Shock recovery (https://www.newyorkfed.org/research/policy/rstar)
 % SSF: ---------------------------------------------------------------------------------------------
 %   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
-%   X(t) = Phi*X(t-1)          + Q*ε(t),      ε(t) ~ MN(0,I)
+%   X(t) =  ϕ*X(t-1)           + Q*ε(t),      ε(t) ~ MN(0,I)
 % --------------------------------------------------------------------------------------------------
 clear; clc; tic;
 % set plotting defaults
