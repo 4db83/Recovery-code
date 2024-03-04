@@ -1,10 +1,10 @@
-function resStruct = Kurz_Koopman_Smoother(D1, D2, R, Phi, Q, Kurz_KF)
-% function resStruct = Kurz_Koopman_Smoother(D1, D2, R, Phi, Q, Kurz_KF)
+function resStruct = Kurz_Koopman_Smoother(D1, D2, R, A, Q, Kurz_KF)
+% function resStruct = Kurz_Koopman_Smoother(D1, D2, R, A, Q, Kurz_KF)
 % --------------------------------------------------------------------------------------------------
-% My Notation for Kurz State-Space Form (SSF): (Kurz notation: Phi --> A, Q --> Q).
+% My Notation for Kurz State-Space Form (SSF): (Kurz notation: Q --> C).
 % --------------------------------------------------------------------------------------------------
-%   Observed: Z(t) = D1*X(t)  + D2*X(t-1) + Rε(t)
-%   State:    X(t) =  ϕ*X(t-1)            + Qε(t), where   Var(ε(t)) = I. 
+%   Observed: Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),    X(t) = latent States
+%   State:    X(t) =  A*X(t-1)           + Q*ε(t),    ε(t) ~ MN(0,I)
 % --------------------------------------------------------------------------------------------------
 %MODIFIEDKOOPMANSMOOTHER Modified Koopman (1993) smoother for SSMwLS 
 % Purpose
@@ -60,12 +60,12 @@ att     = Kurz_KF.att;
 Ptt     = Kurz_KF.Ptt;
 
 % check and extract dimensions
-[dimObs, dimState, dimDisturbance] = Kurz_checkDims_SSM(D1, D2, Phi, Q, R);
+[dimObs, dimState, dimDisturbance] = Kurz_checkDims_SSM(D1, D2, A, Q, R);
 assert(size(Z_tilde,2) == dimObs)
 nObs = size(Z_tilde,1);
 
 
-D_tilde = (D1*Phi +D2);
+D_tilde = (D1*A +D2);
 D1CR    = (D1 * Q + R);
 
 % intialize struct for the results
@@ -90,7 +90,7 @@ for iObs = nObs:-1:1
     if iObs == nObs
         L = 0;
     else
-        L = Phi - K_t * D_tilde;
+        L = A - K_t * D_tilde;
     end
     r = D_tilde' * Finv_t * Z_tilde_t + L' * r;
     
@@ -107,12 +107,13 @@ atT = a00 + P00 * r;
 
 % state smoother (forward recursion)
 for iObs = 1:nObs
-    atT = Phi * atT + Q * u_t_T(iObs, :)';
+    atT = A * atT + Q * u_t_T(iObs, :)';
     resStruct.atT(iObs, :) = atT;
 end
 
-resStruct.att = att;
-resStruct.Ptt = Ptt;
+% uncomment to also return the Filtered series
+% resStruct.att = att;
+% resStruct.Ptt = Ptt;
 
 end
 

@@ -1,16 +1,15 @@
-% Clark87 Shock recovery
-% SSF: ---------------------------------------------------------------------------------------------
-%   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
-%   X(t) =  ϕ*X(t-1)           + Q*ε(t),      ε(t) ~ MN(0,I)
+% Clark87 Shock recovery SSF
+% --------------------------------------------------------------------------------------------------
+%   Observed: Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),    X(t) = latent States
+%   State:    X(t) =  A*X(t-1)           + Q*ε(t),    ε(t) ~ MN(0,I)
 % --------------------------------------------------------------------------------------------------
 clear; clc; tic;
 % set plotting defaults
 set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',14)
 set(groot,'defaultAxesXTickLabelRotationMode','manual')
 set(groot,'defaultAxesFontName','Times New Roman')
-addpath(genpath('../../functions'))
-addpath(genpath('../../utility.Functions'))               % set path to db functions
-% addpath(genpath('D:/matlab.tools/db.toolbox/db'))   % set path to db functions
+addpath('../../functions', '../../utility.Functions')         % addpath to functions used
+% addpath(genpath('D:/matlab.tools/db.toolbox/db')) % set path to db functions folder (including all subfolders)
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % Sample size and seed for random number generator in simulation
@@ -51,7 +50,7 @@ Q = [eye(dim_R); zeros(dim_X-dim_R,dim_R)];
 Q(4,1) = 1; Q(8,3) = 1;
 % --------------------------------------------------------------------------------------------------
 
-%% CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
+% CALL TO THE KURZ_SSM FUNCTION --------------------------------------------------------------------
 P = Kurz_Pstar(D1, D2, R, Phi, Q);
 ss = k+1:dim_R;
 % make display names % row_names = make_table_names('ε',1:dim_R,'(t)');          
@@ -75,7 +74,7 @@ a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 % Filter
 [~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, Phi, Q, a00, P00);
 % Smoother 
-KFS = Kurz_Smoother(D1, D2, Phi, Kurz_KF); % Contains KF and KS output. 
+KFS = Kurz_Smoother(D1, D2, R, Phi, Q, Kurz_KF); % Contains KF and KS output. 
 % --------------------------------------------------------------------------------------------------
 
 %% PLOT THE KF/KS ESTIMATES OF THE STATES: % STATE vector = [trend(t); g(t); cycle(t); cycle(t-1)]; 

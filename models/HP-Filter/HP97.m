@@ -1,21 +1,20 @@
-% HP97 Shock recovery
-% SSF: ---------------------------------------------------------------------------------------------
-%   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
-%   X(t) =  ϕ*X(t-1)           + Q*ε(t),      ε(t) ~ MN(0,I)
+% HP97 Shock recovery SSF
+% --------------------------------------------------------------------------------------------------
+%   Observed: Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),    X(t) = latent States
+%   State:    X(t) =  A*X(t-1)           + Q*ε(t),    ε(t) ~ MN(0,I)
 % --------------------------------------------------------------------------------------------------
 clear; clc; tic;
 % set plotting defaults
 set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',14)
 set(groot,'defaultAxesXTickLabelRotationMode','manual')
 set(groot,'defaultAxesFontName','Times New Roman')
-addpath(genpath('../../functions'))
-addpath(genpath('../../utility.Functions'))               % set path to db functions
-% addpath(genpath('D:/matlab.tools/db.toolbox/db'))       % set path to db functions
+addpath('../../functions', '../../utility.Functions')         % addpath to functions used
+% addpath(genpath('D:/matlab.tools/db.toolbox/db')) % set path to db functions folder (including all subfolders)
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % Sample size and seed for random number generator in simulation
-Ts = 1e4; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES     = 0;  % set to 1 to plot ε(t) states
+Ts = 1e5; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
+PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
 ESTIMATE_HP_US  = 0;  % set to 1 to plot the comparison with HP-filter function
 
 % --------------------------------------------------------------------------------------------------    
@@ -40,15 +39,19 @@ D2(1,3) = psi;
 % Define R
 R  = zeros(dim_Z,dim_R);
 % --------------------------------------------------------------------------------------------------
-% Define Phi
-Phi = zeros(dim_X); 
-Phi(3,2) = 1; 
+% Define A
+A = zeros(dim_X); 
+A(3,2) = 1; 
 % Define Q
 Q = [eye(dim_R); zeros(1,2); ];
 % --------------------------------------------------------------------------------------------------
 
+
+
+
+
 % CALL TO THE KURZ SSF FUNCTION --------------------------------------------------------------------
-Pstar = Kurz_Pstar(D1, D2, R, Phi, Q);
+Pstar = Kurz_Pstar(D1, D2, R, A, Q);
 Neps  = k+1:dim_X;    % shock index in States X(t)
 % make display names  % row_names = make_table_names('ε',1:dim_R,'(t)');          
 row_names = {'ε1(t)','ε2(t)','ε2(t-1)'};
@@ -58,7 +61,7 @@ Pstar = array2table([ diag(Pstar.tT(Neps,Neps)) diag(Pstar.tt(Neps,Neps)) ], 'Va
 sep; print_table(Pstar(1:dim_R,:),4,1,0)
 
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
-[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, Phi, Q, Ts);
+[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, Q, Ts);
 % --------------------------------------------------------------------------------------------------
 % CALL TO FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH 
 % MY CODE ABOVE AND USE OF PINV IN AM SMOOTHER OTHERWISE NON-SINGULARITY ISSUES.
@@ -67,20 +70,28 @@ sep; print_table(Pstar(1:dim_R,:),4,1,0)
 % Note: errors will always be N(0,1), but latent states may need more careful initialization.
 a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 % Filter
-[~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, Phi, Q, a00, P00);
+[~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, A, Q, a00, P00);
 % Smoother 
-KFS = Kurz_Smoother(D1, D2, Phi, Kurz_KF); % Contains KF and KS output. 
+KFS = Kurz_Smoother(D1, D2, R, A, Q, Kurz_KF); % Contains KF and KS output. 
 % --------------------------------------------------------------------------------------------------
 
-% CORRELATIONS: % NOTE: ψ²yᶜ(t) = ε2(t), so the correlation between the true and estimated ε2(t) is equivalent to the correlation between the true and estimated HP output gap. 
+% CORRELATIONS: 
 % --------------------------------------------------------------------------------------------------
 % Correlation between the true and estimated states. 
-% compute the theoretical correlations implied by formula (10)
-STDs  = [ones(dim_R,1)]; % if ADD_Drstr; STDs  = [ones(dim_R,1); sDr]; end    % theoretical/model stdevs.
-rho_theory = corr_theory(STDs, std(KFS.atT(:,1:2))', Pstar.("P*(t|T)")(1:2));
+% R2 of Plagborg-Møller and Wolf (2022) 
+R2 = [];
+for jj = 1:2
+  pwR2.( ['e' num2str(jj)]) = ols(KFS.atT(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
+  R2(jj,:) = eval((['pwR2.e' num2str(jj) '.R2']));
+end
 
-corr_table = array2table( [ diag(corr(Xs(:,1:2),KFS.atT(:,1:2))) rho_theory], ...
-  'RowNames', row_names(1:2), 'VariableNames', {'ρ(Sims)','ρ(Theory)'});
+% compute the theoretical correlations implied by formula (10)
+STDs  = [ones(dim_R,1)]; % theoretical/model stdevs.
+Neps  = 1:2;
+rho_theory = corr_theory(STDs, std(KFS.atT(:,Neps))', Pstar.('P*(t|T)')(Neps));
+
+corr_table = array2table( [ diag(corr(Xs(:,Neps),KFS.atT(:,Neps))) rho_theory R2], ...
+  'RowNames', row_names(Neps), 'VariableNames', {'ρ(Sim)','ρ(Theory)','R²(Sim)'});
 % print correlations simulated and KS shocks
 print_table(corr_table(1:dim_R,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States ETX(t)');sep
 
@@ -91,21 +102,20 @@ print_table(corr_XtT(1:dim_R,1:dim_R),4,1,'Correlation Matrix of (estimated) Kal
 corr_Xtt = array2table( corr(KFS.att), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_Xtt(1:dim_R,1:dim_R),4,1,'Correlation Matrix of (estimated) Kalman Filtered States EtX(t)',[],0);sep
 
-% MAKE SOME PLOTTING VARIABLES
-STATE_TYPE  = 0; % set to 1 to use KF output, otherwise use KS
-state_t     = KFS.atT;
-if STATE_TYPE; state_t = KFS.att; end
 
-% Plagborg-Møller and Wolf (2022) R2
-for jj = 1:2
-  pwR2.( ['e' num2str(jj)]) = ols(state_t(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
-end
+% DISPLAY RECOVEY DIAGNOSTICS ALL IN ONE MATRIX TO PRINT TO LATEX
+mat2latex([Pstar.("P*(t|T)")(1:2)'; corr_table.("ρ(Theory)")'; R2'],4);
+
+
 % make xgrd for plotting
 xgrd = linspace(-5,5,100)';
 
 % PLOT THE KF/KS ESTIMATES OF THE STATES 
 % --------------------------------------------------------------------------------------------------
-PLOT_KF = 0;    % set to 1 to use KF output, otherwise use KS
+% make some plotting variables
+WHICH_STATE_2_PLOT  = 0;      % set to 1 to use KF output, otherwise use KS
+state_t = KFS.atT;
+if WHICH_STATE_2_PLOT; state_t = KFS.att; end
 STL = -1.215;   % subtitle location
 dims = [-6:2:6]; FNS = 13; XOS = 11;
 if PLOT_STATES 
@@ -162,7 +172,7 @@ Xnames_ID2 = {'ETε2(t-2)'};  % Xnames_ID2 = [];
 ID2 = ols( delta(ETe1t, 2) , [ lag(ETe2t, 2)], 1, Xnames_ID2);
 
 
-%%
+%
 if ESTIMATE_HP_US
 % -------------------------------------------------------------------------------------------------
 % USE HP Filter routine to back out trend and cycle shocks and compare from US REAL GDP DATA
@@ -175,9 +185,9 @@ D2y   = delta(y, 2);    % don't use diff due to y being a TimeTable, --> use del
 ZZ  = D2y.("Δ²gdp");
 HP  = hp_filter(y, psi^2); % call to 'standard' HP filter code
 dHP_trend = delta(HP.trend,1,1); 
-[~, Kurz_KF_US] = Kurz_Filter(removenans(ZZ), D1, D2, R, Phi, Q, a00, P00);
+[~, Kurz_KF_US] = Kurz_Filter(removenans(ZZ), D1, D2, R, A, Q, a00, P00);
 % construct the cycle from the shock recovery SSM
-KFS_deJ_US = Kurz_DeJongKohnAnsley_Smoother(D1, D2, Phi, Kurz_KF_US);
+KFS_deJ_US = Kurz_DeJongKohnAnsley_Smoother(D1, D2, A, Kurz_KF_US);
 SSM.cycle  = psi*addnans(KFS_deJ_US.atT(:,2),2,0);
 
 % Reconstruct HP.trend from KS_deJ_US.atT(:,1) using initVals from HP.trend (∆2y*(t) = ε1(t))
@@ -222,8 +232,7 @@ end
 
 
 
-
-toc
+% toc
 
 
 

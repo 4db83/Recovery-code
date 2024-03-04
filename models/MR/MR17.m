@@ -1,16 +1,15 @@
-% MR17 Shock recovery McCririck R and D Rees (2017),  The Neutral Interest Rate’, RBA Bulletin, September, pp 9–18.
-% SSF: ---------------------------------------------------------------------------------------------
-%   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
-%   X(t) =  ϕ*X(t-1)           + Q*ε(t),      ε(t) ~ MN(0,I)
+% MR17 Shock recovery SSF McCririck R and D Rees (2017),  The Neutral Interest RateS, RBA Bulletin, September, pp 9–18.
+% --------------------------------------------------------------------------------------------------
+%   Observed: Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),    X(t) = latent States
+%   State:    X(t) =  A*X(t-1)           + Q*ε(t),    ε(t) ~ MN(0,I)
 % --------------------------------------------------------------------------------------------------
 clear; clc; tic;
 % set plotting defaults
 set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',14)
 set(groot,'defaultAxesXTickLabelRotationMode','manual')
 set(groot,'defaultAxesFontName','Times New Roman')
-addpath(genpath('../../functions'))
-addpath(genpath('../../utility.Functions'))               % set path to db functions
-% addpath(genpath('D:/matlab.tools/db.toolbox/db'))       % set path to db functions
+addpath('../../functions', '../../utility.Functions')         % addpath to functions used
+% addpath(genpath('D:/matlab.tools/db.toolbox/db')) % set path to db functions folder (including all subfolders)
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % Sample size and seed for random number generator in simulation
@@ -71,10 +70,10 @@ D2(3,3)   = -beta*.1;
 % Define R
 R  = zeros(dim_Z,dim_R);
 % --------------------------------------------------------------------------------------------------
-% Define Phi
-Phi = zeros(dim_X); 
-Phi([1 2],1) = 1; Phi(3,2) = 1; Phi([1 4],4) = 1; 
-Phi(5:6,5) = 1; Phi([1 4],4) = 1; Phi(7,7) = 1;
+% Define A
+A = zeros(dim_X); 
+A([1 2],1) = 1; A(3,2) = 1; A([1 4],4) = 1; 
+A(5:6,5) = 1; A([1 4],4) = 1; A(7,7) = 1;
 % Define Q
 Q = zeros(dim_X,dim_R); Q(k+1:(dim_X-ADD_Drstr),:) = eye(dim_R);
 Q(1,4) = s4; Q(4,5) = s5; Q(5,[3 5]) = [s3 4*s5]; Q(7,6) = s6;
@@ -84,7 +83,7 @@ if ADD_Drstr; Q(end,[3 5]) = [s3 4*s5]; end
 % --------------------------------------------------------------------------------------------------
 
 % CALL TO THE KURZ_SSF FUNCTION --------------------------------------------------------------------
-Pstar = Kurz_Pstar(D1, D2, R, Phi, Q);
+Pstar = Kurz_Pstar(D1, D2, R, A, Q);
 Neps  = k+1:dim_X;    % shock index in States X(t)
 row_names = make_table_names('ε',1:dim_R,'(t)');              % make display names 
 if ADD_Drstr; row_names = [row_names; {'∆r*(t)'}]; end        % add ∆r* to display names 
@@ -94,7 +93,7 @@ Pstar = array2table([ diag(Pstar.tT(Neps,Neps)) diag(Pstar.tt(Neps,Neps)) ], 'Va
 sep; print_table(Pstar,4,1,0)
 
 % SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
-[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, Phi, Q, Ts);
+[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, Q, Ts);
 % --------------------------------------------------------------------------------------------------
 % CALL TO FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH 
 % MY CODE ABOVE AND USE OF PINV IN AM SMOOTHER OTHERWISE NON-SINGULARITY ISSUES.
@@ -103,9 +102,9 @@ sep; print_table(Pstar,4,1,0)
 % Note: errors will always be N(0,1), but latent states may need more careful initialization.
 a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 % Filter
-[~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, Phi, Q, a00, P00);
+[~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, A, Q, a00, P00);
 % Smoother 
-KFS = Kurz_Smoother(D1, D2, Phi, Kurz_KF); % Contains KF and KS output. 
+KFS = Kurz_Smoother(D1, D2, R, A, Q, Kurz_KF); % Contains KF and KS output. 
 % --------------------------------------------------------------------------------------------------
 
 % CORRELATIONS:

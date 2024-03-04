@@ -1,10 +1,10 @@
-function [negLogLike, resStruct] = Kurz_Filter(Z, D1, D2, R, Phi, Q, a00, P00)
-% function [negLogLike, resStruct] = Kurz_Filter(Z, D1, D2, R, Phi, Q, a00, P00)
+function [negLogLike, resStruct] = Kurz_Filter(Z, D1, D2, R, A, Q, a00, P00)
+% function [negLogLike, resStruct] = Kurz_Filter(Z, D1, D2, R, A, Q, a00, P00)
 % --------------------------------------------------------------------------------------------------
-% My Notation for Kurz State-Space Form (SSF): (Kurz notation: Phi --> A, Q --> Q).
+% My Notation for Kurz State-Space Form (SSF): (Kurz notation: Q --> C).
 % --------------------------------------------------------------------------------------------------
-%   Observed: Z(t) = D1*X(t)  + D2*X(t-1) + Rε(t)
-%   State:    X(t) =  ϕ*X(t-1)            + Qε(t), where   Var(ε(t)) = I. 
+%   Observed: Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),    X(t) = latent States
+%   State:    X(t) =  A*X(t-1)           + Q*ε(t),    ε(t) ~ MN(0,I)
 % --------------------------------------------------------------------------------------------------
 % MODIFIEDFILTER Nimark's (2015) modified Kalman filter for SSMwLS
 % Purpose
@@ -56,62 +56,58 @@ function [negLogLike, resStruct] = Kurz_Filter(Z, D1, D2, R, Phi, Q, a00, P00)
 %
 % Author: Malte S. Kurz
 
-
 % check and extract dimensions
-[dimObs, dimState] = Kurz_checkDims_SSM(D1, D2, Phi, Q, R);
+[dimObs, dimState] = Kurz_checkDims_SSM(D1, D2, A, Q, R);
 assert(size(Z,2) == dimObs)
-nObs = size(Z,1);
+T = size(Z,1);
 
-D_tilde = (D1*Phi + D2);
-QQT = Q*Q';
+D_tilde = (D1*A + D2);
+QQ = Q*Q';
 
 % intialize struct for the results
 resStruct         = struct();
-resStruct.Z_tilde = nan(nObs, dimObs);
-resStruct.att     = nan(nObs, dimState);
-resStruct.Ptt     = nan(dimState, dimState, nObs);
-resStruct.Pt1t    = nan(dimState, dimState, nObs);
-resStruct.Finv    = nan(dimObs, dimObs, nObs);
-resStruct.K       = nan(dimState, dimObs, nObs);
-resStruct.U       = nan(dimState, dimObs, nObs);
+resStruct.Z_tilde = nan(T, dimObs);
+resStruct.att     = nan(T, dimState);
+resStruct.Ptt     = nan(dimState, dimState, T);
+resStruct.Pt1t    = nan(dimState, dimState, T);
+resStruct.Finv    = nan(dimObs,   dimObs, T);
+resStruct.K       = nan(dimState, dimObs, T);
+resStruct.U       = nan(dimState, dimObs, T);
 
 % initialize filter
 att = a00;
 Ptt = P00;
-
 negLogLike = 0;
 
 % pre-compute eye and log(2*pi)/2
 II = eye(dimObs);
 log_2_pi_2 = 1.837877066409345483560659472811235279722 / 2;
 
-for iObs = 1:nObs
-    
-    Z_tilde = Z(iObs, :)' - D_tilde*att;
-    U = Phi * Ptt * D_tilde' + QQT * D1' + Q * R';
-    F = D_tilde * Ptt * D_tilde' + (D1 * Q + R) * (D1 * Q + R)';
+for t = 1:T
+    Z_tilde = Z(t, :)' - D_tilde*att;
+    U = A*Ptt*D_tilde' + QQ*D1' + Q*R';
+    F = D_tilde*Ptt*D_tilde' + (D1*Q + R)*(D1*Q + R)';
     
     Finv = II / F;
     % Finv = eye(size(F)) / F;
     % Finv = pinv(F);
-    K = U * Finv;
+    K = U*Finv;
     
-    att = Phi * att + K * Z_tilde;
-    Ptt = Phi * Ptt * Phi' + QQT - K*F*K';
+    att = A*att + K*Z_tilde;
+    Ptt = A*Ptt*A' + QQ - K*F*K';
     % P(t+1|t)
-    Pt1t = Phi * Ptt * Phi' + QQT;
+    Pt1t = A*Ptt*A' + QQ;
     
-    resStruct.Z_tilde(iObs,:)   = Z_tilde;
-    resStruct.att(iObs,:)       = att;
-    resStruct.Ptt(:,:,iObs)     = Ptt;
-    resStruct.Pt1t(:,:,iObs)    = Pt1t;
-    resStruct.Finv(:,:,iObs)    = Finv;
-    resStruct.K(:,:,iObs)       = K;
-    resStruct.U(:,:,iObs)       = U;
+    resStruct.Z_tilde(t,:)   = Z_tilde;
+    resStruct.att(t,:)       = att;
+    resStruct.Ptt(:,:,t)     = Ptt;
+    resStruct.Pt1t(:,:,t)    = Pt1t;
+    resStruct.Finv(:,:,t)    = Finv;
+    resStruct.K(:,:,t)       = K;
+    resStruct.U(:,:,t)       = U;
     
     % negLogLike =  negLogLike + dimObs*log(2*pi)/2 + 0.5* (log(det(F)) + Z_tilde' * Finv * Z_tilde);
-    negLogLike =  negLogLike + dimObs*log_2_pi_2 + 0.5* (log(det(F)) + Z_tilde' * Finv * Z_tilde);
-    
+    negLogLike =  negLogLike + dimObs*log_2_pi_2 + 0.5*(log(det(F)) + Z_tilde'*Finv*Z_tilde);
 end
 % also return some input matrices
 resStruct.a00 = a00;
@@ -119,9 +115,41 @@ resStruct.P00 = P00;
 resStruct.D1  = D1;
 resStruct.D2  = D2;
 resStruct.R   = R;
-resStruct.Phi = Phi;
+resStruct.A   = A;
 resStruct.Q   = Q;
+resStruct.Z   = Z;
+resStruct.LogLike = -negLogLike;
 % lst(negLogLike)
+
+% call to Pstar function to get steady-state P
+Pstar = Kurz_Pstar(D1, D2, R, A, Q, Ptt);
+resStruct.Pstar = Pstar;
+% Pstar.FF; 
+% Pstar.KK;
+
+% compute / double check
+FF  = D_tilde*Ptt*D_tilde' + (D1*Q + R)*(D1*Q + R)'; 
+KK  = ( A*Ptt*D_tilde' + QQ*D1' + Q*R' ) / FF ; 
+PSI = (A - KK*D_tilde); 
+% --------------------------------------------------------------------------------------------------
+% COMPUTE FILTERED STATE ESTIMATES USING STEADY-STATE PP = P*(t|t-1) GG = PP*M'/( M*PP*M' + RR ); 
+% --------------------------------------------------------------------------------------------------
+att_Pstar = zeros(dimState,T);
+att(:,1)
+for t = 1:T
+	% FORECAST ERROR AND ITS MSE
+  if t == 1
+    att_Pstar(:,t) = PSI*a00       + KK*Z(t, :)';
+  else
+    att_Pstar(:,t) = PSI*att_Pstar(:,t-1) + KK*Z(t, :)';
+  end
+end
+
+resStruct.PSI = PSI;
+resStruct.KK  = KK;
+resStruct.FF  = FF;
+% also return the Pstar output
+resStruct.att_Pstar = att_Pstar';
 
 end
 

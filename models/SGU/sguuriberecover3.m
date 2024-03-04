@@ -34,8 +34,8 @@
 alpha=0.0;
 
 delta=2;
-%delta=8.3292;
-%delta=4;
+delta=8.3292;
+% delta=4;
 
 sigmay=sqrt(1.2304);
 sigmapi=sqrt(.4862);
@@ -190,10 +190,10 @@ nt(:,:,1)=nt1;
 j=2;
 lt=m-k*(d1*m+d2);
 
-disp('d1, d2 and M matrices')
-disp(d1);
-disp(d2);
-disp(m);
+% disp('d1, d2 and M matrices')
+% disp(d1);
+% disp(d2);
+% disp(m);
 
 %number of baclward steps
 nrep=3000;
@@ -212,9 +212,14 @@ disp('filtered');
 
 disp(p(9:16,9:16));
 disp('smoothed');
- disp(psm(9:16,9:16));
- 
+ disp(diag(psm(9:16,9:16)));
 
+PtT_star = diag(psm(9:16,9:16));
+
+R2 = 1-PtT_star;
+corr0 = sqrt(R2);
+
+mat2latex([PtT_star'; corr0'; R2';  ])
 
 
 

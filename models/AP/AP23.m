@@ -1,16 +1,15 @@
-% Clark87 Shock recovery (https://www.newyorkfed.org/research/policy/rstar)
-% SSF: ---------------------------------------------------------------------------------------------
-%   Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),      X(t) = latent States
-%   X(t) = A*X(t-1)            + C*ε(t),      ε(t) ~ MN(0,I)
+% AP Shock recovery SSF (https://www.newyorkfed.org/research/policy/rstar)
 % --------------------------------------------------------------------------------------------------
-clear; clc;
+%   Observed: Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),    X(t) = latent States
+%   State:    X(t) =  A*X(t-1)           + Q*ε(t),    ε(t) ~ MN(0,I)
+% --------------------------------------------------------------------------------------------------
+clear; clc; tic;
 % set plotting defaults
-set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',15)
+set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',14)
 set(groot,'defaultAxesXTickLabelRotationMode','manual')
 set(groot,'defaultAxesFontName','Times New Roman')
-addpath(genpath('./functions'))
-addpath(genpath('./utility.Functions'))               % set path to db functions
-% addpath(genpath('D:/matlab.tools/db.toolbox/db'))   % set path to db functions
+addpath('../../functions', '../../utility.Functions')         % addpath to functions used
+% addpath(genpath('D:/matlab.tools/db.toolbox/db')) % set path to db functions folder (including all subfolders)
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % Sample size and seed for random number generator in simulation

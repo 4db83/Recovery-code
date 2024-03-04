@@ -1,10 +1,10 @@
-function [Zt,Xt,Ut] = Kurz_simulate_SSF(D1, D2, R, Phi, Q, T, X00, BurnIn)
-% function [Zt,Xt,Ut] = Kurz_simulate_SSF(D1, D2, R, Phi, Q, T, X00, BurnIn)
+function [Zt,Xt,Ut] = Kurz_simulate_SSF(D1, D2, R, A, Q, T, X00, BurnIn)
+% function [Zt,Xt,Ut] = Kurz_simulate_SSF(D1, D2, R, A, Q, T, X00, BurnIn)
 % --------------------------------------------------------------------------------------------------
-% My Notation for Kurz State-Space Form (SSF): (Kurz notation: Phi --> A, Q --> Q).
+% My Notation for Kurz State-Space Form (SSF): (Kurz notation: Q --> C).
 % --------------------------------------------------------------------------------------------------
-%   Observed: Z(t) = D1*X(t)  + D2*X(t-1) + Rε(t)
-%   State:    X(t) =  ϕ*X(t-1)            + Qε(t), where   Var(ε(t)) = I. 
+%   Observed: Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),    X(t) = latent States
+%   State:    X(t) =  A*X(t-1)           + Q*ε(t),    ε(t) ~ MN(0,I)
 % --------------------------------------------------------------------------------------------------
 %     - Z (KyxT) column vector of observed/measurment data
 %     - T Number of draws to generate
@@ -13,7 +13,7 @@ function [Zt,Xt,Ut] = Kurz_simulate_SSF(D1, D2, R, Phi, Q, T, X00, BurnIn)
 % --------------------------------------------------------------------------------------------------
 
   dim_Z = size(D1,1);
-  dim_X = size(Phi ,1);
+  dim_X = size(A ,1);
   dim_R = size(R ,2);
 
   %Set Default BurnIn = 100, if not supplied
@@ -30,8 +30,8 @@ function [Zt,Xt,Ut] = Kurz_simulate_SSF(D1, D2, R, Phi, Q, T, X00, BurnIn)
   if ~(nargin < 7 || isempty(X00)); Xt(:,1) = X00; end
 
   for t = 2:TT
-      Xt(:,t) = Phi * Xt(:,t-1) +  Q * Ut(:,t);
-      Zt(:,t) =  D1 * Xt(:,t)   + D2 * Xt(:,t-1) + R * Ut(:,t);
+      Xt(:,t) =   A*Xt(:,t-1) + Q*Ut(:,t);
+      Zt(:,t) =  D1*Xt(:,t)   + D2*Xt(:,t-1) + R*Ut(:,t);
   end
   % return (TxK) matrices of Z(t) and X(t), dropping initial values X(1) and 
   Zt = Zt(:,BurnIn+1:end)'; Xt = Xt(:,BurnIn+1:end)';

@@ -1,10 +1,10 @@
-function resStruct = Kurz_AndersonMoore_Smoother(D1, D2, Phi, Kurz_KF)
-% function resStruct = Kurz_AndersonMoore_Smoother(D1, D2, Phi, Kurz_KF)
+function resStruct = Kurz_AndersonMoore_Smoother(D1, D2, A, Kurz_KF)
+% function resStruct = Kurz_AndersonMoore_Smoother(D1, D2, A, Kurz_KF)
 % --------------------------------------------------------------------------------------------------
-% My Notation for Kurz State-Space Form (SSF): (Kurz notation: Phi --> A, Q --> Q).
+% My Notation for Kurz State-Space Form (SSF): (Kurz notation: Q --> C).
 % --------------------------------------------------------------------------------------------------
-%   Observed: Z(t) = D1*X(t)  + D2*X(t-1) + Rε(t)
-%   State:    X(t) =  ϕ*X(t-1)            + Qε(t), where   Var(ε(t)) = I. 
+%   Observed: Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),    X(t) = latent States
+%   State:    X(t) =  A*X(t-1)           + Q*ε(t),    ε(t) ~ MN(0,I)
 % --------------------------------------------------------------------------------------------------
 %MODIFIEDANDERSONMOORESMOOTHER Modified Anderson and Moore (1979) smoother for SSMwLS 
 % Purpose
@@ -64,12 +64,12 @@ att     = Kurz_KF.att;
 Ptt     = Kurz_KF.Ptt;
 
 % check and extract dimensions
-[dimObs, dimState] = Kurz_checkDims_SSM(D1, D2, Phi);
+[dimObs, dimState] = Kurz_checkDims_SSM(D1, D2, A);
 assert(size(Z_tilde,2) == dimObs)
 nObs = size(Z_tilde,1);
 
 
-D_tilde = (D1*Phi + D2);
+D_tilde = (D1*A + D2);
 
 
 % intialize struct for the results
@@ -99,7 +99,7 @@ for iObs = nObs-1:-1:1
     % P_filtered_tp1_Inv = eye(size(P_filtered_tp1)) / P_filtered_tp1;
     P_filtered_tp1_Inv = pinv(P_filtered_tp1);
     
-    xx = Phi * P_filtered - K_tp1 * D_tilde * P_filtered;
+    xx = A * P_filtered - K_tp1 * D_tilde * P_filtered;
     PtTp1_given_tp1 = xx';
     
     J = PtTp1_given_tp1 * P_filtered_tp1_Inv;
@@ -112,8 +112,9 @@ for iObs = nObs-1:-1:1
     
 end
 
-resStruct.att = att;
-resStruct.Ptt = Ptt;
+% uncomment to also return the Filtered series
+% resStruct.att = att;
+% resStruct.Ptt = Ptt;
 
 
 end
