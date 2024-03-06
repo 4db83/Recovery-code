@@ -12,7 +12,7 @@ addpath('../../functions', '../../utility.Functions')         % addpath to funct
 % addpath(genpath('D:/matlab.tools/db.toolbox/db')) % set path to db functions folder (adds all subfolders)
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
-% Sample size and seed for random number generator in simulation
+% IN PAPER USE 1e5: Sample size and seed for random number generator in simulation IN PAPER USE 1e5
 Ts = 1e5; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
 PLOT_STATES     = 0;  % set to 1 to plot ε(t) states
 ADD_Drstr       = 1;  % set to 1 if wanting to add ∆r*(t) to State vector X(t)

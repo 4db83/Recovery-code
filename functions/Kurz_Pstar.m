@@ -72,7 +72,7 @@ while norm_dNt > eps0
   Nt  = Nt1;
 end
 % CONVERGENCE CHECK
-fprintf('Convergence of Steady-State N(t):   %d\n', norm_dNt)
+fprintf('Convergence of Steady-State N(t):    %d\n', norm_dNt)
 % P*(t|T) = smoothed steady-state MSE
 Pstar.tT = Pstar.tt - Pstar.tt*Nt*Pstar.tt;
 

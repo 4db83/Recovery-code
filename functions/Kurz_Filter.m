@@ -132,14 +132,14 @@ FF  = D_tilde*Ptt*D_tilde' + (D1*Q + R)*(D1*Q + R)';
 KK  = ( A*Ptt*D_tilde' + QQ*D1' + Q*R' ) / FF ; 
 PSI = (A - KK*D_tilde); 
 % --------------------------------------------------------------------------------------------------
-% COMPUTE FILTERED STATE ESTIMATES USING STEADY-STATE PP = P*(t|t-1) GG = PP*M'/( M*PP*M' + RR ); 
+% COMPUTE FILTERED STATE ESTIMATES USING STEADY-STATE PP = P*(t|t) KK = PP*M'/( M*PP*M' + RR ); 
 % --------------------------------------------------------------------------------------------------
 att_Pstar = zeros(dimState,T);
-att(:,1)
+
 for t = 1:T
 	% FORECAST ERROR AND ITS MSE
   if t == 1
-    att_Pstar(:,t) = PSI*a00       + KK*Z(t, :)';
+    att_Pstar(:,t) = PSI*a00              + KK*Z(t, :)';
   else
     att_Pstar(:,t) = PSI*att_Pstar(:,t-1) + KK*Z(t, :)';
   end

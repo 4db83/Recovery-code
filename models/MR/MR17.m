@@ -12,9 +12,9 @@ addpath('../../functions', '../../utility.Functions')         % addpath to funct
 % addpath(genpath('D:/matlab.tools/db.toolbox/db')) % set path to db functions folder (including all subfolders)
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
-% Sample size and seed for random number generator in simulation
+% IN PAPER USE 1e5: Sample size and seed for random number generator in simulation
 Ts = 1e5; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
+PLOT_STATES     = 0;  % set to 1 to plot ε(t) states
 ADD_Drstr       = 1;  % set to 1 if wanting to add ∆r*(t) to State vector X(t)
 
 % ----------------------------------------------------------------------------- % THIS IS WHAT YOU GET WHEN RUNNING THEIR LW CODE                                          
@@ -134,7 +134,7 @@ corr_Xtt = array2table( corr(KFS.att(Neps,Neps)), 'RowNames', row_names, 'Variab
 print_table(corr_Xtt(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Filtered States EtX(t)',[],0);sep
 
 % DISPLAY RECOVEY DIAGNOSTICS ALL IN ONE MATRIX TO PRINT TO LATEX
-% mat2latex([Pstar.("P*(t|T)")'; corr_table.("ρ(Sim)")'; corr_table.("R²(Sim)")']);
+mat2latex([Pstar.("P*(t|T)")'; corr_table.("ρ(Sim)")'; corr_table.("R²(Sim)")']);
 
 % PLOT THE KF/KS ESTIMATES OF THE STATES 
 % --------------------------------------------------------------------------------------------------
