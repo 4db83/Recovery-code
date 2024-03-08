@@ -135,7 +135,8 @@ PSI = (A - KK*D_tilde);
 % COMPUTE FILTERED STATE ESTIMATES USING STEADY-STATE PP = P*(t|t) KK = PP*M'/( M*PP*M' + RR ); 
 % --------------------------------------------------------------------------------------------------
 att_Pstar = zeros(dimState,T);
-
+% W = [];
+W = nan(dimState, dimObs, T);
 for t = 1:T
 	% FORECAST ERROR AND ITS MSE
   if t == 1
@@ -143,11 +144,13 @@ for t = 1:T
   else
     att_Pstar(:,t) = PSI*att_Pstar(:,t-1) + KK*Z(t, :)';
   end
+  W(:,:,t) = PSI^t*KK;
 end
 
 resStruct.PSI = PSI;
 resStruct.KK  = KK;
 resStruct.FF  = FF;
+resStruct.WW  = W;
 % also return the Pstar output
 resStruct.att_Pstar = att_Pstar';
 
