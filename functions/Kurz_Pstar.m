@@ -36,7 +36,7 @@ norm_dPt = 1;
 while norm_dPt > eps0
   Ft =  G*Pt_1t_1*G' + Lam*Lam';
   Kt = (A*Pt_1t_1*G' + QQ*D1' + QR) / Ft;
-  Ptt_1 = A*Pt_1t_1*A' + QQ ;   % P(t|t-1) = ϕ*P(t-1|t-1)*ϕ' + QQ
+  Ptt_1 = A*Pt_1t_1*A' + QQ ;       % P(t|t-1) = ϕ*P(t-1|t-1)*ϕ' + QQ
   Ptt   = Ptt_1 - Kt*Ft*Kt';        % P(t|t)   = P(t|t-1) - K(t)*F(t)*K(t)'
   % CONVERGENCE CHECKING
   norm_dPt = norm(Ptt - Pt_1t_1);

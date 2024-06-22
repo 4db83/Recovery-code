@@ -1,5 +1,6 @@
-function [negLogLike, resStruct] = Kurz_Filter(Z, D1, D2, R, A, Q, a00, P00)
-% function [negLogLike, resStruct] = Kurz_Filter(Z, D1, D2, R, A, Q, a00, P00)
+function [negLogLike, Kurz_FS] = Kurz_FilterSmoother(Z, D1, D2, R, A, Q, a00, P00)
+% function [negLogLike, resStruct] = Kurz_FilterSmoother(Z, D1, D2, R, A, Q, a00, P00)
+% NOW ADDS THE SMOOTHER AND FILTER OUTPUT TO ONE STRUCTURE. 
 % --------------------------------------------------------------------------------------------------
 % My Notation for Kurz State-Space Form (SSF): (Kurz notation: Q --> C).
 % --------------------------------------------------------------------------------------------------
@@ -153,6 +154,13 @@ resStruct.FF  = FF;
 resStruct.WW  = W;
 % also return the Pstar output
 resStruct.att_Pstar = att_Pstar';
+
+
+% now run the Smoother as well and cat results to resStr  
+Kurz_FS = Kurz_Smoother( D1, D2, R, A, Q, resStruct); 
+
+
+% resStruct = catstruct(resStruct, Kurz_SM);
 
 
 
