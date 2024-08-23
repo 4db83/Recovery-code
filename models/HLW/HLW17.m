@@ -13,7 +13,7 @@ addpath('../../functions', '../../utility.Functions')         % addpath to funct
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % IN PAPER USE 1e5: Sample size and seed for random number generator in simulation
-Ts = 1e4; rng(123); % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
+Ts = 1e4; rng(0);   % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
 PLOT_STATES = 1;    % set to 1 to plot ε(t) states
 ADD_Drstr   = 1;    % set to 1 if wanting to add ∆r*(t) to State vector X(t)
 
@@ -102,11 +102,11 @@ corr_table = array2table( [ diag(corr(Xs(:,Neps),KFS.atT(:,Neps)))  rho_theory  
 print_table(corr_table(1:dim_R+ADD_Drstr,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States ETX(t)');
 
 % Correlation matrix from KS estimates, Truth is uncorrelated
-corr_XtT = array2table( corr(KFS.atT(Neps,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
+corr_XtT = array2table( corr(KFS.atT(:,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_XtT(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Smoothed States ETX(t)');
 
 % Correlation matrix from KF estimates, Truth is uncorrelated
-corr_Xtt = array2table( corr(KFS.att(Neps,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
+corr_Xtt = array2table( corr(KFS.att(:,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_Xtt(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Filtered States EtX(t)',[],0);sep
 
 % DISPLAY RECOVEY DIAGNOSTICS ALL IN ONE MATRIX TO PRINT TO LATEX
@@ -188,9 +188,9 @@ if PLOT_STATES
 
   % UNCOMMENT TO PRINT TO PDF
   tic;
-  print2pdf('HLW17_plots_KS_AA',3); % super slow here
-  toc;
+  % print2pdf('HLW17_plots_KS_AA',3); % super slow here
   % exportgraphics(gcf,'HLW17_plots_KS.pdf','ContentType','vector')
+  toc;
 end
 % --------------------------------------------------------------------------------------------------
 
