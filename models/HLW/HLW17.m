@@ -13,9 +13,9 @@ addpath('../../functions', '../../utility.Functions')         % addpath to funct
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % IN PAPER USE 1e5: Sample size and seed for random number generator in simulation
-Ts = 1e5; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES     = 0;  % set to 1 to plot ε(t) states
-ADD_Drstr       = 1;  % set to 1 if wanting to add ∆r*(t) to State vector X(t)
+Ts = 1e4; rng(123); % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
+PLOT_STATES = 1;    % set to 1 to plot ε(t) states
+ADD_Drstr   = 1;    % set to 1 if wanting to add ∆r*(t) to State vector X(t)
 
 % ----------------------------------------------------------------------------- % THIS IS WHAT YOU GET WHEN RUNNING THEIR LW CODE                                          
 % PARAMETERS: (from the published paper, Table 1 on page S60.                                           
@@ -62,30 +62,26 @@ Q(1,4) = s4; Q(3,5) = s5; Q(4,[3 5]) = [s3 4*c*s5];
 if ADD_Drstr;  Q(end,[3 5]) = [s3 4*c*s5]; end
 % --------------------------------------------------------------------------------------------------
 
-% CALL TO THE KURZ_SSF FUNCTION --------------------------------------------------------------------
-Pstar = Kurz_Pstar(D1, D2, R, A, Q);
-Neps  = k+1:dim_X;    % shock index in States X(t)
-row_names = make_table_names('ε',1:dim_R,'(t)');              % make display names 
-if ADD_Drstr; row_names = [row_names; {'∆r*(t)'}]; end        % add ∆r* to display names 
-
-Pstar = array2table([ diag(Pstar.tT(Neps,Neps)) diag(Pstar.tt(Neps,Neps)) ], 'VariableNames',{'P*(t|T)','P*(t|t)'}, 'RowNames', row_names);
-% select what to print to screen
-sep; print_table(Pstar,4,1,0)
-
-% SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
-[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, Q, Ts);
-% --------------------------------------------------------------------------------------------------
 % CALL TO FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH 
 % MY CODE ABOVE AND USE OF PINV IN AM SMOOTHER OTHERWISE NON-SINGULARITY ISSUES.
 % --------------------------------------------------------------------------------------------------
-% INITIALIZE FILTER 
+% SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
+[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, Q, Ts);
+% NOW JUST DO ONE CALL TO Kurz_FilterSmoother RATHER THAN MULTIPLE CALLS
 % Note: errors will always be N(0,1), but latent states may need more careful initialization.
 a00 = zeros(dim_X, 1); P00 = eye(dim_X);
-% Filter
-[~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, A, Q, a00, P00);
-% Smoother 
-KFS = Kurz_Smoother(D1, D2, R, A, Q, Kurz_KF); % Contains KF and KS output. 
-% --------------------------------------------------------------------------------------------------
+[~,KFS] = Kurz_FilterSmoother(Zs, D1, D2, R, A, Q, a00, P00);
+% USE THIS IF YOU DON'T HAVE DATA TO PUT INTO THE FULL Kurz_FilterSmoother() FUNCTION
+% Pstar0 = Kurz_Pstar(D1, D2, R, A, Q);
+% [~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, A, Q, a00, P00);
+% KFS = Kurz_Smoother(D1, D2, R, A, Q, Kurz_KF); % Contains KF and KS output. 
+
+Neps = k+1:dim_X;    % shock index in States X(t)
+row_names = make_table_names('ε',1:dim_R,'(t)');              % make display names 
+if ADD_Drstr; row_names = [row_names; {'∆r*(t)'}]; end        % add ∆r* to display names 
+Pstar = array2table([ diag(KFS.Pstar.tT(Neps,Neps)) diag(KFS.Pstar.tt(Neps,Neps)) ], 'VariableNames',{'P*(t|T)','P*(t|t)'}, 'RowNames', row_names);
+% select what to print to screen
+sep; print_table(Pstar,4,1,0)
 
 % CORRELATIONS:
 % --------------------------------------------------------------------------------------------------
@@ -101,22 +97,24 @@ end
 STDs  = [ones(dim_R,1)]; if ADD_Drstr; STDs  = [ones(dim_R,1); sDr]; end    % theoretical/model stdevs.
 rho_theory = corr_theory(STDs, std(KFS.atT(:,Neps))', Pstar.('P*(t|T)'));
 
-corr_table = array2table( [ diag(corr(Xs(:,Neps),KFS.atT(:,Neps))) rho_theory R2], ...
-  'RowNames', row_names, 'VariableNames', {'ρ(Sim)','ρ(Theory)','R²(Sim)'});
+corr_table = array2table( [ diag(corr(Xs(:,Neps),KFS.atT(:,Neps)))  rho_theory  R2], 'RowNames', row_names, 'VariableNames', {'ρ(Sim)','ρ(Theory)','R²(Sim)'});
 % print correlations simulated and KS shocks
-print_table(corr_table(1:dim_R+ADD_Drstr,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States ETX(t)');sep
+print_table(corr_table(1:dim_R+ADD_Drstr,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States ETX(t)');
 
 % Correlation matrix from KS estimates, Truth is uncorrelated
 corr_XtT = array2table( corr(KFS.atT(Neps,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
-print_table(corr_XtT(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Smoothed States ETX(t)');sep
+print_table(corr_XtT(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Smoothed States ETX(t)');
+
 % Correlation matrix from KF estimates, Truth is uncorrelated
 corr_Xtt = array2table( corr(KFS.att(Neps,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_Xtt(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Filtered States EtX(t)',[],0);sep
 
 % DISPLAY RECOVEY DIAGNOSTICS ALL IN ONE MATRIX TO PRINT TO LATEX
-mat2latex([Pstar.("P*(t|T)")'; corr_table.("ρ(Sim)")'; corr_table.("R²(Sim)")']);
+fprintf('Recovery Measures (Order is): [diag(P*(t|T)); R²; ρ(Theory)] \n'); sep
+mat2latex([Pstar.("P*(t|T)")'; corr_table.("R²(Sim)")'; corr_table.("ρ(Theory)")']); sep
+toc
 
-% PLOT THE KF/KS ESTIMATES OF THE STATES 
+%% PLOT THE KF/KS ESTIMATES OF THE STATES 
 % --------------------------------------------------------------------------------------------------
 % make some plotting variables
 WHICH_STATE_2_PLOT  = 0;      % set to 1 to use KF output, otherwise use KS
@@ -185,16 +183,18 @@ if PLOT_STATES
     add2yaxislabel(1)
     % print the normalized steady-state P(t|T) for ∆r*, as it has a much smaller variance than the
     % unit variance of the shocks ε(t).
-    fprintf('     Normalized P*(t|T)(∆r*) = %2.4f \n', Pstar.('P*(t|T)')(end)/var(Xs(:,end)))
+    sep;fprintf('Normalized P*(t|T)(∆r*) = %2.4f \n', Pstar.('P*(t|T)')(end)/var(Xs(:,end)))
   end    
 
   % UNCOMMENT TO PRINT TO PDF
-  % print2pdf('HLW17_plots_KS',2); % super slow here
+  tic;
+  print2pdf('HLW17_plots_KS_AA',3); % super slow here
+  toc;
   % exportgraphics(gcf,'HLW17_plots_KS.pdf','ContentType','vector')
 end
 % --------------------------------------------------------------------------------------------------
 
-% IDENTITIES:  
+% IDENTITIES REGRESSIONS:  
 % --------------------------------------------------------------------------------------------------
 % ET∆r*(t) = ETη5t + ETη3t (21) --> this should be: ET∆r*(t) = 4*c*ETη5t + ETη3t
 % make ET∆r*(t) from X(:,4)-X(:,5) or alternatively from KS_deJ.atT(:,11) if ADD_rstr == 1;
@@ -221,8 +221,6 @@ ID3 = ols(Drstar, [lag(Drstar) ETn1t ETn2t ETn4t lag(ETn1t) lag(ETn4t)], 1, Xnam
 
 
 
-
-toc
 
 
 

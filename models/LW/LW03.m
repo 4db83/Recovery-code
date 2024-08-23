@@ -114,7 +114,7 @@ corr_Xtt = array2table( corr(KFS.att(Neps,Neps)), 'RowNames', row_names, 'Variab
 print_table(corr_Xtt(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Filtered States EtX(t)',[],0);sep
 
 % DISPLAY RECOVEY DIAGNOSTICS ALL IN ONE MATRIX TO PRINT TO LATEX
-mat2latex([Pstar.("P*(t|T)")'; corr_table.("ρ(Theory)")'; corr_table.("R²(Sim)")'],4);
+mat2latex([Pstar.("P*(t|T)")'; corr_table.("R²(Sim)")'; corr_table.("ρ(Theory)")'], 4);
 
 
 % PLOT THE KF/KS ESTIMATES OF THE STATES 

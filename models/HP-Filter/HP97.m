@@ -81,7 +81,8 @@ KFS = Kurz_Smoother(D1, D2, R, A, Q, Kurz_KF); % Contains KF and KS output.
 % R2 of Plagborg-Møller and Wolf (2022) 
 R2 = [];
 for jj = 1:2
-  pwR2.( ['e' num2str(jj)]) = ols(KFS.atT(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
+  % pwR2.( ['e' num2str(jj)]) = ols(KFS.atT(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
+  pwR2.( ['e' num2str(jj)]) = ols(Xs(:,jj),KFS.atT(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
   R2(jj,:) = eval((['pwR2.e' num2str(jj) '.R2']));
 end
 
@@ -104,17 +105,18 @@ print_table(corr_Xtt(1:dim_R,1:dim_R),4,1,'Correlation Matrix of (estimated) Kal
 
 
 % DISPLAY RECOVEY DIAGNOSTICS ALL IN ONE MATRIX TO PRINT TO LATEX
-mat2latex([Pstar.("P*(t|T)")(1:2)'; corr_table.("ρ(Theory)")'; R2'],4);
-
+fprintf('Order is: [diag(P*(t|T)); R²; Corr] \n')
+mat2latex([Pstar.("P*(t|T)")(1:2)'; R2'; corr_table.("ρ(Theory)")']);
 
 % make xgrd for plotting
 xgrd = linspace(-5,5,100)';
 
-% PLOT THE KF/KS ESTIMATES OF THE STATES 
+%% PLOT THE KF/KS ESTIMATES OF THE STATES 
 % --------------------------------------------------------------------------------------------------
 % make some plotting variables
 WHICH_STATE_2_PLOT  = 0;      % set to 1 to use KF output, otherwise use KS
 state_t = KFS.atT;
+shock_names = {'Trend';'Cycle'};
 if WHICH_STATE_2_PLOT; state_t = KFS.att; end
 STL = -1.215;   % subtitle location
 dims = [-6:2:6]; FNS = 13; XOS = 11;
@@ -144,12 +146,12 @@ if PLOT_STATES
     addgrid(5/5); hline(0); 
     line(dims, dims, 'Color', 'k', 'LineWidth', 1); 
     ylabel(['$E_T\varepsilon_{' num2str(ii-k) 't}$ (Estimate)'],'Interpreter','latex','FontSize',FNS)
-    addsubtitle(['$\varepsilon_{' num2str(ii-k) 't}$ (True)'],STL,FNS)
+    addsubtitle(['$\varepsilon_{' num2str(ii-k) 't}$ (True ' char(shock_names(ii)) ' Shock)'],STL,FNS)
     addlegend({['$R^2=' num2str(pwR2.( ['e' num2str(ii)]).R2,'%2.4f') '$']},1,FNS)
     add2yaxislabel(1)
   end
   % UNCOMMENT TO PRINT TO PDF
-  % print2pdf('HP97_plots_KS',2); % super slow here
+  print2pdf('HP97_plots_KS',2); % super slow here
   % exportgraphics(gcf,'HP97_plots_KS.pdf','ContentType','vector')
 end
 % --------------------------------------------------------------------------------------------------

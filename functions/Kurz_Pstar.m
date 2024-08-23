@@ -28,7 +28,7 @@ QQ  = Q*Q';
 QR  = Q*R';
 
 % --------------------------------------------------------------------------------------------------
-% FILTERING STEADY-STATE P(t|t)
+% FILTERING STEADY-STATE P*(t|t)
 % --------------------------------------------------------------------------------------------------
 Pt_1t_1 = P00; % initialization
 % WHILE LOOP FORWARD RECURSIONS (see p.43 [2.1] & [2.2] in Kurz (2018))
@@ -44,7 +44,7 @@ while norm_dPt > eps0
 end
 % CONVERGENCE CHECK
 if norm_dPt <= eps0
-  fprintf('Convergence to Steady-State P*(t|t): %d\n', norm_dPt)
+  % fprintf('Convergence to Steady-State P*(t|t): %d\n', norm_dPt)
   Pstar.tt_1  = Ptt_1;    % P*(t|t-1)
   Pstar.tt    = Ptt;      % P*(t|t)
 else
@@ -52,7 +52,7 @@ else
 end
 
 % --------------------------------------------------------------------------------------------------
-% SMOOTHING STEADY-STATE P(t|t)
+% SMOOTHING STEADY-STATE P*(t|T)
 % --------------------------------------------------------------------------------------------------
 NT = zeros(dim_X);
 Nt = NT;
@@ -61,28 +61,36 @@ KK = (A*Pstar.tt*G' + QQ*D1' + QR) / FF;
 LL = (A - KK*G);
 GinvFG = G'/FF*G;
 
-% WHILE LOOP BACKWARD RECURSIONS (see p.44 [4.13] in Kurz (2018))
-norm_dNt = 1; 
-while norm_dNt > eps0
-  % THIS USES THE STEADY-STATE Kt AND Ft VALUES FROM ABOVE
-  % Nt = Gt'/Ft*Gt + (A-Kt*Gt)'*Nt*(A-Kt*Gt);
-  Nt1 = GinvFG + LL'*Nt*LL;
-  % CONVERGENCE CHECKING
-  norm_dNt = norm(Nt1 - Nt);
-  Nt  = Nt1;
-end
+% % WHILE LOOP BACKWARD RECURSIONS (see p.44 [4.13] in Kurz (2018))
+% norm_dNt = 1; 
+% % i = 0;
+% while norm_dNt > eps0
+%   % i = 1+i
+%   % THIS USES THE STEADY-STATE Kt AND Ft VALUES FROM ABOVE
+%   % Nt = Gt'/Ft*Gt + (A-Kt*Gt)'*Nt*(A-Kt*Gt);
+%   Nt1 = GinvFG + LL'*Nt*LL;
+%   % CONVERGENCE CHECKING
+%   norm_dNt = norm(Nt1 - Nt);
+%   Nt  = Nt1;
+% end
 % CONVERGENCE CHECK
-fprintf('Convergence of Steady-State N(t):    %d\n', norm_dNt)
+% fprintf('Convergence of Steady-State N(t):    %d\n', norm_dNt)
+% % the final steady state Nbar is then 
+% NN = Nt; 
+
+% (FASTER) ANALYTIC SOLUTION TO: NN = G*inv(F)*G + LL'*NN*LL using vec(NN) =
+% inv[I(dimX^2)-(LL'⊗LL)]*vec(GG'inv(F)GG)
+NN = reshape( ( eye(dim_X^2) - (kron(LL',LL')) ) \ vec(GinvFG), dim_X, dim_X);
 % P*(t|T) = smoothed steady-state MSE
-Pstar.tT = Pstar.tt - Pstar.tt*Nt*Pstar.tt;
+Pstar.tT = Pstar.tt - Pstar.tt*NN*Pstar.tt;
 
 
-% RETURN THE FOLLOWING
+% RETURN THE FOLLlOWING
 % Pstar.tt_1  = Pstar_tt_1;
 % Pstar.tt    = Pstar_tt;
 % Pstar.tT    = Pstar_tT;
+% Pstar.norm_dNt  = norm_dNt;
 Pstar.norm_dPtt = norm_dPt;
-Pstar.norm_dNt  = norm_dNt;
 % also return FF/KK/LL if needed later
 Pstar.FF = FF;
 Pstar.KK = KK;
