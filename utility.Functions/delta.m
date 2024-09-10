@@ -1,34 +1,27 @@
 function dyout = delta(y,k,remove_nans)
-% function dy = delta(varargin)
-% Function: Computes the kth difference/change in y(t): Δᵏy(t) = (1-L)ᵏy(t)
-%
+% Function: Computes the kth difference/change in y(t): 
+%                       Δᵏy(t) = (1-L)ᵏy(t)
+% -------------------------------------------------------------------------------------------------
 % NOTE: This is different form the function delta_long or long_diff which 
-%       compute the long-difference, that is, Δ_k(y(t)) = (1-Lᵏ)y(t) = y(t) - y(t-k)
-%_______________________________________________________________________________________
-%
+%       compute the long-difference, that is:
+%                       Δₖ(y(t)) = (1-Lᵏ)y(t) = y(t) - y(t-k)
+% -------------------------------------------------------------------------------------------------
 % DESCRIPTION:
 %     Computes the kth difference/change in y(t): Δᵏy(t) = (1-L)ᵏy(t)
-%_______________________________________________________________________________________
-%
+% -------------------------------------------------------------------------------------------------
 % USAGE:	dy = delta(y,k).
-%_______________________________________________________________________________________
-%
+% -------------------------------------------------------------------------------------------------
 % INPUT:
-%		
 %     y = dependent variable  (Txn).                                     
 %    	k = order of change to be computed.al for the
 %  
 % OUTPUT:
-%
 %	   dy = (Txn) vector of kth changes in y(t), with NaNs in
 %         first k lagged postions, so needs to be trimmed.
-%	
-% NOTES:-------------------------------------------------------
-%		NONE.
-%_______________________________________________________________________________________
-%   
+% -------------------------------------------------------------------------------------------------
 %   		Created by Daniel Buncic on 27.10.2023.
 % 			Modified on:                27.10.2023.
+% -------------------------------------------------------------------------------------------------
 
 SetDefaultValue(2,'k',1);
 SetDefaultValue(3,'remove_nans',0);
@@ -56,8 +49,14 @@ if isTT
       dyout = prefix_varnames(['Δ' num2str(k)],dy);
   end
 else
-	[~,cy] = size(y);
-	dyout  = [NaN(k,cy); diff(y,k)];	
+  % return actual series y if k == 0
+  if k == 0 
+    dyout  = y;	
+  else
+      % if k ~= 0
+	  [~,cy] = size(y);
+	  dyout  = [NaN(k,cy); diff(y,k)];	
+  end
 end
 
 if remove_nans  

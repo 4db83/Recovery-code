@@ -33,7 +33,7 @@
 \makeatother
 \allowdisplaybreaks
 \IfFileExists{C:/swp55/TCITeX/TeX/LaTeX/SWmacros/tcilatex.tex}{\input{tcilatex}}{}
-\graphicspath{{./graphics/}{../graphics/}{../../graphics/}}
+\graphicspath{{./graphics/}{../graphics/}{../../graphics/}{../../../graphics/}}
 \definecolor{myred}{rgb}{.50,.10,.10}
 \definecolor{mygrn}{rgb}{.10,.35,.10}
 \definecolor{myblu}{rgb}{.10,.10,.35}
@@ -279,14 +279,23 @@ R^{2}$ of $1$ and a residual sum of squares of exactly $0$ (see Panels (a)
 and (b) in \autoref{tab:KF}, respectively). The file \texttt{HP97.m}
 replicates the output summarized here.
 
+% \begin{table}[h!]
+% \subfigure[Kalman Filter]   {\includegraphics[width=\textwidth]{hp_filter}} %
+% \subfigure[Kalman Smoother] {\includegraphics[width=\textwidth]{hp_smoother}}
+% \vspace{-3mm}
+% \caption{Shock identity regressions using Kalman filter and smoother
+% estimates.}
+% \label{tab:KF}
+% \end{table}
+
 \begin{table}[h!]
-\subfigure[Kalman Filter]   {\includegraphics[width=\textwidth]{hp_filter}} %
-\subfigure[Kalman Smoother] {\includegraphics[width=\textwidth]{hp_smoother}}
-\vspace{-3mm}
-\caption{Shock identity regressions using Kalman filter and smoother
-estimates.}
-\label{tab:KF}
-\end{table}
+  \subfigure[Kalman Filter]   {\includegraphics[width=\textwidth]{HP_filter_a}} %
+  \subfigure[Kalman Smoother] {\includegraphics[width=\textwidth]{HP_filter_b}}
+  \vspace{-3mm}
+  \caption{Shock identity regressions using Kalman filter and smoother
+  estimates.}
+  \label{tab:KF}
+  \end{table}
 
 Since $\varepsilon _{1t}=\Delta ^{2}y_{t}^{\ast }$ and $\varepsilon _{2t}=%
 \frac{1}{\psi }y_{t}^{c}$, this implies that the output from the standard

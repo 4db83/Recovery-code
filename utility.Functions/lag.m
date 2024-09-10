@@ -34,25 +34,32 @@ function z = lag(x,n,v)
 
 switch(nargin)
 case 1
-   n = 1; v = NaN;
+   n = 1; 
+   v = NaN;
    zt = ones(n,cols(x))*v;
    z = [ zt; trimr_F(x,0,n)];
 
 case 2
    v = NaN;
-   if n < 1
-    z = [];
-   else
-   zt = ones(n,cols(x))*v;
-   z = [ zt; trimr_F(x,0,n)];
+    if n < 0
+      z = [];
+   % if n = 0, ie, no lag, just return the series itself
+   elseif n == 0
+      z = x;
+   else 
+      zt = ones(n,cols(x))*v;
+      z = [ zt; trimr_F(x,0,n)];
    end
 
 case 3
-   if n < 1
-    z = [];
-   else
-   zt = ones(n,cols(x))*v;
-   z = [ zt; trimr_F(x,0,n)];
+   if n < 0
+      z = [];
+   % if n = 0, ie, no lag, just return the series itself
+   elseif n == 0
+      z = x;
+   else 
+      zt = ones(n,cols(x))*v;
+      z = [ zt; trimr_F(x,0,n)];
    end
 
 otherwise

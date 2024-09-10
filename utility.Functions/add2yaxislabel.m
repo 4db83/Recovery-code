@@ -3,6 +3,7 @@ function [] = add2yaxislabel(rightAlign)
 if (nargin<1)||isempty(rightAlign); rightAlign = 0; end
 
 % function create a second y-axis label.
+ax            = gca; % ax.YAxis.Exponent = 4;
 ylim_					= get(gca,'YLim');
 ylim_ticks 		= get(gca,'YTick');
 ylim_lables_0 = get(gca,'YTickLabel');

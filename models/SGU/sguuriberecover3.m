@@ -28,6 +28,13 @@
 
 %eps  = shocks 1...5 (i.e. excludes measurement error)
 
+clear; clc; tic;
+% set plotting defaults
+set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',14)
+set(groot,'defaultAxesXTickLabelRotationMode','manual')
+set(groot,'defaultAxesFontName','Times New Roman')
+addpath('../../functions', '../../utility.Functions')         % addpath to functions used
+
 %% A. Parameters
 
 %Measurement equation parameters
@@ -35,7 +42,7 @@ alpha=0.0;
 
 delta=2;
 delta=8.3292;
-% delta=4;
+delta=2;
 
 sigmay=sqrt(1.2304);
 sigmapi=sqrt(.4862);
@@ -141,7 +148,7 @@ r(3,8) = sigmai;
 nos=16;
 nobs=3;
 nshk=8;
-nt=1000;
+nt=1e4;
 
 prec=zeros(nos,nos,nt);
 krec=zeros(nos,nobs,nt);
@@ -173,9 +180,9 @@ p=prec(:,:,nt);
 
  pbar=m*p*m'+c*c'-k*(capp*p*capp'+lam*lam')*k';
  perr=pbar-p;
- disp('ssf p error')
- disp(perr);
- disp(trace(perr));
+ % disp('ssf p error')
+ % disp(perr);
+ % disp(trace(perr));
 
 f=zeros(nobs,nobs);
 f=frec(:,:,nt);
@@ -205,21 +212,21 @@ j=j+1;
 end;
 ntend=nt(:,:,nrep);
 psm=p-p*ntend*p';
-disp('k filter gain');
-disp(k);
-disp('pt and pT for shocks');
-disp('filtered');
+% disp('k filter gain');
+% disp(k);
+% disp('pt and pT for shocks');
+% disp('filtered');
 
-disp(p(9:16,9:16));
-disp('smoothed');
- disp(diag(psm(9:16,9:16)));
+% disp(p(9:16,9:16));
+% disp('smoothed');
+% disp(diag(psm(9:16,9:16)));
 
 PtT_star = diag(psm(9:16,9:16));
 
-R2 = 1-PtT_star;
+R2    = 1-PtT_star;
 corr0 = sqrt(R2);
 
-mat2latex([PtT_star'; corr0'; R2';  ])
+mat2latex([PtT_star'; corr0'; R2' ])
 
 
 

@@ -13,13 +13,19 @@ addpath('../../functions', '../../utility.Functions')         % addpath to funct
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % Sample size and seed for random number generator in simulation
-Ts = 1e5; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
+Ts = 5e2; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
 PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
 ESTIMATE_HP_US  = 0;  % set to 1 to plot the comparison with HP-filter function
+PLOTS2PDF       = 0;  % set to 1 to print plots to PDF.
 
 % --------------------------------------------------------------------------------------------------    
 % PARAMETERS: standard deviation sqrt(lambda = 1600)
-psi = 40;
+% psi = sqrt(100000)        % very large   
+psi = 40;                   % sqrt(1600)
+% psi = 0.6375;             % gives approximate 50% R2 for each shock
+% psi = 0.1;                % very low Noise 2 signal
+N2S = psi^2;                % Noise-to-Signal ratio (NOTE: Harvey uses q = Signal-to-Noise ratio)
+Lambda = psi^2;             % HP(Lambda)
 
 % DEFINE SSF INPUT MATRICES ------------------------------------------------------------------------
 dim_Z = 1;                  % rows Z(t)
@@ -46,82 +52,74 @@ A(3,2) = 1;
 Q = [eye(dim_R); zeros(1,2); ];
 % --------------------------------------------------------------------------------------------------
 
-
-
-
-
-% CALL TO THE KURZ SSF FUNCTION --------------------------------------------------------------------
-Pstar = Kurz_Pstar(D1, D2, R, A, Q);
-Neps  = k+1:dim_X;    % shock index in States X(t)
-% make display names  % row_names = make_table_names('ε',1:dim_R,'(t)');          
-row_names = {'ε1(t)','ε2(t)','ε2(t-1)'};
-
-Pstar = array2table([ diag(Pstar.tT(Neps,Neps)) diag(Pstar.tt(Neps,Neps)) ], 'VariableNames',{'P*(t|T)','P*(t|t)'}, 'RowNames', row_names);
-% select what to print to screen
-sep; print_table(Pstar(1:dim_R,:),4,1,0)
-
-% SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
-[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, Q, Ts);
-% --------------------------------------------------------------------------------------------------
 % CALL TO FUNCTIONS FROM KURZ's GITHUB PAGE, MILDLY MODIFIED TO SIMPLIFY INPUT AND COMPARABILTY WITH 
 % MY CODE ABOVE AND USE OF PINV IN AM SMOOTHER OTHERWISE NON-SINGULARITY ISSUES.
 % --------------------------------------------------------------------------------------------------
-% INITIALIZE FILTER 
+% SIMULATE DATA FROM THE MODEL --> compute 'theoretical' properites of states
+[Zs, Xs, Us] = Kurz_simulate_SSF(D1, D2, R, A, Q, Ts);
+% NOW JUST DO ONE CALL TO Kurz_FilterSmoother RATHER THAN MULTIPLE CALLS
 % Note: errors will always be N(0,1), but latent states may need more careful initialization.
 a00 = zeros(dim_X, 1); P00 = eye(dim_X);
-% Filter
-[~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, A, Q, a00, P00);
-% Smoother 
-KFS = Kurz_Smoother(D1, D2, R, A, Q, Kurz_KF); % Contains KF and KS output. 
-% --------------------------------------------------------------------------------------------------
+[~,KFS] = Kurz_FilterSmoother(Zs, D1, D2, R, A, Q, a00, P00);
+% % USE THIS IF YOU DON'T HAVE DATA TO PUT INTO THE FULL Kurz_FilterSmoother() FUNCTION
+% % Pstar0 = Kurz_Pstar(D1, D2, R, A, Q);
+% % [~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, A, Q, a00, P00);
+% % KFS = Kurz_Smoother(D1, D2, R, A, Q, Kurz_KF); % Contains KF and KS output. 
 
-% CORRELATIONS: 
+Neps = k+1:dim_X-1;    % shock index in States X(t)
+row_names = make_table_names('ε',1:dim_R,'(t)');              % make display names 
+
+Pstar = array2table([ diag(KFS.Pstar.tT(Neps,Neps)) diag(KFS.Pstar.tt(Neps,Neps)) ], 'VariableNames',{'P*(t|T)','P*(t|t)'}, 'RowNames', row_names);
+% select what to print to screen
+sep; print_table(Pstar,4,1,0)
+
+% CORRELATIONS:
 % --------------------------------------------------------------------------------------------------
 % Correlation between the true and estimated states. 
 % R2 of Plagborg-Møller and Wolf (2022) 
 R2 = [];
-for jj = 1:2
-  % pwR2.( ['e' num2str(jj)]) = ols(KFS.atT(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
-  pwR2.( ['e' num2str(jj)]) = ols(Xs(:,jj),KFS.atT(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
-  R2(jj,:) = eval((['pwR2.e' num2str(jj) '.R2']));
+for jj = Neps
+  pwR2.( ['e' num2str(jj)]) = ols(KFS.atT(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
+  R2(jj-k,:) = eval((['pwR2.e' num2str(jj) '.R2']));
 end
 
 % compute the theoretical correlations implied by formula (10)
 STDs  = [ones(dim_R,1)]; % theoretical/model stdevs.
-Neps  = 1:2;
-rho_theory = corr_theory(STDs, std(KFS.atT(:,Neps))', Pstar.('P*(t|T)')(Neps));
+rho_theory = corr_theory(STDs, std(KFS.atT(:,Neps))', Pstar.('P*(t|T)'));
 
-corr_table = array2table( [ diag(corr(Xs(:,Neps),KFS.atT(:,Neps))) rho_theory R2], ...
-  'RowNames', row_names(Neps), 'VariableNames', {'ρ(Sim)','ρ(Theory)','R²(Sim)'});
+corr_table = array2table( [ diag(corr(Xs(:,Neps),KFS.atT(:,Neps)))  rho_theory  R2], 'RowNames', row_names, 'VariableNames', {'ρ(Sim)','ρ(Theory)','R²(Sim)'});
 % print correlations simulated and KS shocks
-print_table(corr_table(1:dim_R,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States ETX(t)');sep
+print_table(corr_table(1:dim_R,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States ETX(t)',[],0);
 
 % Correlation matrix from KS estimates, Truth is uncorrelated
-corr_XtT = array2table( corr(KFS.atT), 'RowNames', row_names, 'VariableNames', row_names);
-print_table(corr_XtT(1:dim_R,1:dim_R),4,1,'Correlation Matrix of (estimated) Kalman Smoothed States ETX(t)');sep
-% Correlation matrix from KF estimates, Truth is uncorrelated
-corr_Xtt = array2table( corr(KFS.att), 'RowNames', row_names, 'VariableNames', row_names);
-print_table(corr_Xtt(1:dim_R,1:dim_R),4,1,'Correlation Matrix of (estimated) Kalman Filtered States EtX(t)',[],0);sep
+corr_XtT = array2table( corr(KFS.atT(:,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
+print_table(corr_XtT(1:dim_R,1:dim_R),4,1,'Correlation Matrix of (estimated) Kalman Smoothed States ETX(t)',[],0);
 
+% Correlation matrix from KF estimates, Truth is uncorrelated
+corr_Xtt = array2table( corr(KFS.att(:,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
+print_table(corr_Xtt(1:dim_R,1:dim_R),4,1,'Correlation Matrix of (estimated) Kalman Filtered States EtX(t)',[],0); sep
 
 % DISPLAY RECOVEY DIAGNOSTICS ALL IN ONE MATRIX TO PRINT TO LATEX
-fprintf('Order is: [diag(P*(t|T)); R²; Corr] \n')
-mat2latex([Pstar.("P*(t|T)")(1:2)'; R2'; corr_table.("ρ(Theory)")']);
-
-% make xgrd for plotting
-xgrd = linspace(-5,5,100)';
+matRowNames = { 'P*(t|T)  ';'R²(Sim)  ';'ρ(Theory)'};
+fprintf('Recovery Measures (Order is)\n'); sep
+mat2latex([Pstar.("P*(t|T)")'; corr_table.("R²(Sim)")'; corr_table.("ρ(Theory)")'], 4, matRowNames); sep
+toc
 
 %% PLOT THE KF/KS ESTIMATES OF THE STATES 
 % --------------------------------------------------------------------------------------------------
 % make some plotting variables
-WHICH_STATE_2_PLOT  = 0;      % set to 1 to use KF output, otherwise use KS
+WHICH_STATE_2_PLOT  = 0;                % set to 1 to use KF output, otherwise use KS
 state_t = KFS.atT;
 shock_names = {'Trend';'Cycle'};
 if WHICH_STATE_2_PLOT; state_t = KFS.att; end
-STL = -1.215;   % subtitle location
-dims = [-6:2:6]; FNS = 13; XOS = 11;
+xgrd = linspace(-5,5,100)';             % make xgrd for plotting
+STL = -1.21;                  % subtitle location
+OST = -.00;
+dims = [-6:2:6]; FNS = 12; XOS = 11;
+PtT1 = sqrt(squeeze(KFS.PtT(1,1,:))); % needed for CI computation
+
 if PLOT_STATES 
-  clf; TL = tiledlayout(6,2); if ~verLessThan('matlab','9.9');TL.TileSpacing='compact';TL.Padding='loose'; end
+  clf; TL = tiledlayout(7,2); if ~verLessThan('matlab','9.9');TL.TileSpacing='compact';TL.Padding='loose'; end
   % loop through plots
   for ii = k+1:dim_R
     nexttile
@@ -150,13 +148,52 @@ if PLOT_STATES
     addlegend({['$R^2=' num2str(pwR2.( ['e' num2str(ii)]).R2,'%2.4f') '$']},1,FNS)
     add2yaxislabel(1)
   end
-  % UNCOMMENT TO PRINT TO PDF
-  print2pdf('HP97_plots_KS',2); % super slow here
-  % exportgraphics(gcf,'HP97_plots_KS.pdf','ContentType','vector')
+
+  % plot Observed and latent state
+  nexttile(5,[1 2])
+  hold on;
+    plot(Zs(:,1) , 'Color',clr(3), 'LineWidth',3);                              % Observed series
+    plot(Xs(:,1) , 'Color',clr(1), 'LineWidth',2);                              % Latent state X
+    % plot(KFS.atT(:,1),'--','Color',clr(3),'LineWidth',2.0);    % Filtered or smoothed estimate of state X
+    % plot(KFS.att(:,1),'--','Color',clr(4),'LineWidth',1.0);    % Filtered or smoothed estimate of state X
+  hold off; 
+  xlim([-XOS length(Xs(:,ii))+XOS]); 
+  % setyticklabels(dims,0,FNS);
+  addgrid(5/5); hline(0); 
+  addlegend({ 'Observed series: $y_t$', ...
+              ['True state: $\mu_t$ (Noise-to-signal = ' num2str(N2S^2,4) ')'], ...
+            } ...
+            ,1,FNS-1)
+  addsubtitle(['Observed vs Latent' ],STL+OST,FNS)
+  add2yaxislabel(1)
+  % plot states with CIs and estimates
+  nexttile(7,[1 2]); LH = [];
+  hold on;
+    addCIs( [KFS.atT(:,1) - 2*PtT1, KFS.atT(:,1) + 2*PtT1 ], 'r' );
+    plot(Xs(:,1), 'LineWidth', 2);                              % 'true' simulated state X
+    plot(KFS.atT(:,1),'--','Color',clr(2),'LineWidth', 2);    % Filtered or smoothed estimate of state X
+  hold off; 
+  xlim([-XOS length(Xs(:,ii))+XOS]); 
+  % setyticklabels(dims,0,FNS);
+  addgrid(5/5); hline(0); 
+  legend({'$95\%$ CI' , ...
+          'True state $\mu_t$', ...
+          'KS Estimate'}, ...
+          'Interpreter','latex','FontSize', FNS-1, 'Location','northwest')
+  addsubtitle(['True and KS estimate of $\mu$'],STL+OST,FNS)
+  add2yaxislabel(1)
+
+  % TO PRINT TO PDF
+  if PLOTS2PDF   
+  % fig_name = ['LL_plots_KS_Noise2Signal_', num2str(N2S^2,4) '_T_' num2str(Ts,'%d') '.pdf'];
+  fig_name = 'HP97_plots_KS.pdf';
+  % print2pdf(fig_name); % super slow here
+    exportgraphics(gcf, fig_name, 'ContentType','vector')
+  end
 end
 % --------------------------------------------------------------------------------------------------
 
-% IDENTITIES: 
+% IDENTITIES REGRESSIONS:
 % --------------------------------------------------------------------------------------------------
 % define/make: ETεi(t) or ETηi(t) as needed
 for jj = 1:dim_R

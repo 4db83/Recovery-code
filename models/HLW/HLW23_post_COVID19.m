@@ -13,7 +13,7 @@ addpath('../../functions', '../../utility.Functions')         % addpath to funct
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % IN PAPER USE 1e5: Sample size and seed for random number generator in simulation
-Ts = 1e5; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
+Ts = 1e6; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
 PLOT_STATES     = 0;  % set to 1 to plot ε(t) states
 ADD_Drstr       = 1;  % set to 1 if wanting to add ∆r*(t) to State vector X(t)
 
@@ -35,7 +35,7 @@ s5  =  0.145/4;     % sigma(g)       reported as annualized rate -->
 % kappa values for the differen time periods
 kappa = 9.033;      % kappa_2020Q2-Q4	
 % kappa = 1.791;      % kappa_2021	    
-kappa = 1.676;      % kappa_2022	  
+% kappa = 1.676;      % kappa_2022	  
 % kappa = 1;
 sDr = sqrt( (c*4*s5)^2+s3^2 ); % stdev(∆r*(t))
 % DEFINE SSF INPUT MATRICES ------------------------------------------------------------------------

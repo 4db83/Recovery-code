@@ -14,8 +14,9 @@ addpath('../../functions', '../../utility.Functions')         % addpath to funct
 
 % IN PAPER USE 1e5: Sample size and seed for random number generator in simulation
 Ts = 1e4; rng(0);   % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES = 1;    % set to 1 to plot ε(t) states
+PLOT_STATES = 0;    % set to 1 to plot ε(t) states
 ADD_Drstr   = 1;    % set to 1 if wanting to add ∆r*(t) to State vector X(t)
+PLOTS2PDF   = 0;    % set to 1 to print plots to PDF.
 
 % ----------------------------------------------------------------------------- % THIS IS WHAT YOU GET WHEN RUNNING THEIR LW CODE                                          
 % PARAMETERS: (from the published paper, Table 1 on page S60.                                           
@@ -26,11 +27,11 @@ by  =  0.079;
 bpi =  0.668;       % not needed
 c   =  1.0;         % set to 1 in HLW17
 % standard deviations      (NOTE the order in Table 1 is different, here I use the same order as in the LW03 code)                                                                         
-s1  =  0.354;       % sigma(ytild)                                                                           
-s2  =  0.791;       % sigma(pi)                                                                              
-s3  =  0.150;       % sigma(z)                                                                               
-s4  =  0.575;       % sigma(ystar)                                                                           
-s5  =  0.122/4;     % sigma(g)       reported as annualized rate -->                                                
+s1  =  0.354;       % sigma(ytild)                                  % 0.354;                                         
+s2  =  0.791;       % sigma(pi)                                     % 0.791;                                         
+s3  =  0.150;       % sigma(z)                                      % 0.150;                                         
+s4  =  0.575;       % sigma(ystar)                                  % 0.575;                                         
+s5  =  0.122/4;     % sigma(g) --> reported as annualized rate      % 0.122/4;                                  
 % divide by 4 to express in quarterly rate (annualized later in the C Matrix)                         
 sDr = sqrt( (c*4*s5)^2+s3^2 ); % stdev(∆r*(t))
 % DEFINE SSF INPUT MATRICES ------------------------------------------------------------------------
@@ -71,10 +72,10 @@ if ADD_Drstr;  Q(end,[3 5]) = [s3 4*c*s5]; end
 % Note: errors will always be N(0,1), but latent states may need more careful initialization.
 a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 [~,KFS] = Kurz_FilterSmoother(Zs, D1, D2, R, A, Q, a00, P00);
-% USE THIS IF YOU DON'T HAVE DATA TO PUT INTO THE FULL Kurz_FilterSmoother() FUNCTION
-% Pstar0 = Kurz_Pstar(D1, D2, R, A, Q);
-% [~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, A, Q, a00, P00);
-% KFS = Kurz_Smoother(D1, D2, R, A, Q, Kurz_KF); % Contains KF and KS output. 
+% % USE THIS IF YOU DON'T HAVE DATA TO PUT INTO THE FULL Kurz_FilterSmoother() FUNCTION
+% % Pstar0 = Kurz_Pstar(D1, D2, R, A, Q);
+% % [~, Kurz_KF] = Kurz_Filter(Zs, D1, D2, R, A, Q, a00, P00);
+% % KFS = Kurz_Smoother(D1, D2, R, A, Q, Kurz_KF); % Contains KF and KS output. 
 
 Neps = k+1:dim_X;    % shock index in States X(t)
 row_names = make_table_names('ε',1:dim_R,'(t)');              % make display names 
@@ -83,7 +84,7 @@ Pstar = array2table([ diag(KFS.Pstar.tT(Neps,Neps)) diag(KFS.Pstar.tt(Neps,Neps)
 % select what to print to screen
 sep; print_table(Pstar,4,1,0)
 
-% CORRELATIONS:
+%% CORRELATIONS:
 % --------------------------------------------------------------------------------------------------
 % Correlation between the true and estimated states. 
 % R2 of Plagborg-Møller and Wolf (2022) 
@@ -99,19 +100,21 @@ rho_theory = corr_theory(STDs, std(KFS.atT(:,Neps))', Pstar.('P*(t|T)'));
 
 corr_table = array2table( [ diag(corr(Xs(:,Neps),KFS.atT(:,Neps)))  rho_theory  R2], 'RowNames', row_names, 'VariableNames', {'ρ(Sim)','ρ(Theory)','R²(Sim)'});
 % print correlations simulated and KS shocks
-print_table(corr_table(1:dim_R+ADD_Drstr,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States ETX(t)');
+print_table(corr_table(1:dim_R+ADD_Drstr,:),4,1,'Correlation between True X(t) and (estimated) Kalman Smoothed States ETX(t)',[],0);
 
 % Correlation matrix from KS estimates, Truth is uncorrelated
 corr_XtT = array2table( corr(KFS.atT(:,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
-print_table(corr_XtT(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Smoothed States ETX(t)');
+print_table(corr_XtT(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Smoothed States ETX(t)',[],0);
 
 % Correlation matrix from KF estimates, Truth is uncorrelated
 corr_Xtt = array2table( corr(KFS.att(:,Neps)), 'RowNames', row_names, 'VariableNames', row_names);
 print_table(corr_Xtt(1:dim_R+ADD_Drstr,1:dim_R+ADD_Drstr),4,1,'Correlation Matrix of (estimated) Kalman Filtered States EtX(t)',[],0);sep
 
 % DISPLAY RECOVEY DIAGNOSTICS ALL IN ONE MATRIX TO PRINT TO LATEX
-fprintf('Recovery Measures (Order is): [diag(P*(t|T)); R²; ρ(Theory)] \n'); sep
-mat2latex([Pstar.("P*(t|T)")'; corr_table.("R²(Sim)")'; corr_table.("ρ(Theory)")']); sep
+matRowNames = { 'P*(t|T)  ';'R²(Sim)  ';'ρ(Theory)'};  matColNames = row_names; %matColNames = []
+fprintf('Recovery Measures (Order is)\n'); sep
+% sprintf('% s \n', row_names')
+mat2latex([Pstar.("P*(t|T)")'; corr_table.("R²(Sim)")'; corr_table.("ρ(Theory)")'], 4, matRowNames, matColNames); sep
 toc
 
 %% PLOT THE KF/KS ESTIMATES OF THE STATES 
@@ -185,19 +188,18 @@ if PLOT_STATES
     % unit variance of the shocks ε(t).
     sep;fprintf('Normalized P*(t|T)(∆r*) = %2.4f \n', Pstar.('P*(t|T)')(end)/var(Xs(:,end)))
   end    
-
-  % UNCOMMENT TO PRINT TO PDF
-  tic;
-  % print2pdf('HLW17_plots_KS_AA',3); % super slow here
-  % exportgraphics(gcf,'HLW17_plots_KS.pdf','ContentType','vector')
-  toc;
+  % TO PRINT TO PDF
+  if PLOTS2PDF   
+  % fig_name = ['LL_plots_KS_Noise2Signal_', num2str(N2S^2,4) '_T_' num2str(Ts,'%d') '.pdf'];
+  fig_name = 'HLW17_plots_KS_0.pdf';
+  % print2pdf(fig_name); % super slow here
+    exportgraphics(gcf, fig_name, 'ContentType','vector')
+  end
 end
 % --------------------------------------------------------------------------------------------------
 
-% IDENTITIES REGRESSIONS:  
-% --------------------------------------------------------------------------------------------------
-% ET∆r*(t) = ETη5t + ETη3t (21) --> this should be: ET∆r*(t) = 4*c*ETη5t + ETη3t
-% make ET∆r*(t) from X(:,4)-X(:,5) or alternatively from KS_deJ.atT(:,11) if ADD_rstr == 1;
+%% IDENTITIES REGRESSIONS:
+clc
 % --------------------------------------------------------------------------------------------------
 % define/make: ETεi(t) or ETηi(t) as needed
 for jj = 1:dim_R
@@ -211,13 +213,16 @@ Xnames_ID1 = {'∆ETη3(t)','ETη4(t)'};
 ID1 = ols( delta(ETn5t), [ delta(ETn3t) ETn4t], 1, Xnames_ID1);
 
 sep(133,'=',1); fprintf('Identity (21). Dependent variable: ET∆r*(t) \n')
-Xnames_ID2 = {'4*c*ETη5(t)','ETη3(t)'};
-ID2 = ols(Drstar, [4*c*ETn5t ETn3t], 1, Xnames_ID2);
+Xnames_ID2 = {'ETη5(t)','ETη3(t)'};
+ID2 = ols(Drstar, [ETn5t ETn3t], 1, Xnames_ID2);
 
 sep(133,'=',1); fprintf('Identity (22). Dependent variable: ET∆r*(t) \n')
 Xnames_ID3 = {'ET∆r*(t-1)','ETη1(t)','ETη2(t)','ETη4(t)','ETη1(t-1)','ETη4(t-1)'};
 ID3 = ols(Drstar, [lag(Drstar) ETn1t ETn2t ETn4t lag(ETn1t) lag(ETn4t)], 1, Xnames_ID3 );
 
+sep(133,'=',1); fprintf('Dependent variable: ETη3(t) \n')
+Xnames_ID4 = {'ETη5(t)','ET∆r*(t-1)','ETη1(t)','ETη2(t)','ETη4(t)','ETη1(t-1)','ETη4(t-1)'};
+ID4 = ols(ETn3t, [ ETn5t lag(Drstar) ETn1t ETn2t ETn4t lag(ETn1t) lag(ETn4t)], 1, Xnames_ID4 );
 
 
 
