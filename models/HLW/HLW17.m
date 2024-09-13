@@ -13,7 +13,7 @@ addpath('../../functions', '../../utility.Functions')         % addpath to funct
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % IN PAPER USE 1e5: Sample size and seed for random number generator in simulation
-Ts = 1e4; rng(0);   % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
+Ts = 1e5; rng(10);  % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
 PLOT_STATES = 0;    % set to 1 to plot ε(t) states
 ADD_Drstr   = 1;    % set to 1 if wanting to add ∆r*(t) to State vector X(t)
 PLOTS2PDF   = 0;    % set to 1 to print plots to PDF.
@@ -34,6 +34,22 @@ s4  =  0.575;       % sigma(ystar)                                  % 0.575;
 s5  =  0.122/4;     % sigma(g) --> reported as annualized rate      % 0.122/4;                                  
 % divide by 4 to express in quarterly rate (annualized later in the C Matrix)                         
 sDr = sqrt( (c*4*s5)^2+s3^2 ); % stdev(∆r*(t))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 % DEFINE SSF INPUT MATRICES ------------------------------------------------------------------------
 dim_Z = 2;                  % rows Z(t)
 dim_X = 10 + ADD_Drstr;     % rows X(t)
@@ -79,12 +95,12 @@ a00 = zeros(dim_X, 1); P00 = eye(dim_X);
 
 Neps = k+1:dim_X;    % shock index in States X(t)
 row_names = make_table_names('ε',1:dim_R,'(t)');              % make display names 
-if ADD_Drstr; row_names = [row_names; {'∆r*(t)'}]; end        % add ∆r* to display names 
+% add ∆r* to display names 
+if ADD_Drstr; row_names = [row_names; {'∆r*(t)'}]; end        
+% make Pstar table
 Pstar = array2table([ diag(KFS.Pstar.tT(Neps,Neps)) diag(KFS.Pstar.tt(Neps,Neps)) ], 'VariableNames',{'P*(t|T)','P*(t|t)'}, 'RowNames', row_names);
-% select what to print to screen
-sep; print_table(Pstar,4,1,0)
 
-%% CORRELATIONS:
+% CORRELATIONS:
 % --------------------------------------------------------------------------------------------------
 % Correlation between the true and estimated states. 
 % R2 of Plagborg-Møller and Wolf (2022) 
@@ -97,6 +113,16 @@ end
 % compute the theoretical correlations implied by formula (10)
 STDs  = [ones(dim_R,1)]; if ADD_Drstr; STDs  = [ones(dim_R,1); sDr]; end    % theoretical/model stdevs.
 rho_theory = corr_theory(STDs, std(KFS.atT(:,Neps))', Pstar.('P*(t|T)'));
+
+if ADD_Drstr 
+  % normalize ∆r*(t) by Var(∆r*(t)) from theoretical model to make comparable to other measures
+  KFS.Pstar.tT(end,end) = KFS.Pstar.tT(end,end)/sDr^2; 
+  KFS.Pstar.tt(end,end) = KFS.Pstar.tt(end,end)/sDr^2; 
+  % make/update Pstar to be normalized by  var(∆r*) for the last entry
+  Pstar = array2table([ diag(KFS.Pstar.tT(Neps,Neps)) diag(KFS.Pstar.tt(Neps,Neps)) ], 'VariableNames',{'P*(t|T)','P*(t|t)'}, 'RowNames', row_names);
+end 
+% print Pstar to screen
+sep; print_table(Pstar,4,1,0)
 
 corr_table = array2table( [ diag(corr(Xs(:,Neps),KFS.atT(:,Neps)))  rho_theory  R2], 'RowNames', row_names, 'VariableNames', {'ρ(Sim)','ρ(Theory)','R²(Sim)'});
 % print correlations simulated and KS shocks
@@ -199,7 +225,7 @@ end
 % --------------------------------------------------------------------------------------------------
 
 %% IDENTITIES REGRESSIONS:
-clc
+% clc
 % --------------------------------------------------------------------------------------------------
 % define/make: ETεi(t) or ETηi(t) as needed
 for jj = 1:dim_R
