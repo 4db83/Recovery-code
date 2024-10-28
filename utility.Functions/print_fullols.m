@@ -43,11 +43,11 @@ else
 	in.cnames = {'Estimate'; 'stderr'; 't-stat'; 'p-value'};
 end
 
-in.rnames = [{'Variable';'Constant'}; variable_names];
+in.rnames = append(' ', [{'Variable';'Constant'}; variable_names]);
 in.width	= WDTH;
 
 if ols_out.no_const == 1
- 	in.rnames = ['Variable'; variable_names];
+ 	in.rnames = append(' ', ['Variable'; variable_names]);
 end
 
 % if no regressors only a constant is in the regression, remove variable_names.
@@ -55,7 +55,7 @@ if KK == 0
 	in.rnames = [{'Variable';'Constant'}];
 end
 
-in.fmt    = strvcat('%16.6f');
+in.fmt    = strvcat('%26.6f');
 % fprintf('===============================================================================\n');
 sep(WDTH,'=')
 		myprint(outp,in,[],[],[],WDTH);

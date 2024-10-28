@@ -225,7 +225,7 @@ end
 % --------------------------------------------------------------------------------------------------
 
 %% IDENTITIES REGRESSIONS:
-% clc
+clc
 % --------------------------------------------------------------------------------------------------
 % define/make: ETεi(t) or ETηi(t) as needed
 for jj = 1:dim_R
@@ -249,9 +249,6 @@ ID3 = ols(Drstar, [lag(Drstar) ETn1t ETn2t ETn4t lag(ETn1t) lag(ETn4t)], 1, Xnam
 sep(133,'=',1); fprintf('Dependent variable: ETη3(t) \n')
 Xnames_ID4 = {'ETη5(t)','ET∆r*(t-1)','ETη1(t)','ETη2(t)','ETη4(t)','ETη1(t-1)','ETη4(t-1)'};
 ID4 = ols(ETn3t, [ ETn5t lag(Drstar) ETn1t ETn2t ETn4t lag(ETn1t) lag(ETn4t)], 1, Xnames_ID4 );
-
-
-
 
 
 
