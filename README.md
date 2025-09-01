@@ -20,7 +20,9 @@ The repo contains the following models:
 | 6.  | [MR](./models/MR/)                      | [MR17_with_MP_rule.pdf](./models/MR/MR17_with_MP_rule.pdf)        | [MR17_with_MP_rule.m](./models/MR/MR17_with_MP_rule.m) 
 
 
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2F4db83%2FRecovery-code&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Page+Views&edge_flat=false)](https://hits.seeyoufarm.com)
+<!-- [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2F4db83%2FRecovery-code&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Page+Views&edge_flat=false)](https://hits.seeyoufarm.com) -->
+
+![Badge](https://hitscounter.dev/api/hit?url=https%3A%2F%2Fgithub.com%2F4db83%2FRecovery-code&label=Hits&icon=github&color=%23198754&message=&style=flat&tz=UTC)
 
 <!-- 1. [HP-Filter](./HP-Filter/)
     - [Documentation HP97.pdf](./HP-Filter/HP97.pdf)
