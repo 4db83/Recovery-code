@@ -8,20 +8,20 @@ clear; clc; tic;
 set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',14)
 set(groot,'defaultAxesXTickLabelRotationMode','manual')
 set(groot,'defaultAxesFontName','Times New Roman')
-addpath('../../functions', '../../utility.Functions')         % addpath to functions used
+addpath('../../Kurz_functions', '../../utility.Functions')         % addpath to functions used
 % addpath(genpath('D:/matlab.tools/db.toolbox/db')) % set path to db functions folder (including all subfolders)
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % Sample size and seed for random number generator in simulation
-Ts = 5e2; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES     = 1;  % set to 1 to plot ε(t) states
+Ts = 1e6; rng(10);    % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
+PLOT_STATES     = 0;  % set to 1 to plot ε(t) states
 ESTIMATE_HP_US  = 0;  % set to 1 to plot the comparison with HP-filter function
 PLOTS2PDF       = 0;  % set to 1 to print plots to PDF.
 
 % --------------------------------------------------------------------------------------------------    
 % PARAMETERS: standard deviation sqrt(lambda = 1600)
-% psi = sqrt(100000)        % very large   
-psi = 40;                   % sqrt(1600)
+psi = sqrt(1600);           % very large   
+% psi = 100;                % sqrt(1600)
 % psi = 0.6375;             % gives approximate 50% R2 for each shock
 % psi = 0.1;                % very low Noise 2 signal
 N2S = psi^2;                % Noise-to-Signal ratio (NOTE: Harvey uses q = Signal-to-Noise ratio)
@@ -113,7 +113,7 @@ state_t = KFS.atT;
 shock_names = {'Trend';'Cycle'};
 if WHICH_STATE_2_PLOT; state_t = KFS.att; end
 xgrd = linspace(-5,5,100)';             % make xgrd for plotting
-STL = -1.21;                  % subtitle location
+STL = -1.21;                            % subtitle location
 OST = -.00;
 dims = [-6:2:6]; FNS = 12; XOS = 11;
 PtT1 = sqrt(squeeze(KFS.PtT(1,1,:))); % needed for CI computation
@@ -136,7 +136,7 @@ if PLOT_STATES
 
     nexttile
     hold on; 
-      scatter(Xs(:,ii),state_t(:,ii),'x');
+      scatter(Xs(:,ii), state_t(:,ii),'x');
       plot(xgrd, xgrd*pwR2.( ['e' num2str(ii)]).bhat)
     hold off; 
     setxticklabels([dims(1):1:dims(end)]);
@@ -160,8 +160,8 @@ if PLOT_STATES
   xlim([-XOS length(Xs(:,ii))+XOS]); 
   % setyticklabels(dims,0,FNS);
   addgrid(5/5); hline(0); 
-  addlegend({ 'Observed series: $y_t$', ...
-              ['True state: $\mu_t$ (Noise-to-signal = ' num2str(N2S^2,4) ')'], ...
+  addlegend({ 'Observed series: $Z_t=\Delta^2 y_t$', ...
+              ['True shock $\varepsilon_{1t}$ (Noise-to-signal = ' num2str(N2S,4) ')'], ...
             } ...
             ,1,FNS-1)
   addsubtitle(['Observed vs Latent' ],STL+OST,FNS)
@@ -171,16 +171,16 @@ if PLOT_STATES
   hold on;
     addCIs( [KFS.atT(:,1) - 2*PtT1, KFS.atT(:,1) + 2*PtT1 ], 'r' );
     plot(Xs(:,1), 'LineWidth', 2);                              % 'true' simulated state X
-    plot(KFS.atT(:,1),'--','Color',clr(2),'LineWidth', 2);    % Filtered or smoothed estimate of state X
+    plot(KFS.atT(:,1),'--','Color',clr(2),'LineWidth', 2);      % Filtered or smoothed estimate of state X
   hold off; 
   xlim([-XOS length(Xs(:,ii))+XOS]); 
   % setyticklabels(dims,0,FNS);
   addgrid(5/5); hline(0); 
   legend({'$95\%$ CI' , ...
-          'True state $\mu_t$', ...
+          'True shock $\varepsilon_{1t}$', ...
           'KS Estimate'}, ...
           'Interpreter','latex','FontSize', FNS-1, 'Location','northwest')
-  addsubtitle(['True and KS estimate of $\mu$'],STL+OST,FNS)
+  addsubtitle(['True and KS estimate of $\varepsilon_{1t}$'],STL+OST,FNS)
   add2yaxislabel(1)
 
   % TO PRINT TO PDF
@@ -211,7 +211,7 @@ Xnames_ID2 = {'ETε2(t-2)'};  % Xnames_ID2 = [];
 ID2 = ols( delta(ETe1t, 2) , [ lag(ETe2t, 2)], 1, Xnames_ID2);
 
 
-%
+
 if ESTIMATE_HP_US
 % -------------------------------------------------------------------------------------------------
 % USE HP Filter routine to back out trend and cycle shocks and compare from US REAL GDP DATA

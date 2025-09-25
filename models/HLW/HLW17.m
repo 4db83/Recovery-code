@@ -8,13 +8,13 @@ clear; clc; tic;
 set(groot,'defaultLineLineWidth',2); set(groot,'defaultAxesFontSize',14)
 set(groot,'defaultAxesXTickLabelRotationMode','manual')
 set(groot,'defaultAxesFontName','Times New Roman')
-addpath('../../functions', '../../utility.Functions')         % addpath to functions used
+addpath('../../Kurz_functions', '../../utility.Functions')         % addpath to functions used
 % addpath(genpath('D:/matlab.tools/db.toolbox/db')) % set path to db functions folder (including all subfolders)
 % CALL: get_all_db_toolbox_function_calls.m from Directory of code to be shared
 
 % IN PAPER USE 1e5: Sample size and seed for random number generator in simulation
 Ts = 1e5; rng(10);  % takes about 1 sec for 1e5, 10 secs. for 1e6, 90 secs. for 1e7. --> does not change correlations from sims much
-PLOT_STATES = 0;    % set to 1 to plot ε(t) states
+PLOT_STATES = 1;    % set to 1 to plot ε(t) states
 ADD_Drstr   = 1;    % set to 1 if wanting to add ∆r*(t) to State vector X(t)
 PLOTS2PDF   = 0;    % set to 1 to print plots to PDF.
 
@@ -100,14 +100,25 @@ if ADD_Drstr; row_names = [row_names; {'∆r*(t)'}]; end
 % make Pstar table
 Pstar = array2table([ diag(KFS.Pstar.tT(Neps,Neps)) diag(KFS.Pstar.tt(Neps,Neps)) ], 'VariableNames',{'P*(t|T)','P*(t|t)'}, 'RowNames', row_names);
 
+%%
 % CORRELATIONS:
+WHICH_STATE_2_PLOT  = 1;      % set to 1 to use KF output, otherwise use KS
 % --------------------------------------------------------------------------------------------------
 % Correlation between the true and estimated states. 
 % R2 of Plagborg-Møller and Wolf (2022) 
 R2 = [];
 for jj = Neps
-  pwR2.( ['e' num2str(jj)]) = ols(KFS.atT(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
-  R2(jj-k,:) = eval((['pwR2.e' num2str(jj) '.R2']));
+  if WHICH_STATE_2_PLOT == 1
+    pwR2.( ['e' num2str(jj)]) = ols(KFS.att(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
+  else
+    pwR2.( ['e' num2str(jj)]) = ols(KFS.atT(:,jj),Xs(:,jj),1,[],[],[],0); % set last 0 to 1 to print to screen
+  end
+  R2tmp = eval((['pwR2.e' num2str(jj) '.R2']));
+  if isnan(R2tmp)
+    R2(jj-k,:) = 0;
+  else
+    R2(jj-k,:) = R2tmp;
+  end
 end
 
 % compute the theoretical correlations implied by formula (10)
@@ -142,11 +153,9 @@ fprintf('Recovery Measures (Order is)\n'); sep
 % sprintf('% s \n', row_names')
 mat2latex([Pstar.("P*(t|T)")'; corr_table.("R²(Sim)")'; corr_table.("ρ(Theory)")'], 4, matRowNames, matColNames); sep
 toc
-
-%% PLOT THE KF/KS ESTIMATES OF THE STATES 
+% PLOT THE KF/KS ESTIMATES OF THE STATES 
 % --------------------------------------------------------------------------------------------------
 % make some plotting variables
-WHICH_STATE_2_PLOT  = 0;      % set to 1 to use KF output, otherwise use KS
 state_t = KFS.atT;
 if WHICH_STATE_2_PLOT; state_t = KFS.att; end
 xgrd = linspace(-5,5,100)';   % make xgrd for plotting
@@ -180,7 +189,8 @@ if PLOT_STATES
     line(dims, dims, 'Color', 'k', 'LineWidth', 1); 
     ylabel(['$E_T\varepsilon_{' num2str(ii-k) 't}$ (Estimate)'],'Interpreter','latex','FontSize',FNS)
     addsubtitle(['$\varepsilon_{' num2str(ii-k) 't}$ (True)'],STL,FNS)
-    addlegend({['$R^2=' num2str(pwR2.( ['e' num2str(ii)]).R2,'%2.4f') '$']},1,FNS-1)
+    % addlegend({['$R^2=' num2str(pwR2.( ['e' num2str(ii)]).R2,'%2.4f') '$']},1,FNS-1)
+    addlegend({['$R^2=' num2str(R2(ii-5),'%2.4f') '$']},1,FNS-1)
     add2yaxislabel(1)
   end
   if ADD_Drstr
@@ -208,7 +218,8 @@ if PLOT_STATES
     line(dims, dims, 'Color', 'k', 'LineWidth', 1); 
     ylabel(['$E_T\Delta r^{\ast}_{t}$ (Estimate)'],'Interpreter','latex','FontSize',FNS)
     addsubtitle(['$\Delta r^{\ast}_{t}$ (True)'],STL,FNS)
-    addlegend({['$R^2=' num2str(pwR2.( ['e' num2str(ii+1)]).R2,'%2.4f') '$']},1,FNS-1)
+    % addlegend({['$R^2=' num2str(pwR2.( ['e' num2str(ii+1)]).R2,'%2.4f') '$']},1,FNS-1)
+    addlegend({['$R^2=' num2str(R2(ii-5),'%2.4f') '$']},1,FNS-1)
     add2yaxislabel(1)
     % print the normalized steady-state P(t|T) for ∆r*, as it has a much smaller variance than the
     % unit variance of the shocks ε(t).
@@ -217,7 +228,8 @@ if PLOT_STATES
   % TO PRINT TO PDF
   if PLOTS2PDF   
   % fig_name = ['LL_plots_KS_Noise2Signal_', num2str(N2S^2,4) '_T_' num2str(Ts,'%d') '.pdf'];
-  fig_name = 'HLW17_plots_KS_0.pdf';
+  % fig_name = 'HLW17_plots_KS_0.pdf';
+  fig_name = 'HLW17_plots_KF.pdf';
   % print2pdf(fig_name); % super slow here
     exportgraphics(gcf, fig_name, 'ContentType','vector')
   end
@@ -225,7 +237,6 @@ end
 % --------------------------------------------------------------------------------------------------
 
 %% IDENTITIES REGRESSIONS:
-clc
 % --------------------------------------------------------------------------------------------------
 % define/make: ETεi(t) or ETηi(t) as needed
 for jj = 1:dim_R

@@ -133,20 +133,30 @@ legName = varargin{1};
 	end
 
 %   legName = strrep(legName,'_','.');
+LineLength = .7;
 
 h_leg =	legendflex(legName, ...
 						'fontsize'	, FN, ...
 						'anchor'		, Anchor*ones(1,2), ... % 3=top Right, 2=top Center, 1=top Left, 5=bottom Right, 7=bottom Left, 
 						'buffer'		,	[0 0], ... 
+            'xscale'    , LineLength, ...      % length of the lines
 						'Interpreter',INTerPret);
 end
 
-warning on
+
+% --------------------------------------------------------------------------------------------------
+% set the linewidth of the legend lines
+LineThickness = 1.75;
+legend_lines = findobj(h_leg, 'type', 'line');
+set(legend_lines, 'LineWidth', LineThickness);
+
 
 % varible output arguments
 if nargout > 0
 	varargout{1} = h_leg;
 end
+
+warning('on', 'MATLAB:legend:IgnoringExtraEntries') 
 
 
 					

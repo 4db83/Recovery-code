@@ -35,92 +35,76 @@ switch dirname
     dirname = './graphics/';
 end
 
-% if nargin < 4; 	make_emf_figure = 0; end
-% if nargin < 3; 	make_eps_figure = 0; end
-
-% if nargin < 2
-% 	dirname = './';
-% else
-% 	dirname = ['./' dirname];
-% end;
-
-% if nargin < 2
-% 	dirname = './';
-% else
-% 	dirname = [dirname];
-% end
-
-% GSversion = 9.14;             % set to the GSversion that is install in C:\Program Files\
-% GSversion = 9.20;             % set to the GSversion that is install in C:\Program Files\
-% GSversion = 9.26;             % set to the GSversion that is install in C:\Program Files\
-% GSversion = 9.52;             % set to the GSversion that is install in C:\Program Files\
-% get the 64bit version from: % https://www.ghostscript.com/releases/gsdnld.html.
-
-% C:\Program Files\gs\gs9.53.3\bin
-
 file_ 	= char(filename); % make sure it is not a cell input
+if contains(file_,'.pdf')
+  file_ = file_(1:end-4);
+end
 % GS			= ['C:\Program Files\gs\gs' num2str(GSversion,'%2.2f') '\bin\gswin64c.exe'];
 GS			= ['C:\Program Files\gs\gs' GSversion '\bin\gswin64c.exe'];
+%           C:\Program Files\gs\gs10.00.0\bin\
 % NOT NEEDED ANY MORE. 
 % % print('-depsc', file_);
-% % h = gcf;
-% % set(h,'PaperPositionMode','auto');         
+% h = gcf;
+set(gcf,'PaperPositionMode','auto');         
 
 % SINCE MATLAB R2016a, NEED DIFFERENT DEFAULT RENDERER (NOT SURE WHY THEY DID THIS, BUT THIS WORKS NOW)
 % SET default renderer FROM 'zbuffer' TO 'painters'
 set(gcf,'renderer','painters')
 
+% output_name = 
+
 % NOW PRINT TO EPS FILE
 % first make an eps directory
 if make_eps_figure
-	if ~(exist([dirname '/eps.figs/'], 'dir')==7) 
-			 mkdir([dirname '/eps.figs/']); 	
+	if ~(exist([dirname 'eps.figs/'], 'dir')==7) 
+			 mkdir([dirname 'eps.figs/']); 	
 	end
-		print(gcf,'-depsc2', [dirname '/eps.figs/' file_]);
+		print(gcf,'-depsc2', [dirname 'eps.figs/' file_ '.eps']);
 else
-		print(gcf,'-depsc2', [dirname '/' file_]);
+		print(gcf,'-depsc2', [dirname file_ '.eps']);
 end
 
 % [dirname '/' file_]
+% print(gcf,'-depsc2', [dirname '/' file_]);
 
-print(gcf,'-depsc2', [dirname '/' file_]);
-
-set(gcf,'PaperPositionMode','auto');         
+% set(gcf,'PaperPositionMode','auto');         
 
 % PRINT ALSO TO EMW FILE TO BE INCLUDE IN WORD/POWER POINT TYPE DOCUEMNTS AT HIGH RESOLUTION
 if make_emf_figure==1
 	% make a storage directory first
-	if ~(exist([dirname '/emf.figs/'], 'dir')==7)
-		   mkdir([dirname '/emf.figs/'])
+	if ~(exist([dirname 'emf.figs/'], 'dir')==7)
+		   mkdir([dirname 'emf.figs/'])
 	end
-	print(gcf,'-dmeta', [dirname '/emf.figs/' file_]);
+	print(gcf,'-dmeta', [dirname '/emf.figs/' file_ '.emf']);
 elseif make_emf_figure==2
-	print(gcf,'-dmeta', [dirname '/' file_]);
+	print(gcf,'-dmeta', [dirname '/' file_ '.emf']);
 end
 
-if exist(GS)
+% ORIENTATION
+% 0 -> no change (default)
+% 1 -> flip orientation
+% 2 -> remove orientation
+ORNT = 0;
+
+if exist(GS,'file') == 2
 	% [rslt] = eps2pdf_funct([dirname '/eps.figs/' file_ '.eps'],GS,0);
 	if make_eps_figure
-		[rslt] = eps2pdf_funct([dirname '/eps.figs/' file_ '.eps'],GS,0);
+		[rslt, msg0] = eps2pdf_funct([dirname 'eps.figs/' file_ '.eps'], GS, ORNT);
 	else 
-		[rslt] = eps2pdf_funct([dirname '/' file_ '.eps'],GS,0);
-	end
+		[rslt, msg0] = eps2pdf_funct([dirname file_ '.eps']         , GS, ORNT);
+  end
 		
-	if rslt== 0
+	if rslt == 0
 		if ~make_eps_figure 
-			% [file_ '.eps']
-% 			[dirname '/' file_ '.eps']
-			delete([dirname '/' file_ '.eps']);
-% 			[dirname '/eps.figs/']
-% 			rmdir([dirname './eps.figs/'])
+			delete([dirname file_ '.eps']);
 		end
-	else
-		fprintf('-------------------------------------------------------------------------------\n')
-		fprintf(['| Ghostscript ver. ' GSversion ' is NOT installed on your systerm in C:\\Program Files\\ |\n'])
-		fprintf('| You can get it from https://www.ghostscript.com/download/                   |\n')
-		fprintf('| Here the path is to the 64 bit install in C:\Program Files\gs\              |\n')
-		fprintf('| No pdf file was created, only a .eps file                                   |\n');
-		fprintf('-------------------------------------------------------------------------------\n')
+  else
+		fprintf('-------------------------------------------------------------------------------------------\n')
+		fprintf(['| Ghostscript ver. ' GSversion ' is NOT installed on your systerm in C:\\Program Files\\          |\n'])
+		fprintf('| You can get it from https://www.ghostscript.com/download/                               |\n')
+		fprintf('| Here the path is to the 64 bit install in C:\\Program Files\\gs\\                          |\n')
+		fprintf('| No pdf file was created, only a .eps file                                               |\n');
+		fprintf('-------------------------------------------------------------------------------------------\n')
 	end
 else
 	fprintf('-------------------------------------------------------------------------------------\n');

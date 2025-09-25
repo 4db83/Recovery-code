@@ -3,8 +3,8 @@ function [Zt,Xt,Ut] = Kurz_simulate_SSF(D1, D2, R, A, Q, T, X00, BurnIn)
 % --------------------------------------------------------------------------------------------------
 % My Notation for Kurz State-Space Form (SSF): (Kurz notation: Q --> C).
 % --------------------------------------------------------------------------------------------------
-%   Observed: Z(t) = D1*X(t) + D2*X(t-1) + R*ε(t),    X(t) = latent States
-%   State:    X(t) =  A*X(t-1)           + Q*ε(t),    ε(t) ~ MN(0,I)
+%   Observed: Z(t) = D1*X(t) + D2*X(t-1) + R*U(t),    X(t) = latent States
+%   State:    X(t) =  A*X(t-1)           + Q*U(t),    U(t) ~ MN(0,I)
 % --------------------------------------------------------------------------------------------------
 %     - Z (KyxT) column vector of observed/measurment data
 %     - T Number of draws to generate
@@ -25,16 +25,24 @@ function [Zt,Xt,Ut] = Kurz_simulate_SSF(D1, D2, R, A, Q, T, X00, BurnIn)
   Zt = zeros(dim_Z, TT);  % observed/measurement variable
   Ut = randn(dim_R, TT);  % random draw from U(t)
   
-  % initialize state vector at X00 state initial value (a00 in main file notation)
-  % if supplied, otherwise, default to all zero values
-  if ~(nargin < 7 || isempty(X00)); Xt(:,1) = X00; end
-
-  for t = 2:TT
-      Xt(:,t) =   A*Xt(:,t-1) + Q*Ut(:,t);
+  % initialize state vector at X00 (a00 in main file notation) if supplied, 
+  % otherwise, default to all zero values
+  if (nargin < 7 || isempty(X00)) 
+    X00 = zeros(dim_X,1);
+  end
+  
+  for t = 1:TT
+    if t == 1
+      Xt(:,t) =   A*X00       +  Q*Ut(:,t);
+      Zt(:,t) =  D1*Xt(:,t)   + D2*X00 + R*Ut(:,t);
+    else
+      Xt(:,t) =   A*Xt(:,t-1) +  Q*Ut(:,t);
       Zt(:,t) =  D1*Xt(:,t)   + D2*Xt(:,t-1) + R*Ut(:,t);
+    end
   end
   % return (TxK) matrices of Z(t) and X(t), dropping initial values X(1) and 
-  Zt = Zt(:,BurnIn+1:end)'; Xt = Xt(:,BurnIn+1:end)';
+  Zt = Zt(:,BurnIn+1:end)'; 
+  Xt = Xt(:,BurnIn+1:end)';
   % also return the U error terms if needed to be used somewhere else
   Ut = Ut(:,BurnIn+1:end)';
 end
